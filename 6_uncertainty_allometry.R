@@ -45,7 +45,7 @@ summary(vuf.ci)
 # ------------------------
 
 # ------------------------
-# Package everythign together, make a quick plot and save it for later use
+# Package everything together, make a quick plot and save it for later use
 # ------------------------
 allom.uncert <- data.frame(rbind(vlf.ci, vuf.ci))
 allom.uncert$Site <- recode(allom.uncert$SiteID, "'VUF'='1';'VLF'='2'")
@@ -53,7 +53,7 @@ levels(allom.uncert$Site) <- c("Upper", "Lower")
 summary(allom.uncert)
 
 pdf("figures/Uncertainty_Allometry.pdf")
-ggplot(allom.uncert[,]) + facet_grid(Site ~.) +
+ggplot(allom.uncert[,]) + #facet_grid(Site ~.) +
   geom_ribbon(aes(x=Year, ymin=LB, ymax=UB, fill=Site), alpha=0.5) +
   geom_line(aes(x=Year, y=Mean, color= Site), size=1.5) + 
   labs(x="Year", y=expression(bold(paste("Aboveground Biomass (kg m"^"-2",")"))), title="Allometric Uncertainty") + 
