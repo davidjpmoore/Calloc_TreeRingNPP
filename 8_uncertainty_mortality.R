@@ -172,9 +172,30 @@ summary(bm.array[,1:10,1])
 # ------------------------
 
 # ------------------------
-# Aggregating directly to the site level similar to how we did with allometry uncertainty
+## Aggregating directly to the site level similar to how we did with allometry uncertainty
+# New: going through the plot first
 # ------------------------
-sites <- unique(substr(dimnames(bm.array)[[2]], 1, 2))
+# -------------
+# Starting at the plot level
+# -------------
+plots <- unique(ross.valles$plot.id)
+plots
+
+bm.plot <- array(dim=c(dim(bm.array)[1], length(plots), dim(bm.array)[3])) # years x plots x mortality iterations
+dimnames(bm.plot)[[1]] <- row.names(g.filled.diam)
+dimnames(bm.plot)[[2]] <- plots
+
+for(p in 1:length(plots)){
+	cols <- which(dimnames(bm.array)[[2]] %in% ross.valles[ross.valles$plot.id==plots[p], "tree.id"])
+	bm.plot[,p,] <- apply(bm.array[,cols,],c(1,3), mean, na.rm=T)
+}
+summary(bm.plot[,,1])
+# -------------
+
+# -------------
+# Aggregating to the site level
+# -------------
+sites <- unique(substr(dimnames(bm.plot)[[2]], 1, 2))
 
 # set up the blank array where things will be written
 bm.site <- array(dim=c(dim(bm.array)[1], length(sites), 4)) # years x plots x (mean, sd, ci.low, ci.hi)
@@ -184,10 +205,10 @@ dimnames(bm.site)[[3]] <- c("mean", "sd", "ci.lo", "ci.hi")
 
 for(s in 1:length(sites)){ 
   # figure out which trees belong to which site
-  cols <- which(substr(dimnames(bm.array)[[2]],1,2) == sites[s])
+  cols <- which(substr(dimnames(bm.plot)[[2]],1,2) == sites[s])
 
-  # take the mean tree across the site; preserving density iterations & years
-  bm.temp <- apply(bm.array[,cols,], c(1,3), mean, na.rm=T) 
+  # Finding the mean site bioass while preserving the density iterations
+  bm.temp <- apply(bm.plot[,cols,],c(1,3), mean, na.rm=T) 
 
 	# do the calculations to find the density-based mean & CI
 	bm.site[,s,1] <- apply(bm.temp, 1, mean)
