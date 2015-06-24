@@ -76,7 +76,7 @@ ggplot(data=uncert.increment) + facet_grid(Site~., scales="fixed") +
 	theme_bw()
 dev.off()
 
-save(uncert.increment, file="valles_increment_uncertainty.Rdata")
+save(uncert.increment, file="processed_data/valles_increment_uncertainty.Rdata")
 
 # -----------------------------------
 

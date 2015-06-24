@@ -215,5 +215,5 @@ ggplot(uncert.mort) +
 	theme_bw()
 dev.off()
 
-save(uncert.mort, file="valles_mortality_uncertainty.Rdata")
+save(uncert.mort, file="processed_data/valles_mortality_uncertainty.Rdata")
 # ------------------------
