@@ -56,10 +56,8 @@ dens.adj
 
 for(p in unique(ross.valles$plot.id)){
 	ross.valles[ross.valles$plot.id==p, "tree.density"] <- 1/dens.adj[dens.adj$plot.id==p, "plot.area"] * dens.adj[dens.adj$plot.id==p,"trees.plot"]/dens.adj[dens.adj$plot.id==p,"trees.sample"]
-	# ross.valles[ross.valles$plot.id==p, "tree.density"] <- ross.valles[ross.valles$plot.id==p, "plot.density"]  * 1/dens.adj[dens.adj$plot.id==p,"p.sample"]
 }
 summary(ross.valles)
-
 # --------------
 
 # --------------
@@ -96,12 +94,6 @@ summary(marcy.valles)
 # --------------
 all.valles <- merge(ross.valles, marcy.valles, all.x=T, all.y=T)
 summary(all.valles)
-
-# Doing a couple things to densities to allow us to get allometric uncertainty at the site level
-# 1) dividing the tree density by the number of plots per project so we can just sum everything to the site level by project
-# 2) dividing the tree density by the total number of plots in the site so we can just sum everything to the site level
-all.valles$tree.density.project <- ifelse(all.valles$project=="Ross", all.valles$tree.density/2, all.valles$tree.density/4)
-all.valles$tree.density.site <- all.valles$tree.density/6
 # --------------
 
 # --------------
@@ -138,12 +130,12 @@ summary(all.valles)
 
 
 # ------------------------
-# Some Aggregating the data in the ways necessary to make the graphs we want
+# Some Aggregating the data in the ways necessary to do site-level graphing
 # ------------------------
-# Creating DBH bins
+# Creating DBH bins -- this makes it easier to aggregate up
 dbh.bins <- c(seq(0, max(all.valles$dbh, na.rm=T)-5, by=5), Inf)
 
-# binning the trees
+# binning the trees in the data
 all.valles$dbh.bin <- cut(all.valles$dbh, dbh.bins)
 summary(all.valles$dbh.bin)
 
@@ -154,11 +146,14 @@ valles.plot <- aggregate(all.valles[,c("tree.density", "BM.mean")], by=list(all.
 names(valles.plot)[1:4] <- c("dbh.bin", "project", "site", "plot.id")
 summary(valles.plot)
 
-# adding 0 to missing cells
+## Missing cells need to become 0; I'm doing this with a recast & stacking, but there's 
+## probably a more elegant way to do this
+# Recast so that plots are columns & dbh bins are rows; then add 0 in missing cells
 valles.plot2 <- recast(valles.plot[,c("tree.density", "plot.id", "dbh.bin")], dbh.bin ~ plot.id)
 valles.plot2[is.na(valles.plot2)] <- 0
 summary(valles.plot2)
 
+# stack the columns together... this should look similar to valles.plot, but witha couple extra rows
 valles.plot3 <- stack(valles.plot2[,2:ncol(valles.plot2)])
 names(valles.plot3) <- c("tree.density", "plot.id")
 valles.plot3$dbh.bin <- valles.plot2$dbh.bin
@@ -166,23 +161,34 @@ valles.plot3$site <- as.factor(ifelse(substr(valles.plot3$plot.id,1,2)=="VU" | s
 valles.plot3$project <- as.factor(ifelse(substr(valles.plot3$plot.id,1,1)=="V", "Ross", "Marcy"))
 summary(valles.plot3)
 
+# merging the data together; this will add in our new rows with 0s
 valles.plot <- merge(valles.plot, valles.plot3, all.x=T, all.y=T)
-valles.plot[is.na(valles.plot$BM.mean), "BM.mean"] <- 0
+valles.plot[is.na(valles.plot$BM.mean), "BM.mean"] <- 0 # need to make sure if density == 0, then BM is 0 too
 summary(valles.plot)
 
 
 # Adding in the biomass estimate & 95% ci directly from allometry
 for(p in unique(valles.plot$plot.id)){
-	# n.plots <- ifelse(p=="Ross", 2, 4)
-	n.plots = 1
+	n.plots = 1 # this is from repeating the loop later where we need to basically average the densities
 	for(s in unique(valles.plot$site)){
 	for(d in unique(valles.plot$dbh.bin)){
+		# Some indexing that will make the loop run faster
 		trees   <- which(all.valles$plot.id==p & all.valles$dbh.bin==d & all.valles$site==s)
 		out.row <- which(valles.plot$plot.id==p & valles.plot$dbh.bin==d & valles.plot$site==s)
+
+		# This part subsets the portion of the allometry iterations that's most relevant to us at the
+		# moment; doing this subsetting speeds things up and makes for cleaner code
+		# In later loops, n.plots will vary, so this basically lets us take the average when we sum
 		allom.temp <- valles.allom[trees,]/n.plots
+
+		# finding the plot-level total biomass so we can find percentage of biomass belonging in each
+		# size bin
 		bm.total <- sum(valles.plot[which(valles.plot$plot.id==p & valles.plot$site==s), "BM.mean"],na.rm=T)
 
 		if(length(trees)>1){
+			# Here the apply statement is summing all trees in that DBH bin to get a total for the size class
+			# Then we find the mean and 95% CI from the allometry MCMC iterations 
+			# this doesn't work with only 1 tree, so that has to be slightly different
 			out.mean  <-     mean(apply(allom.temp,2,sum, na.rm=T), na.rm=T)
 			out.ci.lo <- quantile(apply(allom.temp,2,sum, na.rm=T), 0.025, na.rm=T)
 			out.ci.hi <- quantile(apply(allom.temp,2,sum, na.rm=T), 0.975, na.rm=T)
@@ -200,6 +206,7 @@ for(p in unique(valles.plot$plot.id)){
 		valles.plot[out.row,"BM.ci.lo.allom"] <- out.ci.lo
 		valles.plot[out.row,"BM.ci.hi.allom"] <- out.ci.hi
 
+		# To find the percent of the plot biomass in each size bin, we divide bin biomass by total biomass
 		valles.plot[out.row,"BM.mean.plot.rel"]  <- out.mean/bm.total
 		valles.plot[out.row,"BM.mean.allom.rel"]  <- out.mean/bm.total
 		valles.plot[out.row,"BM.ci.lo.allom.rel"] <- out.ci.lo/bm.total
@@ -210,20 +217,12 @@ for(p in unique(valles.plot$plot.id)){
 }
 summary(valles.plot)
 
- # by(valles.plot[valles.plot$project=="Ross", "BM.mean"], INDICES=list(valles.plot[valles.plot$project=="Ross", "plot.id"]), FUN=sum)
-
 
 # --------------------
 # Aggregating to the site level by project
+# We're not really interested in individual plots, so now we need to aggregate up to the site level
 # --------------------
-# Finding the plot-based mean
-valles.plot$n.plot <- ifelse(valles.plot$project=="Ross", 2, 4)
-summary(valles.plot)
-
-valles.plot[valles.plot$project=="Ross" & valles.plot$plot.id=="VUA", c("plot.id", "dbh.bin", "BM.mean", "BM.mean.plot.rel")]
-
-by(valles.plot[valles.plot$project=="Ross", "BM.mean"], INDICES=valles.plot[valles.plot$project=="Ross", "plot.id"], FUN=sum)
-
+# Find the plot-based mean
 valles.site.proj <- aggregate(valles.plot[,c("tree.density", "BM.mean", "BM.mean.plot.rel")], by=list(valles.plot$dbh.bin, valles.plot$project, valles.plot$site), FUN=mean, na.rm=T)
 names(valles.site.proj)[1:3] <- c("dbh.bin", "project", "site")
 summary(valles.site.proj)
@@ -238,6 +237,7 @@ valles.site.proj3 <- aggregate(valles.plot[,c("tree.density", "BM.mean", "BM.mea
 names(valles.site.proj3)[1:3] <- c("dbh.bin", "project", "site")
 summary(valles.site.proj3)
 
+# Putting the CIs into the main data frame
 valles.site.proj$density.ci.lo.plot <- valles.site.proj2$tree.density
 valles.site.proj$density.ci.hi.plot <- valles.site.proj3$tree.density
 valles.site.proj$BM.ci.lo.plot <- valles.site.proj2$BM.mean
@@ -246,20 +246,27 @@ valles.site.proj$BM.ci.lo.plot.rel <- valles.site.proj2$BM.mean.plot.rel
 valles.site.proj$BM.ci.hi.plot.rel <- valles.site.proj3$BM.mean.plot.rel
 summary(valles.site.proj)
 
-
+# ---------------
 # Adding in the biomass estimate & 95% ci directly from allometry
-# calculating the relative biokmass
+# NOTE: relative biomass is inherently plot-based and cannot be done properly at the site level 
+# (or not if we want to compare it with plot-based uncertainty) so we need to calculate 
+# the relative plot biomass for each tree in the allometric data frame
 allom.rel <- valles.allom
 for(p in unique(valles.plot$plot.id)){
 	trees.plot <- which(all.valles$plot.id==p)
-	plot.total <- apply(allom.rel[trees.plot,],2,sum, na.rm=T)
-	for(i in trees.plot){
-		allom.rel[i,] <- allom.rel[i,]/plot.total
+	plot.total <- apply(allom.rel[trees.plot,],2,sum, na.rm=T) # total plot biomass for each iteration
+
+	# calculating the relative tree biomass; there should be a way to do this a plot at a time,
+	# but I had trouble getting it working
+	for(i in trees.plot){ 
+		allom.rel[i,] <- allom.rel[i,]/plot.total 
 	}
 }
 summary(allom.rel[,1:10])
 summary(valles.allom[,1:10])
 
+# This is the same loop as we had to get things to the plot level, but now we're dividing by the 
+# number of plots to get a mean value for the site
 for(p in unique(valles.site.proj$project)){
 	n.plots <- ifelse(p=="Ross", 2, 4)
 
@@ -271,7 +278,7 @@ for(p in unique(valles.site.proj$project)){
 		trees   <- which(all.valles$project==p & all.valles$dbh.bin==d & all.valles$site==s)
 		out.row <- which(valles.site.proj$project==p & valles.site.proj$dbh.bin==d & valles.site.proj$site==s)
 		allom.temp <- valles.allom[trees,]/n.plots
-		allom.temp.rel <- allom.rel[trees,]/n.plots
+		allom.temp.rel <- allom.rel[trees,]/n.plots # this is subsetting the relative biomass we calculated above the 
 		if(length(trees)>1){
 			out.mean  <-     mean(apply(allom.temp,2,sum, na.rm=T), na.rm=T)
 			out.ci.lo <- quantile(apply(allom.temp,2,sum, na.rm=T), 0.025, na.rm=T)
@@ -311,9 +318,9 @@ for(p in unique(valles.site.proj$project)){
 }
 summary(valles.site.proj)
 
-# plot(BM.mean.allom ~ BM.mean, data=valles.site.proj)
-plot(BM.mean.allom.rel ~ BM.mean.plot.rel, data=valles.site.proj)
 
+
+# Now we need to do some subsetting to get the data in a way that easily makes a 3-paneled figure
 valles.bm <- data.frame( 	site=c(paste(valles.site.proj$site),paste(valles.site.proj$site)), 
 						  dbh.bin=c(paste(valles.site.proj$dbh.bin),paste(valles.site.proj$dbh.bin)),
 						  project=c(paste(valles.site.proj$project),paste(valles.site.proj$project)),
@@ -344,8 +351,6 @@ valles.dens <- data.frame( site=c(paste(valles.site.proj$site)),
 						  CI.lo=c(valles.site.proj$density.ci.lo.plot),
 						  CI.hi=c(valles.site.proj$density.ci.hi.plot)
 						  )
-summary(valles.bm)
-summary(valles.dens)
 valles.site <- rbind(valles.bm, valles.bm.rel, valles.dens)
 valles.site$response.order <- recode(valles.site$response, "'Density'='1'; 'Biomass'='2'; 'Relative Biomass'='3'")
 levels(valles.site$response.order) <- c("Density (stems/m2)", "Biomass (kg/m2)", "Relative Biomass (%)")
@@ -388,32 +393,38 @@ names(valles.site.all)[1:2] <- c("dbh.bin", "site")
 summary(valles.site.all)
 
 # finding the plot-based 02.5%˚
-valles.site.proj2 <- aggregate(valles.plot[,c("tree.density", "BM.mean", "BM.mean.plot.rel")], by=list(valles.plot$dbh.bin, valles.plot$site), FUN=quantile, 0.025, na.rm=T)
-names(valles.site.proj2)[1:2] <- c("dbh.bin", "site")
-summary(valles.site.proj2)
+valles.site.all2 <- aggregate(valles.plot[,c("tree.density", "BM.mean", "BM.mean.plot.rel")], by=list(valles.plot$dbh.bin, valles.plot$site), FUN=quantile, 0.025, na.rm=T)
+names(valles.site.all2)[1:2] <- c("dbh.bin", "site")
+summary(valles.site.all2)
 
 # finding the plot-based 97.5%˚
-valles.site.proj3 <- aggregate(valles.plot[,c("tree.density", "BM.mean", "BM.mean.plot.rel")], by=list(valles.plot$dbh.bin, valles.plot$site), FUN=quantile, 0.975, na.rm=T)
-names(valles.site.proj3)[1:2] <- c("dbh.bin", "site")
-summary(valles.site.proj3)
+valles.site.all3 <- aggregate(valles.plot[,c("tree.density", "BM.mean", "BM.mean.plot.rel")], by=list(valles.plot$dbh.bin, valles.plot$site), FUN=quantile, 0.975, na.rm=T)
+names(valles.site.all3)[1:2] <- c("dbh.bin", "site")
+summary(valles.site.all3)
 
-valles.site.all$density.ci.lo.plot <- valles.site.proj2$tree.density
-valles.site.all$density.ci.hi.plot <- valles.site.proj3$tree.density
-valles.site.all$BM.ci.lo.plot <- valles.site.proj2$BM.mean
-valles.site.all$BM.ci.hi.plot <- valles.site.proj3$BM.mean
-valles.site.all$BM.ci.lo.plot.rel <- valles.site.proj2$BM.mean.plot.rel
-valles.site.all$BM.ci.hi.plot.rel <- valles.site.proj3$BM.mean.plot.rel
+valles.site.all$density.ci.lo.plot <- valles.site.all2$tree.density
+valles.site.all$density.ci.hi.plot <- valles.site.all3$tree.density
+valles.site.all$BM.ci.lo.plot <- valles.site.all2$BM.mean
+valles.site.all$BM.ci.hi.plot <- valles.site.all3$BM.mean
+valles.site.all$BM.ci.lo.plot.rel <- valles.site.all2$BM.mean.plot.rel
+valles.site.all$BM.ci.hi.plot.rel <- valles.site.all3$BM.mean.plot.rel
 summary(valles.site.all)
 
 
+# ---------------
 # Adding in the biomass estimate & 95% ci directly from allometry
-# calculating the relative biokmass
+# NOTE: relative biomass is inherently plot-based and cannot be done properly at the site level 
+# (or not if we want to compare it with plot-based uncertainty) so we need to calculate 
+# the relative plot biomass for each tree in the allometric data frame
 allom.rel <- valles.allom
 for(p in unique(valles.plot$plot.id)){
 	trees.plot <- which(all.valles$plot.id==p)
-	plot.total <- apply(allom.rel[trees.plot,],2,sum, na.rm=T)
-	for(i in trees.plot){
-		allom.rel[i,] <- allom.rel[i,]/plot.total
+	plot.total <- apply(allom.rel[trees.plot,],2,sum, na.rm=T) # total plot biomass for each iteration
+
+	# calculating the relative tree biomass; there should be a way to do this a plot at a time,
+	# but I had trouble getting it working
+	for(i in trees.plot){ 
+		allom.rel[i,] <- allom.rel[i,]/plot.total 
 	}
 }
 summary(allom.rel[,1:10])
@@ -426,7 +437,7 @@ for(s in unique(valles.site.all$site)){
 
 	for(d in unique(valles.site.all$dbh.bin)){
 		trees   <- which(all.valles$dbh.bin==d & all.valles$site==s)
-		out.row <- which(valles.site.all$site==p & valles.site.all$dbh.bin==d & valles.site.all$site==s)
+		out.row <- which(valles.site.all$dbh.bin==d & valles.site.all$site==s)
 		allom.temp <- valles.allom[trees,]/n.plots
 		allom.temp.rel <- allom.rel[trees,]/n.plots
 		if(length(trees)>1){
@@ -466,8 +477,6 @@ for(s in unique(valles.site.all$site)){
 }
 summary(valles.site.all)
 
-# plot(BM.mean.allom ~ BM.mean, data=valles.site.all)
-# plot(BM.mean.allom.rel ~ BM.mean.plot.rel, data=valles.site.all)
 
 valles.bm2 <- data.frame( site=c(paste(valles.site.all$site),paste(valles.site.all$site)), 
 						  dbh.bin=c(paste(valles.site.all$dbh.bin),paste(valles.site.all$dbh.bin)),
