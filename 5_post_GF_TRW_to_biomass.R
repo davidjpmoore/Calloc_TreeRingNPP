@@ -41,7 +41,7 @@ unique(trees.use$Species)[!(unique(trees.use$Species) %in% names(allometries))]
 
 trees.use$spp.allom <- recode(trees.use$Species, " 'PIEN'='picea.sp'; 'FRAX'='FRAM'; 'ASTR'='e.hard'; 'PRSE'='e.hard'; 'ULRU'='e.hard'")
 summary(trees.use)
-plots <- unique(trees.use$PlotID) # You had the right idea, but it was throwing errors because you were trying to evaluate plots you haven't gotten to yet
+plots <- unique(trees.use$PlotID) # find out what plots we need
 
 
 # making the generalized allometry function to run
