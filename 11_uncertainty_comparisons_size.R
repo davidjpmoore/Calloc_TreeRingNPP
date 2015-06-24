@@ -13,7 +13,7 @@ library(ggplot2)
 library(car)
 library(reshape2)
 
-# Read in the full MCMC-based indivudal tree biomass estimates
+# Read in the tree data from the master data files
 ross.trees <- read.csv("raw input files/tree_metadata_DOE_plus_valles.csv", na.strings=c("", "NA", "#VALUE!", "*"),header=T)
 summary(ross.trees)
 
