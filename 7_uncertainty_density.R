@@ -41,6 +41,7 @@ ci.vl <- data.frame(Year=biom.valles$Year, SiteID= "VLF",
 
 # ------------------------
 # Package everything together, make a quick plot and save it for later use
+# This is what goes to the stacked uncertainty figure
 # ------------------------
 dens.uncert <- data.frame(rbind(ci.vu, ci.vl))
 dens.uncert$Site <- recode(dens.uncert$SiteID, "'VUF'='1';'VLF'='2'")
