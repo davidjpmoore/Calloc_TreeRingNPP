@@ -1,4 +1,4 @@
-library(dplr)
+library(dplR)
 se <- function(x){
   sd(x, na.rm=TRUE) / sqrt((length(!is.na(x))))}
 
