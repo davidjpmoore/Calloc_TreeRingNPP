@@ -27,7 +27,7 @@ summary(core.data)
 write.csv(core.data, file="processed_data/core_data.csv", row.names=F)
 
 #importing the diameter files of all trees sampled: includes tree id, spp, plot assignment, and DBH 
-tree.data <- read.csv("raw input files/tree_metadata_DOE_plus_valles.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
+tree.data <- read.csv("raw input files/DOE_plus_valles.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
 #adding a column include which plot at the site the trees belong to
 names(tree.data)
 tree.data$plot <- substr(tree.data$PlotID, 3, 3)
