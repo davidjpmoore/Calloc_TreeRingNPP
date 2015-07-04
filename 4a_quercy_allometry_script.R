@@ -1,13 +1,16 @@
 # Query PEcAn database to generate aggregated allometrics
 
 # This needs to be a local directory which houses the Pecan scripts to be used. 
-setwd("/Users/mrossalexander/PhD/Carbon\ Research/pecan/modules/allometry/R") 
+setwd("/allometry/R") 
 
 # The Designated directory where the resulting allometries will be stored
-outdir <- "~/PhD/Carbon Research/Tree-Rings-and-Biomass/Full_biomass_analysis/allometries"
+outdir <- "/allometries"
 
 #File Path of allometry database
-parm.path <- "~/PhD/Carbon Research/Tree-Rings-and-Biomass/Full_biomass_analysis/raw input files/Table3_GTR-NE-319.v2_RossAdendum4.csv"
+parm.path <- "/allometry/data/Table3_GTR-NE-319.v2.csv"
+#parm.path <- "/allometry/data/Table3_GTR-NE-319.v2_RossAdendum4.csv"
+#allometry file needs to be replaced with Ross's custom file 
+#should the main PECAN allometry file be updated with Ross's additions?
 
 #Pecan Scripts to be used
 source("AllomAve.R")
