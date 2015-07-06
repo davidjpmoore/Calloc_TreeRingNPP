@@ -182,7 +182,7 @@ summary(allometries$QURU)
 
 #loading in QUVE pecan mcmc runs
 load(file.path(allom.base, "Allom.QUVE.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.QURU.2.Rdata")
+load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.QUVE.2.Rdata")
 allometries[["QUVE"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$QUVE)
