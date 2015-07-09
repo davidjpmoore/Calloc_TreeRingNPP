@@ -83,42 +83,36 @@ summary(allometries$e.hard)
 
 # loading in FAGR pecan mcmc runs
 load(file.path(allom.base, "Allom.BEPA.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.BEPA.2.Rdata")
 allometries[["FAGR"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$FAGR)
 
 # loading in FRAM pecan mcmc runs
 load(file.path(allom.base, "Allom.BEPA.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.BEPA.2.Rdata")
 allometries[["FRAM"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$FRAM)
 
 # loading in late.con pecan mcmc runs
 load(file.path(allom.base, "Allom.late.con.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.late.con.2.Rdata")
 allometries[["late.con"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$late.con)
 
 # loading in late.hardwood pecan mcmc runs
 load(file.path(allom.base, "Allom.late.hardwood.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.late.hardwood.2.Rdata")
 allometries[["late.hard"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$late.hard)
 
 # loading in LITU pecan mcmc runs
 load(file.path(allom.base, "Allom.LITU.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.LITU.2.Rdata")
 allometries[["LITU"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$LITU)
 
 # loading in mid.con pecan mcmc runs
 load(file.path(allom.base, "Allom.mid.con.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.mid.con.2.Rdata")
 allometries[["mid.con"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$mid.con)
