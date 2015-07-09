@@ -71,14 +71,12 @@ summary(allometries$ACSAC)
 
 # loading in BEPA pecan mcmc runs
 load(file.path(allom.base, "Allom.BEPA.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.BEPA.2.Rdata")
 allometries[["BEPA"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$BEPA)
 
 # loading in early.hardwood pecan mcmc runs
 load(file.path(allom.base, "Allom.BEPA.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.early.hardwood.2.Rdata")
 allometries[["e.hard"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$e.hard)
@@ -127,91 +125,78 @@ summary(allometries$mid.con)
 
 # loading in north.mid.hardwood pecan mcmc runs
 load(file.path(allom.base, "Allom.n.mid.hardwood.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.n.mid.hardwood.2.Rdata")
 allometries[["north.mid.hardwood"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$north.mid.hardwood)
 
 # loading in n.pine pecan mcmc runs
 load(file.path(allom.base, "Allom.n.pine.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.n.pine.2.Rdata")
 allometries[["n.pine"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$n.pine)
 
 # loading in NYSY pecan mcmc runs
 load(file.path(allom.base, "Allom.NYSY.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.NYSY.2.Rdata")
 allometries[["NYSY"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$NYSY)
 
 # loading in PIST pecan mcmc runs
 load(file.path(allom.base, "Allom.PIST.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.PIST.2.Rdata")
 allometries[["PIST"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$PIST)
 
 # loading in POGR pecan mcmc runs
 load(file.path(allom.base, "Allom.POGR.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.POGR.2.Rdata")
 allometries[["POGR"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$POGR)
 
 # loading in POTR pecan mcmc runs
-load(file.path(allom.base, "Allom.PINUS.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.POTR.2.Rdata")
+load(file.path(allom.base, "Allom.POTR.2.Rdata"))
 allometries[["POTR"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$POTR)
 
 # loading in QUAL pecan mcmc runs
-load(file.path(allom.base, "Allom.POTR.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.QUAL.2.Rdata")
+load(file.path(allom.base, "Allom.QUAL.2.Rdata"))
 allometries[["QUAL"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$QUAL)
 
 # loading in QURU pecan mcmc runs
 load(file.path(allom.base, "Allom.QURU.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.QURU.2.Rdata")
 allometries[["QURU"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$QURU)
 
 #loading in QUVE pecan mcmc runs
 load(file.path(allom.base, "Allom.QUVE.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.QUVE.2.Rdata")
 allometries[["QUVE"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$QUVE)
 
 # loading in so.mid.hardwood pecan mcmc runs
-load(file.path(allom.base, "Allom.PINUS.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.s.mid.hardwood.2.Rdata")
+load(file.path(allom.base, "Allom.s.mid.hardwood.2.Rdata"))
 allometries[["so.mid.hardwood"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$so.mid.hardwood)
 
 # loading in southern pine pecan mcmc runs
-load(file.path(allom.base, "Allom.PINUS.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.s.pine.2.Rdata")
+load(file.path(allom.base, "Allom.s.pine.2.Rdata"))
 allometries[["s.pine"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$s.pine)
 
 # loading in SAAL pecan mcmc runs
-load(file.path(allom.base, "Allom.PINUS.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.SAAL.2.Rdata")
+load(file.path(allom.base, "Allom.SAAL.2.Rdata"))
 allometries[["SAAL"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$SAAL)
 
 # loading in TIAM pecan mcmc runs
-load(file.path(allom.base, "Allom.PINUS.2.Rdata"))
-load("/Users/mrossalexander/Desktop/PEcAn_Allometries/Ross_allometries/Allom.TIAM.2.Rdata")
+load(file.path(allom.base, "Allom.TIAM.2.Rdata"))
 allometries[["TIAM"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
 summary(allometries)
 summary(allometries$TIAM)
