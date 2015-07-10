@@ -7,9 +7,9 @@
 *.history
 
 processed_data/*
-raw input files/*
+raw_input_files/*
 figures/*
-allometries/*
+
 RWL/*
 
 
