@@ -1,22 +1,22 @@
 # Query PEcAn database to generate aggregated allometrics
 
 # This needs to be a local directory which houses the Pecan scripts to be used. 
-setwd("/allometry/R") 
+setwd("pecan.allometry") 
 
 # The Designated directory where the resulting allometries will be stored
-outdir <- "/allometries"
+outdir <- "allometries"
 
 #File Path of allometry database
-parm.path <- "/allometry/data/Table3_GTR-NE-319.v2.csv"
+parm.path <- "data/Table3_GTR-NE-319.v2.csv"
 #parm.path <- "/allometry/data/Table3_GTR-NE-319.v2_RossAdendum4.csv"
 #allometry file needs to be replaced with Ross's custom file 
 #should the main PECAN allometry file be updated with Ross's additions?
 
 #Pecan Scripts to be used
-source("AllomAve.R")
-source("query.allom.data.R")
-source("allom.BayesFit.R")
-source("read.allom.data.R")
+source("R/AllomAve.R")
+source("R/query.allom.data.R")
+source("R/allom.BayesFit.R")
+source("R/read.allom.data.R")
 
 # ----------------------------------
 # Generating Allometries
@@ -104,8 +104,8 @@ AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dm
 #making up our own PFT's, just need a species
 #recieved file from 
 ##########################################################
-
-pft.db <- read.csv("/Users/mrossalexander/PhD/Carbon\ Research/PFTs/FIA_conversion_v0.2.csv", header=T)
+# This is a table with Species & PFT assignments from Simon
+pft.db <- read.csv("../raw_input_files/FIA_conversion_v0.2.csv", header=T)
 
 
 ##########################################################
