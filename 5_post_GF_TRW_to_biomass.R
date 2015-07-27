@@ -21,7 +21,7 @@ trees.use <- tree.data[tree.data$TreeID %in% names(g.filled.diam),] # If you wan
 # trees.use <- tree.data
 summary(trees.use)
 
-plot.data <- read.csv("raw input files/DOE_plus_Valles.csv")
+plot.data <- read.csv("raw_input_files/DOE_plus_Valles.csv")
 plot.data$Year.Sample <- as.numeric(substr(plot.data$date.sample,7,10))
 summary(plot.data)
 

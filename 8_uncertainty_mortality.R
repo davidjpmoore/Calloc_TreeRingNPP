@@ -14,7 +14,7 @@ library(car)
 # ------------------------
 # Load & format data
 # ------------------------
-ross.trees <- read.csv("raw input files/tree_metadata_DOE_plus_valles.csv", na.strings=c("", "NA", "#VALUE!", "*"),header=T)
+ross.trees <- read.csv("raw_input_files/tree_metadata_DOE_plus_valles.csv", na.strings=c("", "NA", "#VALUE!", "*"),header=T)
 summary(ross.trees)
 
 # This is the same subsetting proceedure as in "11_uncertainty_comparisons_size.R"
@@ -228,12 +228,15 @@ uncert.mort$Site <- recode(uncert.mort$SiteID, "'VUF'='1';'VLF'='2'")
 levels(uncert.mort$Site) <- c("Upper", "Lower")
 summary(uncert.mort)
 
+
 pdf("figures/Uncertainty_Mortality_TimeSeries.pdf")
 ggplot(uncert.mort) +
 	geom_ribbon(aes(x=Year, ymin=Mort.CI.lo, ymax=Mort.CI.hi, fill=Site), alpha=0.4) +
 	geom_line(aes(x=Year, y=BM.Mean, color=Site), size=1.5) +
 	labs(x="Year", y=expression(bold(paste("Biomass (kg m" ^ "-2 ", ")"))), title="Mortality Uncertainty") +
-	theme_bw()
+  theme(axis.ticks.length = unit(-0.25, "cm"),
+        axis.ticks.margin = unit(0.5, "cm")) +
+	poster.theme2 #theme.bw()
 dev.off()
 
 save(uncert.mort, file="processed_data/valles_mortality_uncertainty.Rdata")

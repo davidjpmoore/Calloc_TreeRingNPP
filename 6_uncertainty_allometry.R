@@ -57,7 +57,10 @@ ggplot(allom.uncert[,]) + #facet_grid(Site ~.) +
   geom_ribbon(aes(x=Year, ymin=LB, ymax=UB, fill=Site), alpha=0.5) +
   geom_line(aes(x=Year, y=Mean, color= Site), size=1.5) + 
   labs(x="Year", y=expression(bold(paste("Aboveground Biomass (kg m"^"-2",")"))), title="Allometric Uncertainty") + 
-  theme_bw()
+  #theme_bw()
+  theme(axis.ticks.length = unit(-0.25, "cm"),
+        axis.ticks.margin = unit(0.5, "cm")) +
+  poster.theme2
 dev.off()
 
 save(allom.uncert, file="processed_data/valles_allometry_uncertainty.Rdata")

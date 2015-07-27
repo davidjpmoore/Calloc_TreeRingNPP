@@ -14,12 +14,12 @@ library(car)
 library(reshape2)
 
 # Read in the tree data from the master data files
-ross.trees <- read.csv("raw input files/tree_metadata_DOE_plus_valles.csv", na.strings=c("", "NA", "#VALUE!", "*"),header=T)
+ross.trees <- read.csv("raw_input_files/tree_metadata_DOE_plus_valles.csv", na.strings=c("", "NA", "#VALUE!", "*"),header=T)
 summary(ross.trees)
 
 # read in Marcy's tree tree data
-marcy.ppine <- read.csv("raw input files/marcy_ppine_2013.csv")
-marcy.mcon <- read.csv("raw input files/marcy_mcon_2012.csv")
+marcy.ppine <- read.csv("raw_input_files/marcy_ppine_2013.csv")
+marcy.mcon <- read.csv("raw_input_files/marcy_mcon_2012.csv")
 summary(marcy.ppine)
 summary(marcy.mcon)
 
@@ -354,6 +354,8 @@ valles.dens <- data.frame( site=c(paste(valles.site.proj$site)),
 valles.site <- rbind(valles.bm, valles.bm.rel, valles.dens)
 valles.site$response.order <- recode(valles.site$response, "'Density'='1'; 'Biomass'='2'; 'Relative Biomass'='3'")
 levels(valles.site$response.order) <- c("Density (stems/m2)", "Biomass (kg/m2)", "Relative Biomass (%)")
+valles.site$site.common <- recode(valles.site$site, "'VUF'='1'; 'VLF'='2'")
+levels(valles.site$site.common) <- c("Upper", "Lower")
 summary(valles.site)
 
 pdf("figures/Size_Distribution_Uncertainty_Comparison_RossOnly.pdf")
@@ -365,6 +367,24 @@ ggplot(data=valles.site[valles.site$project=="Ross",]) + facet_grid(response.ord
 	labs(x="DBH (cm)", y="", title="") +
 	theme_bw() +	theme(axis.text.x = element_text(angle = 45, hjust = 1))
 dev.off()
+
+# --------------------
+# Pulling out the Biomass panel for ESA poster
+# --------------------
+ggplot(data=valles.site[valles.site$project=="Ross" & valles.site$response.order=="Biomass (kg/m2)",]) +
+	facet_grid(site.common~.) +
+	geom_bar(aes(x=dbh.bin, y=Mean, fill= uncertainty.type), breaks=dbh.bins[1:(length(dbh.bins)-1)], fill="gray50", stat="identity", position="dodge") +
+	geom_linerange(aes(x=dbh.bin, ymin=CI.lo, ymax= CI.hi, color=uncertainty.type), position=position_dodge(width=0.85), size=2, alpha=0.9) +
+	scale_fill_manual(values=c("gray50", "gray50")) +
+	scale_color_manual(name="Uncertainty",values=c("blue", "red2"))+
+	labs(x="DBH (cm)", y=expression(bold(paste("Aboveground Biomass (kg m"^"-2",")")))) +
+	poster.theme2 +
+	theme(legend.position=c(0.2,0.85))+
+	scale_x_discrete(labels=c("0", "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60"))+
+  theme(axis.ticks.length = unit(-0.25, "cm"),
+        axis.ticks.margin = unit(0.5, "cm"))
+	#theme_bw() +	theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
 
 pdf("figures/Size_Distribution_Uncertainty_Comparison_RossMarcy.pdf")
 ggplot(data=valles.site[,]) + facet_grid(response.order ~ site, scales="free") +

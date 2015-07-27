@@ -47,13 +47,20 @@ dens.uncert <- data.frame(rbind(ci.vu, ci.vl))
 dens.uncert$Site <- recode(dens.uncert$SiteID, "'VUF'='1';'VLF'='2'")
 levels(dens.uncert$Site) <- c("Upper", "Lower")
 summary(dens.uncert)
+poster.theme<-theme(axis.line=element_line(color="black"), panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(),
+                    panel.background=element_blank(), axis.text.x=element_text(angle=0, color="black", size=21),
+                    axis.text.y=element_text(angle=0, color="black", size=21), axis.title.x=element_text(face="bold", size=28),
+                    axis.title.y=element_text(face="bold", size=28), strip.text=element_text(face="bold", size=rel(1.75)),
+                    title=element_text(face="bold", size=30))
 
 pdf("figures/Uncertainty_Density_TimeSeries.pdf")
 ggplot(dens.uncert[,]) + #facet_grid(Site ~.) +
   geom_ribbon(aes(x=Year, ymin=LB, ymax=UB, fill=Site), alpha=0.5) +
   geom_line(aes(x=Year, y=Mean, color= Site), size=1.5) + 
   labs(x="Year", y=expression(bold(paste("Aboveground Biomass (kg m"^"-2",")"))), title="Density Uncertainty") + 
-  theme_bw()
+  theme(axis.ticks.length = unit(-0.25, "cm"),
+        axis.ticks.margin = unit(0.5, "cm")) +
+  poster.theme2
 dev.off()
 
 save(dens.uncert, file="processed_data/valles_density_uncertainty.Rdata")
