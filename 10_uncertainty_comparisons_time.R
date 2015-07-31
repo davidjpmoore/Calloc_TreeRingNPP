@@ -146,6 +146,9 @@ ggplot(bm.final[bm.final$Year >= 1925 & bm.final$Year <=2011,]) + facet_grid(Sit
   # Reiterate mean line for clarity
   geom_line(aes(x=Year, y=Base), size=1.5, color="black") +
 
+  # add time slice lines
+  geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted") +
+  
   # Legend Formatting
   labs(title= "Stacked Uncertainties", x="Year", y=expression(bold(paste("Aboveground Biomass (kg m"^"-2",")")))) +
   scale_fill_manual(name="Uncertainty", values=c("green3", "blue", "red", "orange2"), labels=c("Increment", "Allometry", "Plot Density", "Mortality")) +
@@ -181,6 +184,9 @@ ggplot(bm.final[bm.final$Year >= 1925 & bm.final$Year <=2011,]) + facet_grid(Sit
   
   # Reiterate mean line for clarity
   geom_line(aes(x=Year, y=Base), size=1.5, color="black") +
+  
+  # add time slice lines
+  geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted") +
 
   # Legend Formatting
   labs(title= "Stacked Uncertainties", x="Year", y=expression(bold(paste("Aboveground Biomass (kg m"^"-2",")")))) +
@@ -206,7 +212,7 @@ dev.off()
 
 
 ########################################################
-# Uncertainty percentages
+# Uncertainty percentages relative to the mean biomass
 ########################################################
 
 
@@ -214,10 +220,14 @@ dev.off()
 # Looking at relative magnitudes of uncertainties
 
 # Allometry
-vlf.allom.rel <- allom.uncert[allom.uncert$SiteID=="VLF", "range"]/allom.uncert[allom.uncert$SiteID=="VLF", "Mean"]
+vlf.allom.rel <- allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year==1990, "range"]/allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year==1990, "Mean"]
 vuf.allom.rel <- allom.uncert[allom.uncert$SiteID=="VUF", "range"]/allom.uncert[allom.uncert$SiteID=="VUF", "Mean"]
 summary(vlf.allom.rel)
 summary(vuf.allom.rel)
+
+vlf.allom.rel.UB <- allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year==1990 & allom.uncert$Year<=2010, "UB.dev"]/allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year>=1990 & allom.uncert$Year<=2010, "Mean"]
+vlf.allom.rel.LB <- allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year==1990, "LB.dev"]/allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year==1990, "Mean"]
+summary(vlf.allom.rel.UB)
 
 mean(vlf.allom.rel, na.rm=T); sd(vlf.allom.rel, na.rm=T)
 mean(vuf.allom.rel, na.rm=T); sd(vuf.allom.rel, na.rm=T)
@@ -261,37 +271,116 @@ mean(vlf.final.rel, na.rm=T); sd(vlf.final.rel, na.rm=T)
 mean(vuf.final.rel, na.rm=T); sd(vuf.final.rel, na.rm=T)
   
 #################################################################
-# percentage of total uncertainty
+# percentage of each uncertain ty relative to the total uncertainty
 #################################################################
 
-# Allometry
-vlf.allom.perc <- allom.uncert[allom.uncert$SiteID=="VLF", "range"]/vlf.final$range
-vuf.allom.perc <- allom.uncert[allom.uncert$SiteID=="VUF", "range"]/vuf.final$range
-summary(vlf.allom.perc)
-summary(vuf.allom.perc)
+# Creating windows to assess changes in uncertainty
+start <- 2011
+window1 <- (1995-2) : (1995+2)
+window2 <- (1980-2) : (1980+2)
 
-mean(vlf.allom.perc, na.rm=T); sd(vlf.allom.perc, na.rm=T)
-mean(vuf.allom.perc, na.rm=T); sd(vuf.allom.perc, na.rm=T)
+# Overall uncertainty kg of biomass /m2
+
+
+  #start
+	mean(vlf.final[vlf.final$Year %in% start , "range"], na.rm=T); sd(vlf.final[vlf.final$Year %in% start , "range"], na.rm=T)
+	mean(vuf.final[vuf.final$Year %in% start , "range"], na.rm=T); sd(vuf.final[vuf.final$Year %in% start , "range"], na.rm=T)
+	
+  # Window 1 (1995)
+	mean(vlf.final[vlf.final$Year %in% window1 , "range"], na.rm=T); sd(vlf.final[vlf.final$Year %in% window1 , "range"], na.rm=T)	
+	mean(vuf.final[vuf.final$Year %in% window1 , "range"], na.rm=T); sd(vuf.final[vuf.final$Year %in% window1 , "range"], na.rm=T)
+	  
+  # Window 2 (1980)
+	mean(vlf.final[vlf.final$Year %in% window2 , "range"], na.rm=T); sd(vlf.final[vlf.final$Year %in% window2 , "range"], na.rm=T)	
+	mean(vuf.final[vuf.final$Year %in% window2 , "range"], na.rm=T); sd(vuf.final[vuf.final$Year %in% window2 , "range"], na.rm=T)
+
+
+# Allometry
+
+  # start year 2011
+	vlf.allom.perc.start <- allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year %in% start, "range"]/vlf.final[vlf.final	$Year %in% start, "range"]
+	vuf.allom.perc.start <- allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year %in% start, "range"]/vuf.final[vuf.final	$Year %in% start, "range"]
+	summary(vlf.allom.perc.start)
+	summary(vuf.allom.perc.start)
+
+	mean(vlf.allom.perc.start, na.rm=T); sd(vlf.allom.perc.start, na.rm=T)
+	mean(vuf.allom.perc.start, na.rm=T); sd(vuf.allom.perc.start, na.rm=T)
+
+  # Window 1 (1995)
+	vlf.allom.perc.win1 <- allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year %in% window1, "range"]/vlf.final[vlf.final	$Year %in% window1, "range"]
+	vuf.allom.perc.win1 <- allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year %in% window1, "range"]/vuf.final[vuf.final	$Year %in% window1, "range"]
+	summary(vlf.allom.perc.win1)
+	summary(vuf.allom.perc.win1)
+
+	mean(vlf.allom.perc.win1, na.rm=T); sd(vlf.allom.perc.win1, na.rm=T)
+	mean(vuf.allom.perc.win1, na.rm=T); sd(vuf.allom.perc.win1, na.rm=T)
+
+  # Window 2 (1980)
+	vlf.allom.perc.win2 <- allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year %in% window2, "range"]/vlf.final[vlf.final	$Year %in% window2, "range"]
+	vuf.allom.perc.win2 <- allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year %in% window2, "range"]/vuf.final[vuf.final	$Year %in% window2, "range"]
+	summary(vlf.allom.perc.win2)
+	summary(vuf.allom.perc.win2)
+
+	mean(vlf.allom.perc.win2, na.rm=T); sd(vlf.allom.perc.win2, na.rm=T)
+	mean(vuf.allom.perc.win2, na.rm=T); sd(vuf.allom.perc.win2, na.rm=T)
+
 
 
 # Density
-vlf.dens.perc <- dens.uncert[dens.uncert$SiteID=="VLF", "range"]/vlf.final$range
-vuf.dens.perc <- dens.uncert[dens.uncert$SiteID=="VUF", "range"]/vuf.final$range
-summary(vlf.dens.perc)
-summary(vuf.dens.perc)
+  # start year 2011
+	vlf.dens.perc.start <- dens.uncert[dens.uncert$SiteID=="VLF" & dens.uncert$Year %in% start, "range"]/vlf.final[vlf.final		$Year %in% start, "range"]
+	vuf.dens.perc.start <- dens.uncert[dens.uncert$SiteID=="VUF" & dens.uncert$Year %in% start, "range"]/vuf.final[vuf.final		$Year %in% start, "range"]
+	summary(vlf.dens.perc.start)
+	summary(vuf.dens.perc.start)
 
-mean(vlf.dens.perc, na.rm=T); sd(vlf.dens.perc, na.rm=T)
-mean(vuf.dens.perc, na.rm=T); sd(vuf.dens.perc, na.rm=T)
+	mean(vlf.dens.perc.start, na.rm=T); sd(vlf.dens.perc.start, na.rm=T)
+	mean(vuf.dens.perc.start, na.rm=T); sd(vuf.dens.perc.start, na.rm=T)
 
+  # Window 1 (1995)
+	vlf.dens.perc.win1 <- dens.uncert[dens.uncert$SiteID=="VLF" & dens.uncert$Year %in% window1, "range"]/vlf.final[vlf.final		$Year %in% window1, "range"]
+	vuf.dens.perc.win1 <- dens.uncert[dens.uncert$SiteID=="VUF" & dens.uncert$Year %in% window1, "range"]/vuf.final[vuf.final		$Year %in% window1, "range"]
+	summary(vlf.dens.perc.win1)
+	summary(vuf.dens.perc.win1)
+
+	mean(vlf.dens.perc.win1, na.rm=T); sd(vlf.dens.perc.win1, na.rm=T)
+	mean(vuf.dens.perc.win1, na.rm=T); sd(vuf.dens.perc.win1, na.rm=T)
+
+  # Window 2 (1980)
+	vlf.dens.perc.win2 <- dens.uncert[dens.uncert$SiteID=="VLF" & dens.uncert$Year %in% window2, "range"]/vlf.final[vlf.final		$Year %in% window2, "range"]
+	vuf.dens.perc.win2 <- dens.uncert[dens.uncert$SiteID=="VUF" & dens.uncert$Year %in% window2, "range"]/vuf.final[vuf.final		$Year %in% window2, "range"]
+	summary(vlf.dens.perc.win2)
+	summary(vuf.dens.perc.win2)
+
+	mean(vlf.dens.perc.win2, na.rm=T); sd(vlf.dens.perc.win2, na.rm=T)
+	mean(vuf.dens.perc.win2, na.rm=T); sd(vuf.dens.perc.win2, na.rm=T)
 
 # Mortality
-vlf.mort.perc <- uncert.mort[uncert.mort$SiteID=="VLF", "range"]/vlf.final$range
-vuf.mort.perc <- uncert.mort[uncert.mort$SiteID=="VUF", "range"]/vuf.final$range
-summary(vlf.mort.perc)
-summary(vuf.mort.perc)
+  # start year 2011
+	vlf.mort.perc.start <- uncert.mort[uncert.mort$SiteID=="VLF" & uncert.mort$Year %in% start, "range"]/vlf.final[vlf.final		$Year %in% start, "range"]
+	vuf.mort.perc.start <- uncert.mort[uncert.mort$SiteID=="VUF" & uncert.mort$Year %in% start, "range"]/vuf.final[vuf.final		$Year %in% start, "range"]
+	summary(vlf.mort.perc.start)
+	summary(vuf.mort.perc.start)
 
-mean(vlf.mort.perc, na.rm=T); sd(vlf.mort.perc, na.rm=T)
-mean(vuf.mort.perc, na.rm=T); sd(vuf.mort.perc, na.rm=T)
+	mean(vlf.mort.perc.start, na.rm=T); sd(vlf.mort.perc.start, na.rm=T)
+	mean(vuf.mort.perc.start, na.rm=T); sd(vuf.mort.perc.start, na.rm=T)
+
+  # Window 1 (1995)
+	vlf.mort.perc.win1 <- uncert.mort[uncert.mort$SiteID=="VLF" & uncert.mort$Year %in% window1, "range"]/vlf.final[vlf.final		$Year %in% window1, "range"]
+	vuf.mort.perc.win1 <- uncert.mort[uncert.mort$SiteID=="VUF" & uncert.mort$Year %in% window1, "range"]/vuf.final[vuf.final		$Year %in% window1, "range"]
+	summary(vlf.mort.perc.win1)
+	summary(vuf.mort.perc.win1)
+
+	mean(vlf.mort.perc.win1, na.rm=T); sd(vlf.mort.perc.win1, na.rm=T)
+	mean(vuf.mort.perc.win1, na.rm=T); sd(vuf.mort.perc.win1, na.rm=T)
+
+  # Window 2 (1980)
+	vlf.mort.perc.win2 <- uncert.mort[uncert.mort$SiteID=="VLF" & uncert.mort$Year %in% window2, "range"]/vlf.final[vlf.final		$Year %in% window2, "range"]
+	vuf.mort.perc.win2 <- uncert.mort[uncert.mort$SiteID=="VUF" & uncert.mort$Year %in% window2, "range"]/vuf.final[vuf.final		$Year %in% window2, "range"]
+	summary(vlf.mort.perc.win2)
+	summary(vuf.mort.perc.win2)
+
+	mean(vlf.mort.perc.win2, na.rm=T); sd(vlf.mort.perc.win2, na.rm=T)
+	mean(vuf.mort.perc.win2, na.rm=T); sd(vuf.mort.perc.win2, na.rm=T)
 
 
 # TR increment
@@ -299,9 +388,33 @@ vlf.inc.perc <- uncert.increment[uncert.increment$SiteID=="VLF", "range"]/vlf.fi
 vuf.inc.perc <- uncert.increment[uncert.increment$SiteID=="VUF", "range"]/vuf.final$range
 summary(vlf.inc.perc)
 summary(vuf.inc.perc)
-
 mean(vlf.inc.perc, na.rm=T); sd(vlf.inc.perc, na.rm=T)
 mean(vuf.inc.perc, na.rm=T); sd(vuf.inc.perc, na.rm=T)
 
-mean(vlf.final$range, na.rm=T); sd(vlf.final$range, na.rm=T)
-mean(vuf.final$range, na.rm=T); sd(vuf.final$range, na.rm=T)
+  # start year 2011
+	vlf.inc.perc.start <- uncert.increment[uncert.increment$SiteID=="VLF" & uncert.increment$Year %in% start, "range"]/vlf.final[vlf.final		$Year %in% start, "range"]
+	vuf.inc.perc.start <- uncert.increment[uncert.increment$SiteID=="VUF" & uncert.increment$Year %in% start, "range"]/vuf.final[vuf.final		$Year %in% start, "range"]
+	summary(vlf.inc.perc.start)
+	summary(vuf.inc.perc.start)
+
+	mean(vlf.inc.perc.start, na.rm=T); sd(vlf.inc.perc.start, na.rm=T)
+	mean(vuf.inc.perc.start, na.rm=T); sd(vuf.inc.perc.start, na.rm=T)
+
+  # Window 1 (1995)
+	vlf.inc.perc.win1 <- uncert.increment[uncert.increment$SiteID=="VLF" & uncert.increment$Year %in% window1, "range"]/vlf.final[vlf.final		$Year %in% window1, "range"]
+	vuf.inc.perc.win1 <- uncert.increment[uncert.increment$SiteID=="VUF" & uncert.increment$Year %in% window1, "range"]/vuf.final[vuf.final$Year %in% window1, "range"]
+	summary(vlf.inc.perc.win1)
+	summary(vuf.inc.perc.win1)
+
+	mean(vlf.inc.perc.win1, na.rm=T); sd(vlf.inc.perc.win1, na.rm=T)
+	mean(vuf.inc.perc.win1, na.rm=T); sd(vuf.inc.perc.win1, na.rm=T)
+
+  # Window 2 (1980)
+	vlf.inc.perc.win2 <- uncert.increment[uncert.increment$SiteID=="VLF" & uncert.increment$Year %in% window2, "range"]/vlf.final[vlf.final		$Year %in% window2, "range"]
+	vuf.inc.perc.win2 <- uncert.increment[uncert.increment$SiteID=="VUF" & uncert.increment$Year %in% window2, "range"]/vuf.final[vuf.final		$Year %in% window2, "range"]
+	summary(vlf.inc.perc.win2)
+	summary(vuf.inc.perc.win2)
+
+	mean(vlf.inc.perc.win2, na.rm=T); sd(vlf.inc.perc.win2, na.rm=T)
+	mean(vuf.inc.perc.win2, na.rm=T); sd(vuf.inc.perc.win2, na.rm=T)
+

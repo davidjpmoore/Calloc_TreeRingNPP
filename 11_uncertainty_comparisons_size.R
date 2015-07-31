@@ -379,7 +379,7 @@ ggplot(data=valles.site[valles.site$project=="Ross" & valles.site$response.order
 	scale_color_manual(name="Uncertainty",values=c("blue", "red2"))+
 	labs(x="DBH (cm)", y=expression(bold(paste("Aboveground Biomass (kg m"^"-2",")")))) +
 	poster.theme2 +
-	theme(legend.position=c(0.2,0.85))+
+	theme(legend.position=c(0.2,0.85), legend.key=element_blank())+
 	scale_x_discrete(labels=c("0", "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60"))+
   theme(axis.ticks.length = unit(-0.25, "cm"),
         axis.ticks.margin = unit(0.5, "cm"))

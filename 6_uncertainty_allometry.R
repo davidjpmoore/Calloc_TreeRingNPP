@@ -60,6 +60,8 @@ ggplot(allom.uncert[,]) + #facet_grid(Site ~.) +
   #theme_bw()
   theme(axis.ticks.length = unit(-0.25, "cm"),
         axis.ticks.margin = unit(0.5, "cm")) +
+  # add time slice lines
+  geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted") +
   poster.theme2
 dev.off()
 

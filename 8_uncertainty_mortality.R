@@ -236,6 +236,8 @@ ggplot(uncert.mort) +
 	labs(x="Year", y=expression(bold(paste("Biomass (kg m" ^ "-2 ", ")"))), title="Mortality Uncertainty") +
   theme(axis.ticks.length = unit(-0.25, "cm"),
         axis.ticks.margin = unit(0.5, "cm")) +
+  # add time slice lines
+  geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted") +
 	poster.theme2 #theme.bw()
 dev.off()
 

@@ -1,5 +1,6 @@
 # Theme to be used for posters in ggplot2
 library(grid)
+library(ggplot2)
 poster.theme1<-theme(plot.title=element_text(face="bold", size=rel(3))) + 
 theme(legend.text=element_text(size=rel(1.5)), 
       legend.title=element_text(size=rel(2)),
