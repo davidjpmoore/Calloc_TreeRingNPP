@@ -52,7 +52,7 @@ allom.uncert$Site <- recode(allom.uncert$SiteID, "'VUF'='1';'VLF'='2'")
 levels(allom.uncert$Site) <- c("Upper", "Lower")
 summary(allom.uncert)
 
-pdf("figures/Uncertainty_Allometry.pdf")
+pdf("figures/Uncertainty_Allometry.pdf", width= 13, height= 8.5)
 ggplot(allom.uncert[,]) + #facet_grid(Site ~.) +
   geom_ribbon(aes(x=Year, ymin=LB, ymax=UB, fill=Site), alpha=0.5) +
   geom_line(aes(x=Year, y=Mean, color= Site), size=1.5) + 
@@ -61,8 +61,8 @@ ggplot(allom.uncert[,]) + #facet_grid(Site ~.) +
   theme(axis.ticks.length = unit(-0.25, "cm"),
         axis.ticks.margin = unit(0.5, "cm")) +
   # add time slice lines
-  geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted") +
-  poster.theme2
+  geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted", size=1.5) +
+  poster.theme1
 dev.off()
 
 save(allom.uncert, file="processed_data/valles_allometry_uncertainty.Rdata")

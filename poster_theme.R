@@ -17,6 +17,7 @@ theme(axis.line=element_line(color="black", size=0.5),
       axis.title.x=element_text(face="bold", size=rel(2.25), vjust=-0.5),  
       axis.title.y=element_text(face="bold", size=rel(2.25), vjust=1))
 
+
 poster.theme2 <- theme(axis.line=element_line(color="black"), panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(),
                     panel.background=element_blank(), axis.text.x=element_text(angle=0, color="black", size=21),
                     axis.text.y=element_text(angle=0, color="black", size=21), axis.title.x=element_text(face="bold", size=28),

@@ -53,7 +53,7 @@ poster.theme<-theme(axis.line=element_line(color="black"), panel.grid.major=elem
                     axis.title.y=element_text(face="bold", size=28), strip.text=element_text(face="bold", size=rel(1.75)),
                     title=element_text(face="bold", size=30))
 
-pdf("figures/Uncertainty_Density_TimeSeries.pdf")
+pdf("figures/Uncertainty_Density_TimeSeries.pdf", height= 8.5, width = 13)
 ggplot(dens.uncert[,]) + #facet_grid(Site ~.) +
   geom_ribbon(aes(x=Year, ymin=LB, ymax=UB, fill=Site), alpha=0.5) +
   geom_line(aes(x=Year, y=Mean, color= Site), size=1.5) + 
@@ -61,8 +61,8 @@ ggplot(dens.uncert[,]) + #facet_grid(Site ~.) +
   theme(axis.ticks.length = unit(-0.25, "cm"),
         axis.ticks.margin = unit(0.5, "cm")) +
   # add time slice lines
-  geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted") +
-  poster.theme2
+  geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted", size=1.5) +
+  poster.theme1
 dev.off()
 
 save(dens.uncert, file="processed_data/valles_density_uncertainty.Rdata")

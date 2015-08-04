@@ -74,7 +74,7 @@ poster.theme<-theme(axis.line=element_line(color="black"), panel.grid.major=elem
                     title=element_text(face="bold", size=30))
 
 
-pdf("figures/Uncertainty_Increment_TimeSeries.pdf")
+pdf("figures/Uncertainty_Increment_TimeSeries.pdf", width = 13, height= 8.5)
 ggplot(data=uncert.increment) + facet_grid(Site~., scales="fixed") +
 	geom_ribbon(aes(x=Year, ymin=Inc.CI.lo, ymax=Inc.CI.hi, fill=Site), alpha=0.3) +
 	geom_line(aes(x=Year, y=Inc.Mean, color=Site), size=1.5) +
@@ -83,8 +83,8 @@ ggplot(data=uncert.increment) + facet_grid(Site~., scales="fixed") +
   theme(axis.ticks.length = unit(-0.25, "cm"),
         axis.ticks.margin = unit(0.5, "cm")) +
   # add time slice lines
-  geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted") +
-  poster.theme2
+  geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted", size=1.5) +
+  poster.theme1
 
 dev.off()
 

@@ -163,7 +163,7 @@ ggplot(bm.final[bm.final$Year >= 1925 & bm.final$Year <=2011,]) + facet_grid(Sit
 dev.off()
   
 
-pdf("figures/Uncertainty_Stacked.pdf", width=5, height=6)
+pdf("figures/Uncertainty_Stacked.pdf", width=13, height=8.5)
 ggplot(bm.final[bm.final$Year >= 1925 & bm.final$Year <=2011,]) + facet_grid(Site ~ .) +
   geom_line(aes(x=Year, y=Base), size=1.5, color="black") +
 
@@ -186,10 +186,10 @@ ggplot(bm.final[bm.final$Year >= 1925 & bm.final$Year <=2011,]) + facet_grid(Sit
   geom_line(aes(x=Year, y=Base), size=1.5, color="black") +
   
   # add time slice lines
-  geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted") +
+  geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted", size=1.5) +
 
   # Legend Formatting
-  labs(title= "Stacked Uncertainties", x="Year", y=expression(bold(paste("Aboveground Biomass (kg m"^"-2",")")))) +
+  labs(title= "Total Uncertainty", x="Year", y=expression(bold(paste("Aboveground Biomass (kg m"^"-2",")")))) +
   scale_fill_manual(name="Uncertainty", values=c("green3", "blue", "red", "orange2"), labels=c("Increment", "Allometry", "Plot Density", "Mortality")) +
   guides(fill=guide_legend(override.aes=list(alpha=0.15))) +
 #  theme(legend.position=c(0.2,0.85), legend.text=element_text(size=rel(1.25)), legend.title=element_text(size=rel(1.25)))  + 
@@ -201,7 +201,7 @@ ggplot(bm.final[bm.final$Year >= 1925 & bm.final$Year <=2011,]) + facet_grid(Sit
   theme(strip.text=element_text(size=rel(1.5), face="bold"))+
   theme(axis.ticks.length = unit(-0.25, "cm"),
         axis.ticks.margin = unit(0.5, "cm"))+
-  poster.theme2
+  poster.theme1
 dev.off()
 # -----------------------------------
   
