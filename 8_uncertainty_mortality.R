@@ -51,7 +51,12 @@ end.yr = 2011      # Last year in our study
 # ---------------
 n.samps <- 500 # number of samples we want to run
 start.m <- rnorm(n.samps, mean=0.4843, sd= 0.2823) # initial mortality rate in 1979
-rate.m  <- rnorm(n.samps, mean= 0.024, sd= 0.027)
+rate.m  <- rnorm(n.samps, mean= 0.024, sd= 0.009*sqrt(9)) # Paper gives SE = 0.009, n=9
+
+# Getting rid of negative mortality rates because we want to assume we're getting recuitment right
+# NOTE: not throwing them out entirely, but changing them to 0 to so that we're not shifting the mean 
+#       rate quite so highly up
+rate.m[rate.m<0] <- 0 
 
 # This will be data frame with bootstrapped mortality rates (columns) for a given year (rows)
 mort.rate <- data.frame(array(dim=c(length(start.yr:end.yr), length(start.m))))
