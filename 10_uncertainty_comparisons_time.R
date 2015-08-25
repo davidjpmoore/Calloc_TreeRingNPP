@@ -3,7 +3,7 @@
 ##############################################################################
 library(ggplot2)
 library(grid)
-
+library(car)
 # -----------------------------------
 # loading in & formatting the various datasets that will be needed
 # -----------------------------------
@@ -13,8 +13,10 @@ load("processed_data/valles_allometry_uncertainty.Rdata")
 allom.uncert$range <- allom.uncert$UB - allom.uncert$LB
 allom.uncert$LB.dev <- allom.uncert$Mean - allom.uncert$LB
 allom.uncert$UB.dev <-  allom.uncert$UB - allom.uncert$Mean
+allom.uncert$SiteID <- recode(allom.uncert$SiteID, "'VUF'='1'; 'VLF'='2'")
+levels(allom.uncert$SiteID) <- c("VUF", "VLF")
 allom.uncert <- allom.uncert[order(allom.uncert$Year),]
-allom.uncert <- allom.uncert[order(allom.uncert$Site),]
+allom.uncert <- allom.uncert[order(allom.uncert$SiteID),]
 summary(allom.uncert)
 summary(allom.uncert[allom.uncert$SiteID=="VLF",])
 summary(allom.uncert[allom.uncert$SiteID=="VUF",])
@@ -24,6 +26,8 @@ load("processed_data/valles_density_uncertainty.Rdata")
 dens.uncert$range <- dens.uncert$UB - dens.uncert$LB
 dens.uncert$LB.dev <- dens.uncert$Mean - dens.uncert$LB
 dens.uncert$UB.dev <-  dens.uncert$UB - dens.uncert$Mean
+dens.uncert$SiteID <- recode(dens.uncert$SiteID, "'VUF'='1'; 'VLF'='2'")
+levels(dens.uncert$SiteID) <- c("VUF", "VLF")
 dens.uncert <- dens.uncert[order(dens.uncert$Year),]
 dens.uncert <- dens.uncert[order(dens.uncert$SiteID),]
 summary(dens.uncert)
@@ -37,6 +41,8 @@ names(uncert.mort) <- c("SiteID", "Mean", "Year", "SD", "LB", "UB", "Site")
 dummy.year <- data.frame(Year=dens.uncert$Year, SiteID=dens.uncert$SiteID, Site=dens.uncert$Site) 
 uncert.mort <- merge(uncert.mort, dummy.year, all.x=T, all.y=T)
 uncert.mort <- uncert.mort[order(uncert.mort$Year),]
+uncert.mort$SiteID <- recode(uncert.mort$SiteID, "'VUF'='1'; 'VLF'='2'")
+levels(uncert.mort$SiteID) <- c("VUF", "VLF")
 uncert.mort <- uncert.mort[order(uncert.mort$SiteID),]
 
 uncert.mort$range <- uncert.mort$UB - uncert.mort$LB
@@ -51,6 +57,8 @@ summary(uncert.mort[uncert.mort$SiteID=="VUF",])
 load("processed_data/valles_increment_uncertainty.Rdata")
 names(uncert.increment) <- c("SiteID", "Year", "Mean", "LB", "UB", "Site")
 uncert.increment$range <- uncert.increment$UB - uncert.increment$LB
+uncert.increment$SiteID <- recode(uncert.increment$SiteID, "'VUF'='1'; 'VLF'='2'")
+levels(uncert.increment$SiteID) <- c("VUF", "VLF")
 uncert.increment <- uncert.increment[order(uncert.increment$Year),]
 uncert.increment <- uncert.increment[order(uncert.increment$SiteID),]
 uncert.increment$LB.dev <- uncert.increment$Mean - uncert.increment$LB

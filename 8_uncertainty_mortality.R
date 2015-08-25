@@ -10,6 +10,10 @@
 # Libraries:
 library(ggplot2)
 library(car)
+# ------------------------
+# Poster Themes
+source("poster_theme.R")
+
 
 # ------------------------
 # Load & format data
@@ -56,26 +60,40 @@ rate.m  <- rnorm(n.samps, mean= 0.024, sd= 0.009*sqrt(9)) # Paper gives SE = 0.0
 # Getting rid of negative mortality rates because we want to assume we're getting recuitment right
 # NOTE: not throwing them out entirely, but changing them to 0 to so that we're not shifting the mean 
 #       rate quite so highly up
-rate.m[rate.m<0] <- 0 
+start.m[start.m<0] <- 0 
+rate.m[rate.m<0]   <- 0 
 
 # This will be data frame with bootstrapped mortality rates (columns) for a given year (rows)
 mort.rate <- data.frame(array(dim=c(length(start.yr:end.yr), length(start.m))))
 row.names(mort.rate) <- start.yr:end.yr
 
+i.start <- which(as.numeric(row.names(mort.rate))==start.yr.vm)+1
 for(j in 1:ncol(mort.rate)){ # Each column gets run independently
-  for(i in 1:nrow(mort.rate)){
-    if(as.numeric(row.names(mort.rate)[i])<=start.yr.vm){ 
-      # a normally-distributed morality rate with constant mean if it's before the van Mantgem start year
-      mort.rate[i,j] = sample(start.m, size=1, replace=T)
-    } else {
-      # If we're in the time range for van Mantgem, the mortality rate is increasing through time
-      # Here we add the normally distributed rate of change to the previous year's rate
-      mort.rate[i,j] <- mort.rate[i-1,j] + mort.rate[i-1,j]*sample(rate.m, size=1, replace=T)
-    }
-  }
+	# mort.pull <- sample(rate.m, size=1, replace=T)
+	mort.start <- sample(start.m, size=1, replace=T)
+	mort.rate[,j] <- mort.start
+
+	for(i in i.start:nrow(mort.rate)){
+		mort.rate[i,j] <- mort.rate[i-1,j] + mort.rate[i-1,j]*sample(rate.m, size=1, replace=T)
+	}
+  # for(i in 1:nrow(mort.rate)){ # Years
+    # if(as.numeric(row.names(mort.rate)[i])<=start.yr.vm){ 
+      # # a normally-distributed morality rate with constant mean if it's before the van Mantgem start year
+      # mort.rate[i,j] = mort.start
+    # } else {
+      # # If we're in the time range for van Mantgem, the mortality rate is increasing through time
+      # # Here we add the normally distributed rate of change to the previous year's rate
+      # mort.rate[i,j] <- mort.rate[i-1,j] + mort.rate[i-1,j]*sample(rate.m, size=1, replace=T)
+    # }
+  # }
 }
 mort.rate <- mort.rate[sort(row.names(mort.rate), decreasing=T),] # sort the data so most recent is first
 summary(t(mort.rate))
+
+# plot(mort.rate[,1]~as.numeric(row.names(mort.rate)), ylim=range(mort.rate, na.rm=T), type="l")
+# for(j in 2:25){
+	# lines(mort.rate[,j]~as.numeric(row.names(mort.rate)))
+# }
 # ---------------
 # ------------------------
 
@@ -95,16 +113,18 @@ for(p in 1:length(dimnames(density.time)[[2]])){
 # working backwards in time with our density calculation
 for(j in 1:dim(density.time)[2]){ # go for each plot
   for(i in 2:nrow(density.time)){ # we know modern density, so start after that
-	for(n in 1:dim(mort.rate)[2]){
+	density.time[i,j,1] <- density.time[i-1,j,1] # Make the first one the scenario with no mortality. i.e.: if our field-based densities held true for all time.
+	for(n in 2:dim(mort.rate)[2]){
 	  # multiply the density by mortality rate matrix
       density.time[i,j,n] <- density.time[i-1,j,n] + density.time[i-1,j,n]* mort.rate[i,n]/100
     }
   }
 }
 summary(density.time[,,1])
+summary(density.time[,,2])
 # ------------------------
-
-
+plot(density.time[,4,2]~as.numeric(dimnames(density.time)[[1]]), type="l", col="red")
+lines(density.time[,4,1]~as.numeric(dimnames(density.time)[[1]]), col="black")
 # ------------------------
 # re-running the allometry calculations with the mortality-adjusted densities
 # see "5_post_GF_TRW_to_biomass.R" for original workflow
@@ -173,7 +193,12 @@ for(t in 1:ncol(allom.temp)){
 }
 dim(bm.array)
 dim(density.time)
+
+# NOTE: bm.array[,,1] is the no-mortality adjusted scenario
 summary(bm.array[,1:10,1])
+summary(bm.array[,1:10,2])
+
+
 # ------------------------
 
 # ------------------------
@@ -194,7 +219,8 @@ for(p in 1:length(plots)){
 	cols <- which(dimnames(bm.array)[[2]] %in% ross.valles[ross.valles$plot.id==plots[p], "tree.id"])
 	bm.plot[,p,] <- apply(bm.array[,cols,],c(1,3), mean, na.rm=T)
 }
-summary(bm.plot[,,1])
+summary(bm.plot[,,1]) # 1st value of 3rd dimension still our reference point
+summary(bm.plot[,,2]) 
 # -------------
 
 # -------------
@@ -213,18 +239,19 @@ for(s in 1:length(sites)){
   cols <- which(substr(dimnames(bm.plot)[[2]],1,2) == sites[s])
 
   # Finding the mean site bioass while preserving the density iterations
+	# Here we condense to 2 dimensions; the 1st column will be our reference point
   bm.temp <- apply(bm.plot[,cols,],c(1,3), mean, na.rm=T) 
 
 	# do the calculations to find the density-based mean & CI
-	bm.site[,s,1] <- apply(bm.temp, 1, mean)
+	bm.site[,s,1] <- bm.temp[,1]
 	bm.site[,s,2] <- apply(bm.temp, 1, sd)
-	bm.site[,s,3] <- apply(bm.temp, 1, quantile, 0.025, na.rm=T)
-	bm.site[,s,4] <- apply(bm.temp, 1, quantile, 0.975, na.rm=T)
+	bm.site[,s,3] <- apply(bm.temp[,2:ncol(bm.temp)], 1, quantile, 0.025, na.rm=T)
+	bm.site[,s,4] <- apply(bm.temp[,2:ncol(bm.temp)], 1, quantile, 0.975, na.rm=T)
 }
 summary(bm.site[,,1])
 
 uncert.mort <- stack(data.frame(bm.site[,,1]))[,c(2,1)]
-names(uncert.mort) <- c("SiteID", "BM.Mean")
+names(uncert.mort) <- c("SiteID", "BM.Mean") # NOTE!! BM.MEAN = no-mortality reference point
 uncert.mort$Year <- as.numeric(dimnames(bm.site)[[1]])
 uncert.mort$Mort.SD <- stack(data.frame(bm.site[,,2]))[,1]
 uncert.mort$Mort.CI.lo <- stack(data.frame(bm.site[,,3]))[,1]
