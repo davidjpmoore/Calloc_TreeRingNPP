@@ -11,7 +11,7 @@
 # Libraries:
 library(ggplot2)
 library(car)
-
+library(grid)
 # Read in the full MCMC-based indivudal tree biomass estimates
 load("processed_data/Biomass_Array_Tree_kgm-2.RData")
 # ------------------------
@@ -52,6 +52,7 @@ allom.uncert$Site <- recode(allom.uncert$SiteID, "'VUF'='1';'VLF'='2'")
 levels(allom.uncert$Site) <- c("Upper", "Lower")
 summary(allom.uncert)
 
+# Poster Format
 pdf("figures/Uncertainty_Allometry.pdf", width= 13, height= 8.5)
 ggplot(allom.uncert[,]) + #facet_grid(Site ~.) +
   geom_ribbon(aes(x=Year, ymin=LB, ymax=UB, fill=Site), alpha=0.5) +
@@ -63,6 +64,26 @@ ggplot(allom.uncert[,]) + #facet_grid(Site ~.) +
   # add time slice lines
   geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted", size=1.5) +
   poster.theme1
+dev.off()
+
+# Publication Format
+pdf("figures/Uncertainty_Allometry.pdf", width= 13, height= 8.5)
+ggplot(allom.uncert[,]) + #facet_grid(Site ~.) +
+  geom_ribbon(aes(x=Year, ymin=LB, ymax=UB, fill=Site), alpha=0.5) +
+  geom_line(aes(x=Year, y=Mean, color= Site), size=1.5) + 
+  labs(x="Year", y=expression(paste("Aboveground Biomass (kg m"^"-2",")")), title="Allometric Uncertainty") + 
+    # add time slice lines
+  geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted", size=1) +
+  
+	# General Formatting  
+	theme(legend.position=c(0.15,0.85)) + 
+	theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=rel(1.5)), axis.text.y=element_text(color="black", size=rel(1.5)), axis.title.x=element_text(vjust=-0.5),  axis.title.y=element_text(size=rel(1.5), vjust=1), plot.margin=unit(c(0.1,0.5,0.5,0.1), "lines")) +
+
+  theme(strip.text=element_text(size=rel(1.5)))+
+  theme(axis.ticks.length = unit(-0.25, "cm"),
+        axis.ticks.margin = unit(0.5, "cm"))
+  
+  #poster.theme1
 dev.off()
 
 save(allom.uncert, file="processed_data/valles_allometry_uncertainty.Rdata")
