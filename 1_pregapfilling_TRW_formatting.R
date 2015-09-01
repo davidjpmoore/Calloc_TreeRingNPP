@@ -10,7 +10,7 @@ se <- function(x){
 
 #load in core details data sheet.  Has living/dead, pith info, measurement info.
 #loading the dplR to use the basal area reconstruction functions.
-core.data <- read.csv("raw input files/Core_data_DOE_summer_2014.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
+core.data <- read.csv("raw_input_files/Core_data_DOE_summer_2014.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
 #adding a column include which plot at the site the trees belong to
 names(core.data)
 core.data$plot <- substr(core.data$plot.id, 3, 3)
@@ -27,7 +27,7 @@ summary(core.data)
 write.csv(core.data, file="processed_data/core_data.csv", row.names=F)
 
 #importing the diameter files of all trees sampled: includes tree id, spp, plot assignment, and DBH 
-tree.data <- read.csv("raw input files/DOE_plus_valles.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
+tree.data <- read.csv("raw_input_files/tree_metadata_DOE_plus_valles.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
 #adding a column include which plot at the site the trees belong to
 names(tree.data)
 tree.data$plot <- substr(tree.data$PlotID, 3, 3)
@@ -110,6 +110,12 @@ names(tree.rw)<-unique(substr(names(core.rw), 1, 6)) # labeling the columns as t
 # summary(tree.rw) # this will get really big very quickly
 dim(tree.rw) # 266 trees, 112 years of data
 
+# 3 types of trees we have
+tree.dated    <- NA
+tree.undated  <- NA
+tree.missing  <- unique(tree.data[substr(tree.data$PlotID,1,1)=="V", "TreeID"])[!(unique(tree.data[substr(tree.data$PlotID,1,1)=="V", "TreeID"]) %in% trees)]
+length(trees); length(tree.missing)
+
 # The Aggregation Loop
 for(i in unique(trees)){
   cols <- which(substr(names(core.rw),1,6)==i) # getting the columns we're working with
@@ -180,6 +186,25 @@ summary(tree.data)
 write.csv(tree.data, "processed_data/TreeData.csv", row.names=F)
 
 # ----------------------------------------------------------------------------
+
+tree.dated    <- unique(tree.data[substr(tree.data$PlotID,1,1)=="V" & tree.data$Dated == "Y", "TreeID"])
+tree.undated  <- unique(tree.data[substr(tree.data$PlotID,1,1)=="V" & tree.data$Dated == "N", "TreeID"])
+tree.missing  <- unique(tree.data[substr(tree.data$PlotID,1,1)=="V" & is.na(tree.data$Dated), "TreeID"])
+
+tree.dated   <- tree.dated[!is.na(tree.dated)]
+tree.undated <- tree.undated[!is.na(tree.undated)]
+length(trees[substr(trees, 1, 1)=="V"]); length(tree.dated); length(tree.undated);  length(tree.missing)
+
+# Percentages of trees dated, trees undated, and trees missing
+
+tot.trees <- tree.data[substr(tree.data$PlotID,1,1)=="V", "TreeID"]
+length(tot.trees)
+
+perc.dated <- length(tree.dated) / length(tot.trees)
+perc.undated <- length(tree.undated)/length(tot.trees)
+perc.missing <- length(tree.missing)/length(tot.trees)
+
+perc.dated; perc.undated; perc.missing
 
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------

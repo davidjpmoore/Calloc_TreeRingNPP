@@ -425,4 +425,3 @@ mean(vuf.inc.perc, na.rm=T); sd(vuf.inc.perc, na.rm=T)
 
 	mean(vlf.inc.perc.win2, na.rm=T); sd(vlf.inc.perc.win2, na.rm=T)
 	mean(vuf.inc.perc.win2, na.rm=T); sd(vuf.inc.perc.win2, na.rm=T)
-
