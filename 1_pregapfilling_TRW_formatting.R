@@ -15,6 +15,7 @@ core.data <- read.csv("raw_input_files/Core_data_DOE_summer_2014.csv", na.string
 names(core.data)
 core.data$plot <- substr(core.data$plot.id, 3, 3)
 core.data$plot <- as.factor(core.data$plot)
+
 summary(core.data)
 
 # Doing some stuff to Canopy Class to make our lives easier
