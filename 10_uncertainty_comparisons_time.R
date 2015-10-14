@@ -233,6 +233,13 @@ vuf.allom.rel <- allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year >=1
 summary(vlf.allom.rel)
 summary(vuf.allom.rel)
 
+#Range Means
+mean(allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year >=1980, "range"], na.rm=T); sd(allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year >=1980, "range"], na.rm=T)
+
+mean(allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year >=1980, "range"], na.rm=T); sd(allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year >=1980, "range"], na.rm=T)
+
+
+# Ratio Means
 mean(vlf.allom.rel, na.rm=T); sd(vlf.allom.rel, na.rm=T)
 mean(vuf.allom.rel, na.rm=T); sd(vuf.allom.rel, na.rm=T)
 
@@ -263,6 +270,13 @@ vuf.inc.rel <- uncert.increment[uncert.increment$SiteID=="VUF" & uncert.incremen
 summary(vlf.inc.rel)
 summary(vuf.inc.rel)
 
+# Range Means
+mean(uncert.increment[uncert.increment$SiteID=="VLF" & uncert.increment$Year >=1980, "range"], na.rm=T); sd(uncert.increment[uncert.increment$SiteID=="VLF" & uncert.increment$Year >=1980, "range"], na.rm=T)
+
+mean(uncert.increment[uncert.increment$SiteID=="VUF" & uncert.increment$Year >=1980, "range"], na.rm=T); sd(uncert.increment[uncert.increment$SiteID=="VUF" & uncert.increment$Year >=1980, "range"], na.rm=T)
+
+
+# Ratio Means
 mean(vlf.inc.rel, na.rm=T); sd(vlf.inc.rel, na.rm=T)
 mean(vuf.inc.rel, na.rm=T); sd(vuf.inc.rel, na.rm=T)
 
