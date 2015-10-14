@@ -23,13 +23,39 @@ load("processed_data/Biomass_Array_Tree_kgm-2.RData")
 # bm.array==the array we read in above, 
 # apply c(1,3) = preserve the dims 1 (years) & 3 (allometric iterations)
 # ------------------------
-vlf.mean <- apply(bm.array[,substr(dimnames(bm.array)[[2]],1,3)=="VLF",], c(1,3), mean) 
+# Subsetting and using the mean allometric biomass estimate to get a biomass/tree
+biom.valles <- bm.array[,which(substr(dimnames(bm.array)[[2]],1,1)=="V"),]
+# biom.valles$Year <- as.numeric(dimnames(bm.array)[[1]])
+dim(biom.valles)
+# summary(biom.valles)
+
+# Going from trees to plots (ignoring any tree-level plot level)
+# Note: Using a dummy code here so that we bassically have plot #0 and Plot #1
+plots <- unique(substr(dimnames(biom.valles)[[2]], 1, 4))
+plots <- plots[!plots == "Year"]
+
+# Go from tree biomass (kg/m2) to plot (kg/m2)
+biom.plot <- array(dim=c(nrow(biom.valles), length(plots), dim(biom.valles)[3]))
+dimnames(biom.plot)[[1]] <- dimnames(biom.valles)[[1]]
+dimnames(biom.plot)[[2]] <- c(plots)
+dim(biom.plot)
+
+for(p in plots){
+	cols.plot <- which(substr(dimnames(biom.valles)[[2]],1,4)==p)
+	biom.plot[,p,] <- apply(biom.valles[,cols.plot,], c(1,3), FUN=mean)
+}
+summary(biom.plot[,,1])
+
+# Go from plot to site while preserving the allometry iterations (currently dim #3)
+vlf.mean <- apply(biom.plot[,substr(dimnames(biom.plot)[[2]],1,3)=="VLF",], c(1,3), mean) 
 dim(vlf.mean)
 summary(vlf.mean[,1:10])
+row.names(vlf.mean)
 
-vuf.mean <- apply(bm.array[,substr(dimnames(bm.array)[[2]],1,3)=="VUF",], c(1,3), mean) 
+vuf.mean <- apply(biom.plot[,substr(dimnames(biom.plot)[[2]],1,3)=="VUF",], c(1,3), mean) 
 dim(vuf.mean)
 summary(vuf.mean[,1:10])
+row.names(vuf.mean)
 # ------------------------
 
 # ------------------------
@@ -53,18 +79,18 @@ levels(allom.uncert$Site) <- c("Upper", "Lower")
 summary(allom.uncert)
 
 # Poster Format
-pdf("figures/Uncertainty_Allometry.pdf", width= 13, height= 8.5)
-ggplot(allom.uncert[,]) + #facet_grid(Site ~.) +
-  geom_ribbon(aes(x=Year, ymin=LB, ymax=UB, fill=Site), alpha=0.5) +
-  geom_line(aes(x=Year, y=Mean, color= Site), size=1.5) + 
-  labs(x="Year", y=expression(bold(paste("Aboveground Biomass (kg m"^"-2",")"))), title="Allometric Uncertainty") + 
-  #theme_bw()
-  theme(axis.ticks.length = unit(-0.25, "cm"),
-        axis.ticks.margin = unit(0.5, "cm")) +
-  # add time slice lines
-  geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted", size=1.5) +
-  poster.theme1
-dev.off()
+# pdf("figures/Uncertainty_Allometry.pdf", width= 13, height= 8.5)
+# ggplot(allom.uncert[,]) + #facet_grid(Site ~.) +
+  # geom_ribbon(aes(x=Year, ymin=LB, ymax=UB, fill=Site), alpha=0.5) +
+  # geom_line(aes(x=Year, y=Mean, color= Site), size=1.5) + 
+  # labs(x="Year", y=expression(bold(paste("Aboveground Biomass (kg m"^"-2",")"))), title="Allometric Uncertainty") + 
+  # #theme_bw()
+  # theme(axis.ticks.length = unit(-0.25, "cm"),
+        # axis.ticks.margin = unit(0.5, "cm")) +
+  # # add time slice lines
+  # geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted", size=1.5) # +
+  # # poster.theme1
+# dev.off()
 
 # Publication Format
 pdf("figures/Uncertainty_Allometry.pdf", width= 13, height= 8.5)
