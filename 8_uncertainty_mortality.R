@@ -57,21 +57,25 @@ rate.m  <- rnorm(n.samps, mean= 0.024, sd= 0.009*sqrt(9)) # Paper gives SE = 0.0
 # NOTE: not throwing them out entirely, but changing them to 0 to so that we're not shifting the mean 
 #       rate quite so highly up
 rate.m[rate.m<0] <- 0 
+start.m[start.m<0] <- 0 
 
 # This will be data frame with bootstrapped mortality rates (columns) for a given year (rows)
 mort.rate <- data.frame(array(dim=c(length(start.yr:end.yr), length(start.m))))
 row.names(mort.rate) <- start.yr:end.yr
 
+i.start <- which(as.numeric(row.names(mort.rate))==start.yr.vm)
 for(j in 1:ncol(mort.rate)){ # Each column gets run independently
-  for(i in 1:nrow(mort.rate)){
-    if(as.numeric(row.names(mort.rate)[i])<=start.yr.vm){ 
-      # a normally-distributed morality rate with constant mean if it's before the van Mantgem start year
-      mort.rate[i,j] = sample(start.m, size=1, replace=T)
-    } else {
-      # If we're in the time range for van Mantgem, the mortality rate is increasing through time
-      # Here we add the normally distributed rate of change to the previous year's rate
+	mort.start <- sample(start.m, size=1, replace=T)
+	mort.rate[,j] <- mort.start
+  for(i in i.start:nrow(mort.rate)){
+    # if(as.numeric(row.names(mort.rate)[i])<=start.yr.vm){ 
+      # # a normally-distributed morality rate with constant mean if it's before the van Mantgem start year
+      # mort.rate[i,j] = sample(start.m, size=1, replace=T)
+    # } else {
+      # # If we're in the time range for van Mantgem, the mortality rate is increasing through time
+      # # Here we add the normally distributed rate of change to the previous year's rate
       mort.rate[i,j] <- mort.rate[i-1,j] + mort.rate[i-1,j]*sample(rate.m, size=1, replace=T)
-    }
+    # }
   }
 }
 mort.rate <- mort.rate[sort(row.names(mort.rate), decreasing=T),] # sort the data so most recent is first

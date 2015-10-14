@@ -4,13 +4,15 @@
 setwd("pecan.allometry") 
 
 # The Designated directory where the resulting allometries will be stored
-outdir <- "allometries"
+outdir <- "../allometries"
 
 #File Path of allometry database
 parm.path <- "data/Table3_GTR-NE-319.v2.csv"
-#parm.path <- "/allometry/data/Table3_GTR-NE-319.v2_RossAdendum4.csv"
+#parm.path <- "data/Table3_GTR-NE-319.v2_RossAdendum4.csv"
 #allometry file needs to be replaced with Ross's custom file 
 #should the main PECAN allometry file be updated with Ross's additions?
+
+# Files listed as 'Chojnacky' in the comments have been manually added by Ross Alexander with permission by Dr. Chojnacky.  These equations do not appear in the standard 'Table3_GTR-NE-319.v2.csv' file.  Dr. Chojnacky asked that these equations not be made public at this time.  
 
 #Pecan Scripts to be used
 source("R/AllomAve.R")
@@ -33,7 +35,7 @@ source("R/read.allom.data.R")
 #                  dmin   = minimum diameter
 #                  dmax   = maximum diameter
 
-pfts = list(east.hard = data.frame(spcd=1000,acronym="EAHW"),
+pfts = list(east.hard = data.frame(spcd=1000,acronym="EHW"),
 			FAGR = data.frame(spcd=531,acronym="FAGR"), 
             LITU = data.frame(spcd=621,acronym="LITU"),
             QUAL = data.frame(spcd=802,acronym="QUAL"),
