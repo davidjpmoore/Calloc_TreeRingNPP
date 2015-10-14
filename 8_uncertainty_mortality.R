@@ -8,8 +8,12 @@
 #     modifies modern stand densities measured in the field 
 # -----------------------------------------------------------
 # Libraries:
-library(ggplot2)
+library(ggplot2); library(grid)
 library(car)
+
+# Set the random number seed so we always get the same numbers
+set.seed(510)
+
 # ------------------------
 # Poster Themes
 source("poster_theme.R")
@@ -261,17 +265,17 @@ levels(uncert.mort$Site) <- c("Upper", "Lower")
 summary(uncert.mort)
 
 #Poster Figure
-pdf("figures/Uncertainty_Mortality_TimeSeries.pdf", width= 13, height= 8.5)
-ggplot(uncert.mort) +
-	geom_ribbon(aes(x=Year, ymin=Mort.CI.lo, ymax=Mort.CI.hi, fill=Site), alpha=0.4) +
-	geom_line(aes(x=Year, y=BM.Mean, color=Site), size=1.5) +
-	labs(x="Year", y=expression(bold(paste("Biomass (kg m" ^ "-2 ", ")"))), title="Mortality Uncertainty") +
-  theme(axis.ticks.length = unit(-0.25, "cm"),
-        axis.ticks.margin = unit(0.5, "cm")) +
-  # add time slice lines
-  geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted",size=1.5) +
-	poster.theme1 #theme.bw()
-dev.off()
+# pdf("figures/Uncertainty_Mortality_TimeSeries.pdf", width= 13, height= 8.5)
+# ggplot(uncert.mort) +
+	# geom_ribbon(aes(x=Year, ymin=Mort.CI.lo, ymax=Mort.CI.hi, fill=Site), alpha=0.4) +
+	# geom_line(aes(x=Year, y=BM.Mean, color=Site), size=1.5) +
+	# labs(x="Year", y=expression(bold(paste("Biomass (kg m" ^ "-2 ", ")"))), title="Mortality Uncertainty") +
+  # theme(axis.ticks.length = unit(-0.25, "cm"),
+        # axis.ticks.margin = unit(0.5, "cm")) +
+  # # add time slice lines
+  # geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted",size=1.5) +
+	# poster.theme1 #theme.bw()
+# dev.off()
 
 #Publication Figure
 pdf("figures/Uncertainty_Mortality_TimeSeries.pdf", width= 13, height= 8.5)

@@ -10,6 +10,8 @@ allom.base <- "allometries"
 allometries<- list()
 
 # Sampling 500 random rows from the last 5000 runs of the MCMC
+# Set the random  number seed so we always get the same results
+set.seed(510)
 
 # need to not pull rows with a negative mu1
 # loading in the MCMC data from PEcAn for PIPO
