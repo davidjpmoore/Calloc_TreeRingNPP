@@ -9,33 +9,52 @@
 # Load libraries & read in data
 # ------------------------
 # Libraries:
-library(ggplot2)
+library(ggplot2); library(grid)
 library(car)
 
-# Read in the full MCMC-based indivudal tree biomass estimates
-load("processed_data/Plot_Biomass_Array.Rdata") # loads plot-level bm.array
+# Read in the full plot-based biomass estimates
+load("processed_data/Biomass_Array_Tree_kgm-2.RData") # loads plot-level bm.array
 # ------------------------
 
 # ------------------------
 # Subset Valles, take mean of allometric iterations, & figure out plot (density)-based 95% CI
 # Note: the CIs here will be rather weird since we only have 2 plots with cores for each site
 # ------------------------
-# Subsetting and using the mean allometric biomass estimate
+# Subsetting and using the mean allometric biomass estimate to get a biomass/tree
 biom.valles <- data.frame(apply(bm.array[,which(substr(dimnames(bm.array)[[2]],1,1)=="V"),], c(1,2), mean))
 biom.valles$Year <- as.numeric(dimnames(bm.array)[[1]])
 summary(biom.valles)
 
-cols.vu <- which(substr(names(biom.valles),1,2)=="VU") # creating an index for VUF
-ci.vu <- data.frame(Year=biom.valles$Year, SiteID= "VUF",
-                    Mean = apply(biom.valles[,cols.vu], 1, mean, na.rm=T),
-                    LB   = apply(biom.valles[,cols.vu], 1, quantile, 0.025, na.rm=T), 
-                    UB   = apply(biom.valles[,cols.vu], 1, quantile, 0.975, na.rm=T))
+# Going from trees to plots (ignoring any tree-level plot level)
+# Note: Using a dummy code here so that we bassically have plot #0 and Plot #1
+plots <- unique(substr(names(biom.valles), 1, 4))
+plots <- plots[!plots == "Year"]
 
-cols.vl <- which(substr(names(biom.valles),1,2)=="VL") # creating an index for VLF
-ci.vl <- data.frame(Year=biom.valles$Year, SiteID= "VLF",
-                    Mean = apply(biom.valles[,cols.vl], 1, mean, na.rm=T),
-                    LB   = apply(biom.valles[,cols.vl], 1, quantile, 0.025, na.rm=T), 
-                    UB   = apply(biom.valles[,cols.vl], 1, quantile, 0.975, na.rm=T))
+
+# Go from tree biomass (kg/m2) to plot (kg/m2)
+biom.plot <- data.frame(array(dim=c(nrow(bm.array), length(plots)+1)))
+names(biom.plot) <- c("Year", plots)
+biom.plot$Year <- biom.valles$Year
+summary(biom.plot)
+
+for(p in plots){
+	cols.plot <- which(substr(names(biom.valles),1,4)==p)
+	biom.plot[,p] <- apply(biom.valles[,cols.plot], 1, FUN=mean)
+}
+summary(biom.plot)
+
+#  Plot to Site, get CI from differences among plots
+cols.vu <- which(substr(names(biom.plot),1,2)=="VU") # creating an index for VUF
+ci.vu <- data.frame(Year= biom.plot$Year, SiteID= "VUF",
+                    Mean = apply(biom.plot[,cols.vu], 1, mean, na.rm=T),
+                    LB   = apply(biom.plot[,cols.vu], 1, quantile, 0.025, na.rm=T), 
+                    UB   = apply(biom.plot[,cols.vu], 1, quantile, 0.975, na.rm=T))
+
+cols.vl <- which(substr(names(biom.plot),1,2)=="VL") # creating an index for VLF
+ci.vl <- data.frame(Year= biom.plot$Year, SiteID= "VLF",
+                    Mean = apply(biom.plot[,cols.vl], 1, mean, na.rm=T),
+                    LB   = apply(biom.plot[,cols.vl], 1, quantile, 0.025, na.rm=T), 
+                    UB   = apply(biom.plot[,cols.vl], 1, quantile, 0.975, na.rm=T))
 # ------------------------
 
 
@@ -62,7 +81,7 @@ ggplot(dens.uncert[,]) + #facet_grid(Site ~.) +
         axis.ticks.margin = unit(0.5, "cm")) +
   # add time slice lines
   geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted", size=1.5) +
-  poster.theme1
+  poster.theme
 dev.off()
 
 save(dens.uncert, file="processed_data/valles_density_uncertainty.Rdata")
