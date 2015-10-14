@@ -63,7 +63,7 @@ tree.data <- read.csv("processed_data/TreeData.csv")
 summary(tree.data)
 
 # Site Data (for year cored) 
-Site.data <- read.csv("raw input files/DOE_plus_valles.csv", na.strings="")
+Site.data <- read.csv("raw_input_files/DOE_plus_valles.csv", na.strings="")
 Site.data$Year.sample <- as.numeric(substr(Site.data$date.sample,7,10))
 Site.data <- Site.data[!is.na(Site.data$PlotID),] # something was getting read in weird, so lets get rid of any false rows
 summary(Site.data)

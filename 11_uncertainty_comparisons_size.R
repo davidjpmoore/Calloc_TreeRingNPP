@@ -358,14 +358,23 @@ valles.site$site.common <- recode(valles.site$site, "'VUF'='1'; 'VLF'='2'")
 levels(valles.site$site.common) <- c("Upper", "Lower")
 summary(valles.site)
 
+#multiplying Relative Biomass (%) by 100 to change from a proportion to a percent
+valles.site[valles.site$response=="Relative Biomass", c("Mean", "CI.lo", "CI.hi")] <- valles.site[valles.site$response=="Relative Biomass", c("Mean", "CI.lo", "CI.hi")]*100
+
+summary(valles.site)
+
 pdf("figures/Size_Distribution_Uncertainty_Comparison_RossOnly.pdf")
 ggplot(data=valles.site[valles.site$project=="Ross",]) + facet_grid(response.order ~ site, scales="free") +
 	geom_bar(aes(x=dbh.bin, y=Mean, fill= uncertainty.type), breaks=dbh.bins[1:(length(dbh.bins)-1)], fill="gray50", stat="identity", position="dodge") +
 	geom_linerange(aes(x=dbh.bin, ymin=CI.lo, ymax= CI.hi, color=uncertainty.type), position=position_dodge(width=0.85), size=2, alpha=0.9) +
 	scale_fill_manual(values=c("gray50", "gray50")) +
-	scale_color_manual(values=c("blue", "red2"))+
+	scale_x_discrete(labels=c("0", "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60"))+
+	scale_color_manual(values=c("blue", "red2"), name="Uncertainty Type")+
 	labs(x="DBH (cm)", y="", title="") +
-	theme_bw() +	theme(axis.text.x = element_text(angle = 45, hjust = 1))
+	theme_bw() +
+	theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank())+	
+ 	theme(axis.text.x = element_text(angle = 0, hjust = 0.6))+
+ 	theme(legend.position=c(0.88 ,0.9), legend.key=element_blank())
 dev.off()
 
 # --------------------
@@ -394,7 +403,13 @@ ggplot(data=valles.site[,]) + facet_grid(response.order ~ site, scales="free") +
 	scale_fill_manual(values=c("gray33", "gray66")) +
 	scale_color_manual(values=c("blue", "red"))+
 	labs(x="DBH (cm)", y="", title="") +
-	theme_bw() +	theme(axis.text.x = element_text(angle = 45, hjust = 1))
+	theme_bw() +
+	scale_x_discrete(labels=c("0", "5", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60"))+	
+	theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank())+	
+ 	theme(axis.text.x = element_text(angle = 0, hjust = 0.6))+
+ 	theme(legend.position=c(0.88 ,0.9), legend.key=element_blank())
+
+	
 dev.off()
 
 # -------------------------------------

@@ -3,7 +3,7 @@
 ##############################################################################
 library(ggplot2)
 library(grid)
-
+library(car)
 # -----------------------------------
 # loading in & formatting the various datasets that will be needed
 # -----------------------------------
@@ -13,8 +13,10 @@ load("processed_data/valles_allometry_uncertainty.Rdata")
 allom.uncert$range <- allom.uncert$UB - allom.uncert$LB
 allom.uncert$LB.dev <- allom.uncert$Mean - allom.uncert$LB
 allom.uncert$UB.dev <-  allom.uncert$UB - allom.uncert$Mean
+allom.uncert$SiteID <- recode(allom.uncert$SiteID, "'VUF'='1'; 'VLF'='2'")
+levels(allom.uncert$SiteID) <- c("VUF", "VLF")
 allom.uncert <- allom.uncert[order(allom.uncert$Year),]
-allom.uncert <- allom.uncert[order(allom.uncert$Site),]
+allom.uncert <- allom.uncert[order(allom.uncert$SiteID),]
 summary(allom.uncert)
 summary(allom.uncert[allom.uncert$SiteID=="VLF",])
 summary(allom.uncert[allom.uncert$SiteID=="VUF",])
@@ -24,6 +26,8 @@ load("processed_data/valles_density_uncertainty.Rdata")
 dens.uncert$range <- dens.uncert$UB - dens.uncert$LB
 dens.uncert$LB.dev <- dens.uncert$Mean - dens.uncert$LB
 dens.uncert$UB.dev <-  dens.uncert$UB - dens.uncert$Mean
+dens.uncert$SiteID <- recode(dens.uncert$SiteID, "'VUF'='1'; 'VLF'='2'")
+levels(dens.uncert$SiteID) <- c("VUF", "VLF")
 dens.uncert <- dens.uncert[order(dens.uncert$Year),]
 dens.uncert <- dens.uncert[order(dens.uncert$SiteID),]
 summary(dens.uncert)
@@ -37,6 +41,8 @@ names(uncert.mort) <- c("SiteID", "Mean", "Year", "SD", "LB", "UB", "Site")
 dummy.year <- data.frame(Year=dens.uncert$Year, SiteID=dens.uncert$SiteID, Site=dens.uncert$Site) 
 uncert.mort <- merge(uncert.mort, dummy.year, all.x=T, all.y=T)
 uncert.mort <- uncert.mort[order(uncert.mort$Year),]
+uncert.mort$SiteID <- recode(uncert.mort$SiteID, "'VUF'='1'; 'VLF'='2'")
+levels(uncert.mort$SiteID) <- c("VUF", "VLF")
 uncert.mort <- uncert.mort[order(uncert.mort$SiteID),]
 
 uncert.mort$range <- uncert.mort$UB - uncert.mort$LB
@@ -51,6 +57,8 @@ summary(uncert.mort[uncert.mort$SiteID=="VUF",])
 load("processed_data/valles_increment_uncertainty.Rdata")
 names(uncert.increment) <- c("SiteID", "Year", "Mean", "LB", "UB", "Site")
 uncert.increment$range <- uncert.increment$UB - uncert.increment$LB
+uncert.increment$SiteID <- recode(uncert.increment$SiteID, "'VUF'='1'; 'VLF'='2'")
+levels(uncert.increment$SiteID) <- c("VUF", "VLF")
 uncert.increment <- uncert.increment[order(uncert.increment$Year),]
 uncert.increment <- uncert.increment[order(uncert.increment$SiteID),]
 uncert.increment$LB.dev <- uncert.increment$Mean - uncert.increment$LB
@@ -186,22 +194,22 @@ ggplot(bm.final[bm.final$Year >= 1925 & bm.final$Year <=2011,]) + facet_grid(Sit
   geom_line(aes(x=Year, y=Base), size=1.5, color="black") +
   
   # add time slice lines
-  geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted", size=1.5) +
+  geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted", size=1) +
 
   # Legend Formatting
-  labs(title= "Total Uncertainty", x="Year", y=expression(bold(paste("Aboveground Biomass (kg m"^"-2",")")))) +
+  labs(title= "Total Uncertainty", x="Year", y=expression(paste("Aboveground Biomass (kg m"^"-2",")"))) +
   scale_fill_manual(name="Uncertainty", values=c("green3", "blue", "red", "orange2"), labels=c("Increment", "Allometry", "Plot Density", "Mortality")) +
   guides(fill=guide_legend(override.aes=list(alpha=0.15))) +
 #  theme(legend.position=c(0.2,0.85), legend.text=element_text(size=rel(1.25)), legend.title=element_text(size=rel(1.25)))  + 
-  theme(legend.position=c(0.2,0.85)) + 
+  theme(legend.position=c(0.15,0.85)) + 
 
   # General Plot formatting
-  theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=rel(1.5)), axis.text.y=element_text(color="black", size=rel(1.5)), axis.title.x=element_text(face="bold", size=rel(1.5), vjust=-0.5),  axis.title.y=element_text(face="bold", size=rel(1.5), vjust=1), plot.margin=unit(c(0.1,0.5,0.5,0.1), "lines")) +
+  theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=rel(1.5)), axis.text.y=element_text(color="black", size=rel(1.5)), axis.title.x=element_text(vjust=-0.5),  axis.title.y=element_text(size=rel(1.5), vjust=1), plot.margin=unit(c(0.1,0.5,0.5,0.1), "lines")) +
 
-  theme(strip.text=element_text(size=rel(1.5), face="bold"))+
+  theme(strip.text=element_text(size=rel(1.5)))+
   theme(axis.ticks.length = unit(-0.25, "cm"),
-        axis.ticks.margin = unit(0.5, "cm"))+
-  poster.theme1
+        axis.ticks.margin = unit(0.5, "cm")) 
+  #poster.theme1
 dev.off()
 # -----------------------------------
   
@@ -220,32 +228,28 @@ dev.off()
 # Looking at relative magnitudes of uncertainties
 
 # Allometry
-vlf.allom.rel <- allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year==1990, "range"]/allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year==1990, "Mean"]
-vuf.allom.rel <- allom.uncert[allom.uncert$SiteID=="VUF", "range"]/allom.uncert[allom.uncert$SiteID=="VUF", "Mean"]
+vlf.allom.rel <- allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year >=1980, "range"]/allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year >=1980, "Mean"]
+vuf.allom.rel <- allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year >=1980, "range"]/allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year >=1980, "Mean"]
 summary(vlf.allom.rel)
 summary(vuf.allom.rel)
-
-vlf.allom.rel.UB <- allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year==1990 & allom.uncert$Year<=2010, "UB.dev"]/allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year>=1990 & allom.uncert$Year<=2010, "Mean"]
-vlf.allom.rel.LB <- allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year==1990, "LB.dev"]/allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year==1990, "Mean"]
-summary(vlf.allom.rel.UB)
 
 mean(vlf.allom.rel, na.rm=T); sd(vlf.allom.rel, na.rm=T)
 mean(vuf.allom.rel, na.rm=T); sd(vuf.allom.rel, na.rm=T)
 
 
 # Density
-vlf.dens.rel <- dens.uncert[dens.uncert$SiteID=="VLF", "range"]/allom.uncert[allom.uncert$SiteID=="VLF", "Mean"]
-vuf.dens.rel <- dens.uncert[dens.uncert$SiteID=="VUF", "range"]/allom.uncert[allom.uncert$SiteID=="VUF", "Mean"]
+vlf.dens.rel <- dens.uncert[dens.uncert$SiteID=="VLF" & dens.uncert$Year >= 1980, "range"]/allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year >=1980, "Mean"]
+vuf.dens.rel <- dens.uncert[dens.uncert$SiteID=="VUF" & dens.uncert$Year >= 1980, "range"]/allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year >=1980, "Mean"]
 summary(vlf.dens.rel)
 summary(vuf.dens.rel)
 
 mean(vlf.dens.rel, na.rm=T); sd(vlf.dens.rel, na.rm=T)
-mean(vuf.dens.rel, na.rm=T); sd(vuf.dens.rel, na.rm=T)
+mean(vuf.dens.rel, na.rm=T); sd(vuf.dens.rel, na.rm=T) 
 
 
 # Mortality
-vlf.mort.rel <- uncert.mort[uncert.mort$SiteID=="VLF", "range"]/allom.uncert[allom.uncert$SiteID=="VLF", "Mean"]
-vuf.mort.rel <- uncert.mort[uncert.mort$SiteID=="VUF", "range"]/allom.uncert[allom.uncert$SiteID=="VUF", "Mean"]
+vlf.mort.rel <- uncert.mort[uncert.mort$SiteID=="VLF" & uncert.mort$Year >=1980, "range"]/allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year >=1980, "Mean"]
+vuf.mort.rel <- uncert.mort[uncert.mort$SiteID=="VUF" & uncert.mort$Year >=1980, "range"]/allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year >=1980, "Mean"]
 summary(vlf.mort.rel)
 summary(vuf.mort.rel)
 
@@ -254,8 +258,8 @@ mean(vuf.mort.rel, na.rm=T); sd(vuf.mort.rel, na.rm=T)
 
 
 # TR increment
-vlf.inc.rel <- uncert.increment[uncert.increment$SiteID=="VLF", "range"]/allom.uncert[allom.uncert$SiteID=="VLF", "Mean"]
-vuf.inc.rel <- uncert.increment[uncert.increment$SiteID=="VUF", "range"]/allom.uncert[allom.uncert$SiteID=="VUF", "Mean"]
+vlf.inc.rel <- uncert.increment[uncert.increment$SiteID=="VLF" & uncert.increment$Year >=1980, "range"]/allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year >=1980, "Mean"]
+vuf.inc.rel <- uncert.increment[uncert.increment$SiteID=="VUF" & uncert.increment$Year >=1980 , "range"]/allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year >=1980, "Mean"]
 summary(vlf.inc.rel)
 summary(vuf.inc.rel)
 
@@ -279,9 +283,22 @@ start <- 2011
 window1 <- (1995-2) : (1995+2)
 window2 <- (1980-2) : (1980+2)
 
+# Mean Biomass at each window
+	# Start
+	mean(vlf.final[vlf.final$Year %in% start , "Base"], na.rm=T); sd(vlf.final[vlf.final$Year %in% start , "Base"], na.rm=T)
+	mean(vuf.final[vuf.final$Year %in% start , "Base"], na.rm=T); sd(vuf.final[vuf.final$Year %in% start , "Base"], na.rm=T)
+	
+  # Window 1 (1995)
+	mean(vlf.final[vlf.final$Year %in% window1 , "Base"], na.rm=T); sd(vlf.final[vlf.final$Year %in% window1 , "Base"], na.rm=T)	
+	mean(vuf.final[vuf.final$Year %in% window1 , "Base"], na.rm=T); sd(vuf.final[vuf.final$Year %in% window1 , "Base"], na.rm=T)
+	  
+  # Window 2 (1980)
+	mean(vlf.final[vlf.final$Year %in% window2 , "Base"], na.rm=T); sd(vlf.final[vlf.final$Year %in% window2 , "Base"], na.rm=T)	
+	mean(vuf.final[vuf.final$Year %in% window2 , "Base"], na.rm=T); sd(vuf.final[vuf.final$Year %in% window2 , "Base"], na.rm=T)
+
+
+
 # Overall uncertainty kg of biomass /m2
-
-
   #start
 	mean(vlf.final[vlf.final$Year %in% start , "range"], na.rm=T); sd(vlf.final[vlf.final$Year %in% start , "range"], na.rm=T)
 	mean(vuf.final[vuf.final$Year %in% start , "range"], na.rm=T); sd(vuf.final[vuf.final$Year %in% start , "range"], na.rm=T)
@@ -417,4 +434,3 @@ mean(vuf.inc.perc, na.rm=T); sd(vuf.inc.perc, na.rm=T)
 
 	mean(vlf.inc.perc.win2, na.rm=T); sd(vlf.inc.perc.win2, na.rm=T)
 	mean(vuf.inc.perc.win2, na.rm=T); sd(vuf.inc.perc.win2, na.rm=T)
-
