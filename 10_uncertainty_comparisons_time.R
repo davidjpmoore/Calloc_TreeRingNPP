@@ -250,6 +250,13 @@ vuf.dens.rel <- dens.uncert[dens.uncert$SiteID=="VUF" & dens.uncert$Year >= 1980
 summary(vlf.dens.rel)
 summary(vuf.dens.rel)
 
+#Range Means
+mean(dens.uncert[dens.uncert$SiteID=="VLF" & dens.uncert$Year >=1980, "range"], na.rm=T); sd(dens.uncert[dens.uncert$SiteID=="VLF" & dens.uncert$Year >=1980, "range"], na.rm=T)
+
+mean(dens.uncert[dens.uncert$SiteID=="VUF" & dens.uncert$Year >=1980, "range"], na.rm=T); sd(dens.uncert[dens.uncert$SiteID=="VUF" & dens.uncert$Year >=1980, "range"], na.rm=T)
+
+
+# Ratio Means
 mean(vlf.dens.rel, na.rm=T); sd(vlf.dens.rel, na.rm=T)
 mean(vuf.dens.rel, na.rm=T); sd(vuf.dens.rel, na.rm=T) 
 
