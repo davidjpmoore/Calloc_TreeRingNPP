@@ -389,6 +389,7 @@ window2 <- (1980-2) : (1980+2)
 	summary(vlf.allom.perc.start)
 	summary(vuf.allom.perc.start)
 
+	
 	mean(vlf.allom.perc.start, na.rm=T); sd(vlf.allom.perc.start, na.rm=T)
 	mean(vuf.allom.perc.start, na.rm=T); sd(vuf.allom.perc.start, na.rm=T)
 
@@ -398,6 +399,9 @@ window2 <- (1980-2) : (1980+2)
 	summary(vlf.allom.perc.win1)
 	summary(vuf.allom.perc.win1)
 
+mean(allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year %in% window1, "range"]); sd(allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year %in% window1, "range"])
+	mean(allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year %in% window1, "range"]); sd(allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year %in% window1, "range"])
+
 	mean(vlf.allom.perc.win1, na.rm=T); sd(vlf.allom.perc.win1, na.rm=T)
 	mean(vuf.allom.perc.win1, na.rm=T); sd(vuf.allom.perc.win1, na.rm=T)
 
@@ -406,6 +410,9 @@ window2 <- (1980-2) : (1980+2)
 	vuf.allom.perc.win2 <- allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year %in% window2, "range"]/vuf.final[vuf.final	$Year %in% window2, "range"]
 	summary(vlf.allom.perc.win2)
 	summary(vuf.allom.perc.win2)
+
+mean(allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year %in% window2, "range"]); sd(allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year %in% window2, "range"])
+	mean(allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year %in% window2, "range"]); sd(allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year %in% window2, "range"])
 
 	mean(vlf.allom.perc.win2, na.rm=T); sd(vlf.allom.perc.win2, na.rm=T)
 	mean(vuf.allom.perc.win2, na.rm=T); sd(vuf.allom.perc.win2, na.rm=T)
@@ -419,6 +426,7 @@ window2 <- (1980-2) : (1980+2)
 	summary(vlf.dens.perc.start)
 	summary(vuf.dens.perc.start)
 
+	
 	mean(vlf.dens.perc.start, na.rm=T); sd(vlf.dens.perc.start, na.rm=T)
 	mean(vuf.dens.perc.start, na.rm=T); sd(vuf.dens.perc.start, na.rm=T)
 
@@ -428,6 +436,7 @@ window2 <- (1980-2) : (1980+2)
 	summary(vlf.dens.perc.win1)
 	summary(vuf.dens.perc.win1)
 
+	
 	mean(vlf.dens.perc.win1, na.rm=T); sd(vlf.dens.perc.win1, na.rm=T)
 	mean(vuf.dens.perc.win1, na.rm=T); sd(vuf.dens.perc.win1, na.rm=T)
 
@@ -436,6 +445,9 @@ window2 <- (1980-2) : (1980+2)
 	vuf.dens.perc.win2 <- dens.uncert[dens.uncert$SiteID=="VUF" & dens.uncert$Year %in% window2, "range"]/vuf.final[vuf.final		$Year %in% window2, "range"]
 	summary(vlf.dens.perc.win2)
 	summary(vuf.dens.perc.win2)
+
+mean(dens.uncert[dens.uncert$SiteID=="VLF" & dens.uncert$Year %in% window2, "range"]); sd(dens.uncert[dens.uncert$SiteID=="VLF" & dens.uncert$Year %in% window2, "range"])
+	mean(dens.uncert[dens.uncert$SiteID=="VUF" & dens.uncert$Year %in% window2, "range"]); sd(dens.uncert[dens.uncert$SiteID=="VUF" & dens.uncert$Year %in% window2, "range"])
 
 	mean(vlf.dens.perc.win2, na.rm=T); sd(vlf.dens.perc.win2, na.rm=T)
 	mean(vuf.dens.perc.win2, na.rm=T); sd(vuf.dens.perc.win2, na.rm=T)
@@ -503,3 +515,64 @@ mean(vuf.inc.perc, na.rm=T); sd(vuf.inc.perc, na.rm=T)
 
 	mean(vlf.inc.perc.win2, na.rm=T); sd(vlf.inc.perc.win2, na.rm=T)
 	mean(vuf.inc.perc.win2, na.rm=T); sd(vuf.inc.perc.win2, na.rm=T)
+	
+####################################################	
+# Range Quantitites for areas of uncertainty
+####################################################
+
+# Allometry
+
+	# Start
+	mean(allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year %in% start, "range"]); sd(allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year %in% start, "range"])
+	mean(allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year %in% start, "range"]); sd(allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year %in% start, "range"])
+
+	# window1
+	mean(allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year %in% window1, "range"]); sd(allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year %in% window1, "range"])
+	mean(allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year %in% window1, "range"]); sd(allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year %in% window1, "range"])
+	
+	# window2
+	mean(allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year %in% window2, "range"]); sd(allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year %in% window2, "range"])
+	mean(allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year %in% window2, "range"]); sd(allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year %in% window2, "range"])
+
+
+# Density
+	# Start
+	mean(dens.uncert[dens.uncert$SiteID=="VLF" & dens.uncert$Year %in% start, "range"]); sd(dens.uncert[dens.uncert$SiteID=="VLF" & dens.uncert$Year %in% start, "range"])
+	mean(dens.uncert[dens.uncert$SiteID=="VUF" & dens.uncert$Year %in% start, "range"]); sd(dens.uncert[dens.uncert$SiteID=="VUF" & dens.uncert$Year %in% start, "range"])
+
+	# window1
+	mean(dens.uncert[dens.uncert$SiteID=="VLF" & dens.uncert$Year %in% window1, "range"]); sd(dens.uncert[dens.uncert$SiteID=="VLF" & dens.uncert$Year %in% window1, "range"])
+	mean(dens.uncert[dens.uncert$SiteID=="VUF" & dens.uncert$Year %in% window1, "range"]); sd(dens.uncert[dens.uncert$SiteID=="VUF" & dens.uncert$Year %in% window1, "range"])
+	
+	# window2
+	mean(dens.uncert[dens.uncert$SiteID=="VLF" & dens.uncert$Year %in% window2, "range"]); sd(dens.uncert[dens.uncert$SiteID=="VLF" & dens.uncert$Year %in% window2, "range"])
+	mean(dens.uncert[dens.uncert$SiteID=="VUF" & dens.uncert$Year %in% window2, "range"]); sd(dens.uncert[dens.uncert$SiteID=="VUF" & dens.uncert$Year %in% window2, "range"])
+
+
+# Mortality
+	# Start
+	mean(uncert.mort[uncert.mort$SiteID=="VLF" & uncert.mort$Year %in% start, "range"]);sd(uncert.mort[uncert.mort$SiteID=="VLF" & uncert.mort$Year %in% start, "range"])
+	mean(uncert.mort[uncert.mort$SiteID=="VUF" & uncert.mort$Year %in% start, "range"]);sd(uncert.mort[uncert.mort$SiteID=="VUF" & uncert.mort$Year %in% start, "range"])
+	
+	# window1
+	mean(uncert.mort[uncert.mort$SiteID=="VLF" & uncert.mort$Year %in% window1, "range"]);sd(uncert.mort[uncert.mort$SiteID=="VLF" & uncert.mort$Year %in% window1, "range"])
+	mean(uncert.mort[uncert.mort$SiteID=="VUF" & uncert.mort$Year %in% window1, "range"]);sd(uncert.mort[uncert.mort$SiteID=="VUF" & uncert.mort$Year %in% window1, "range"])
+	
+	# window2
+		mean(uncert.mort[uncert.mort$SiteID=="VLF" & uncert.mort$Year %in% window2, "range"]);sd(uncert.mort[uncert.mort$SiteID=="VLF" & uncert.mort$Year %in% window2, "range"])
+	mean(uncert.mort[uncert.mort$SiteID=="VUF" & uncert.mort$Year %in% window2, "range"]);sd(uncert.mort[uncert.mort$SiteID=="VUF" & uncert.mort$Year %in% window2, "range"])
+
+
+
+# Increment
+	# Start
+	mean(uncert.increment[uncert.increment$SiteID=="VLF" & uncert.increment$Year %in% start, "range"]); sd(uncert.increment[uncert.increment$SiteID=="VLF" & uncert.increment$Year %in% start, "range"])
+	mean(uncert.increment[uncert.increment$SiteID=="VUF" & uncert.increment$Year %in% start, "range"]); sd(uncert.increment[uncert.increment$SiteID=="VUF" & uncert.increment$Year %in% start, "range"])
+	
+	# window1
+	mean(uncert.increment[uncert.increment$SiteID=="VLF" & uncert.increment$Year %in% window1, "range"]); sd(uncert.increment[uncert.increment$SiteID=="VLF" & uncert.increment$Year %in% window1, "range"])
+	mean(uncert.increment[uncert.increment$SiteID=="VUF" & uncert.increment$Year %in% window1, "range"]); sd(uncert.increment[uncert.increment$SiteID=="VUF" & uncert.increment$Year %in% window1, "range"])
+	
+	# window2
+	mean(uncert.increment[uncert.increment$SiteID=="VLF" & uncert.increment$Year %in% window2, "range"]); sd(uncert.increment[uncert.increment$SiteID=="VLF" & uncert.increment$Year %in% window2, "range"])
+	mean(uncert.increment[uncert.increment$SiteID=="VUF" & uncert.increment$Year %in% window2, "range"]); sd(uncert.increment[uncert.increment$SiteID=="VUF" & uncert.increment$Year %in% window2, "range"])
