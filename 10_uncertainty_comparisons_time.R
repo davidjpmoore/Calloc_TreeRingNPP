@@ -122,6 +122,7 @@ vlf.final$range <- vlf.final$UB.mort - vlf.final$LB.mort
 vuf.final$range <- vuf.final$UB.mort - vuf.final$LB.mort
 
 summary(vlf.final)
+summary(vlf.final)
 summary(vuf.final)
 # -----------------------------------
 
@@ -215,10 +216,6 @@ dev.off()
   
 
 
-
-
-
-
 ########################################################
 # Uncertainty percentages relative to the mean biomass
 ########################################################
@@ -295,6 +292,54 @@ vuf.final.rel <- vuf.final$range/vuf.final$Base
 mean(vlf.final.rel, na.rm=T); sd(vlf.final.rel, na.rm=T)
 mean(vuf.final.rel, na.rm=T); sd(vuf.final.rel, na.rm=T)
   
+
+########################################################
+# Determining if biomass estimates with uncertainties are sig. different
+########################################################
+
+# The mort section contains the proper order of operations to produce the overall uncertainty and accurately place it in biomass space
+t.test(vlf.final[vlf.final$Year >1980, "LB.mort"], vuf.final[vuf.final$Year >1980, "UB.mort"], paired=T)
+
+v.range <- c(vlf.final[vlf.final$Year %in% 1980:2011, "range"], vuf.final[vuf.final$Year %in% 1980:2011, "range"])
+
+v.allom <- c(allom.uncert[allom.uncert$SiteID=="VLF" & allom.uncert$Year %in% 1980:2011, "range"], allom.uncert[allom.uncert$SiteID=="VUF" & allom.uncert$Year %in% 1980:2011, "range"])
+
+v.dens <- c(dens.uncert[dens.uncert$SiteID=="VLF" & dens.uncert$Year %in% 1980:2011, "range"], dens.uncert[dens.uncert$SiteID=="VUF" & dens.uncert$Year %in% 1980:2011, "range"])
+
+v.mort <- c(uncert.mort[uncert.mort$SiteID=="VLF" & uncert.mort$Year%in% 1980:2011, "range"], uncert.mort[uncert.mort$SiteID=="VUF" & uncert.mort$Year %in% 1980:2011, "range"])
+
+v.inc <- c(uncert.increment[uncert.increment$SiteID=="VLF" & uncert.increment$Year%in% 1980:2011, "range"], uncert.increment[uncert.increment$SiteID=="VUF" & uncert.increment$Year %in% 1980:2011, "range"])
+
+v.site  <- c(rep("VLF", length(vlf.final[vlf.final$Year %in% 1980:2011, "range"])), rep("VUF", length(vuf.final[vuf.final$Year %in% 1980:2011, "range"])))
+v.year  <- c(rep(vlf.final[vlf.final$Year %in% 1980:2011, "Year"], 2))
+
+# Total Overall Range
+library(lme4); library(nlme)
+range.test <- lme(v.range ~ v.site , random=list(v.year=~v.year))
+summary(range.test)
+
+# Allometry
+allom.test <- lme(v.allom ~ v.site , random=list(v.year=~v.year))
+summary(allom.test)
+
+# Density
+dens.test <- lme(v.dens ~ v.site , random=list(v.year=~v.year))
+summary(dens.test)
+
+
+# Mortaltiy
+mort.test <- lme(v.mort ~ v.site , random=list(v.year=~v.year))
+summary(mort.test)
+
+
+# Increment
+inc.test <- lme(v.inc ~ v.site , random=list(v.year=~v.year))
+summary(inc.test)
+
+
+
+
+
 #################################################################
 # percentage of each uncertain ty relative to the total uncertainty
 #################################################################
@@ -323,10 +368,13 @@ window2 <- (1980-2) : (1980+2)
   #start
 	mean(vlf.final[vlf.final$Year %in% start , "range"], na.rm=T); sd(vlf.final[vlf.final$Year %in% start , "range"], na.rm=T)
 	mean(vuf.final[vuf.final$Year %in% start , "range"], na.rm=T); sd(vuf.final[vuf.final$Year %in% start , "range"], na.rm=T)
+
 	
   # Window 1 (1995)
 	mean(vlf.final[vlf.final$Year %in% window1 , "range"], na.rm=T); sd(vlf.final[vlf.final$Year %in% window1 , "range"], na.rm=T)	
 	mean(vuf.final[vuf.final$Year %in% window1 , "range"], na.rm=T); sd(vuf.final[vuf.final$Year %in% window1 , "range"], na.rm=T)
+	  
+	  
 	  
   # Window 2 (1980)
 	mean(vlf.final[vlf.final$Year %in% window2 , "range"], na.rm=T); sd(vlf.final[vlf.final$Year %in% window2 , "range"], na.rm=T)	
