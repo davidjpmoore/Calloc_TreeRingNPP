@@ -24,26 +24,31 @@ load("processed_data/Biomass_Array_Tree_kgm-2.RData")
 # apply c(1,3) = preserve the dims 1 (years) & 3 (allometric iterations)
 # ------------------------
 # Subsetting and using the mean allometric biomass estimate to get a biomass/tree
-biom.valles <- bm.array[,which(substr(dimnames(bm.array)[[2]],1,1)=="V"),]
+biom.valles.mm <- bm.array[,which(substr(dimnames(bm.array)[[2]],1,1)=="V" | substr(dimnames(bm.array)[[2]],1,1)=="M"),]
 # biom.valles$Year <- as.numeric(dimnames(bm.array)[[1]])
-dim(biom.valles)
+dim(biom.valles.mm)
 # summary(biom.valles)
 
 # Going from trees to plots (ignoring any tree-level plot level)
 # Note: Using a dummy code here so that we bassically have plot #0 and Plot #1
-plots <- unique(substr(dimnames(biom.valles)[[2]], 1, 4))
+plots <- unique(substr(dimnames(biom.valles.mm)[[2]], 1, 4))
 plots <- plots[!plots == "Year"]
 
 # Go from tree biomass (kg/m2) to plot (kg/m2)
-biom.plot <- array(dim=c(nrow(biom.valles), length(plots), dim(biom.valles)[3]))
-dimnames(biom.plot)[[1]] <- dimnames(biom.valles)[[1]]
+biom.plot <- array(dim=c(nrow(biom.valles.mm), length(plots), dim(biom.valles.mm)[3]))
+dimnames(biom.plot)[[1]] <- dimnames(biom.valles.mm)[[1]]
 dimnames(biom.plot)[[2]] <- c(plots)
 dim(biom.plot)
 
 for(p in plots){
-	cols.plot <- which(substr(dimnames(biom.valles)[[2]],1,4)==p)
-	biom.plot[,p,] <- apply(biom.valles[,cols.plot,], c(1,3), FUN=mean)
+	cols.plot <- which(substr(dimnames(biom.valles.mm)[[2]],1,4)==p)
+		if(substr(p, 1,1)=="V"){
+			biom.plot[,p,] <- apply(biom.valles.mm[,cols.plot,], c(1,3), FUN=mean)
+		} else {
+			biom.plot[,p,] <- apply(biom.valles.mm[,cols.plot,], c(1,3), FUN=sum)
+		}
 }
+
 summary(biom.plot[,,1])
 
 # Go from plot to site while preserving the allometry iterations (currently dim #3)
@@ -56,6 +61,13 @@ vuf.mean <- apply(biom.plot[,substr(dimnames(biom.plot)[[2]],1,3)=="VUF",], c(1,
 dim(vuf.mean)
 summary(vuf.mean[,1:10])
 row.names(vuf.mean)
+
+mmf.mean <- apply(biom.plot[,substr(dimnames(biom.plot)[[2]],1,2)=="MM",], c(1,3), mean) 
+dim(mmf.mean)
+summary(mmf.mean[,1:10])
+row.names(mmf.mean)
+
+
 # ------------------------
 
 # ------------------------
@@ -68,14 +80,17 @@ summary(vlf.ci)
 
 vuf.ci <- data.frame(Year=as.numeric(row.names(vuf.mean)), SiteID="VUF", Mean=rowMeans(vuf.mean, na.rm=T), LB=apply(vuf.mean,1,quantile, 0.025, na.rm=T), UB=apply(vuf.mean,1,quantile, 0.975, na.rm=T))
 summary(vuf.ci)
+
+mmf.ci <- data.frame(Year=as.numeric(row.names(mmf.mean)), SiteID="MMF", Mean=rowMeans(mmf.mean, na.rm=T), LB=apply(mmf.mean,1,quantile, 0.025, na.rm=T), UB=apply(mmf.mean,1,quantile, 0.975, na.rm=T))
+summary(mmf.ci)
 # ------------------------
 
 # ------------------------
 # Package everything together, make a quick plot and save it for later use
 # ------------------------
-allom.uncert <- data.frame(rbind(vlf.ci, vuf.ci))
-allom.uncert$Site <- recode(allom.uncert$SiteID, "'VUF'='1';'VLF'='2'")
-levels(allom.uncert$Site) <- c("Upper", "Lower")
+allom.uncert <- data.frame(rbind(vlf.ci, vuf.ci, mmf.ci))
+allom.uncert$Site <- recode(allom.uncert$SiteID, "'VUF'='1';'VLF'='2'; 'MMF' = '3'")
+levels(allom.uncert$Site) <- c("Valles Upper", "Valles Lower", "Morgan-Monroe")
 summary(allom.uncert)
 
 # Poster Format
@@ -93,7 +108,7 @@ summary(allom.uncert)
 # dev.off()
 
 # Publication Format
-pdf("figures/Uncertainty_Allometry.pdf", width= 13, height= 8.5)
+#pdf("figures/Uncertainty_Allometry.pdf", width= 13, height= 8.5)
 ggplot(allom.uncert[,]) + #facet_grid(Site ~.) +
   geom_ribbon(aes(x=Year, ymin=LB, ymax=UB, fill=Site), alpha=0.5) +
   geom_line(aes(x=Year, y=Mean, color= Site), size=1.5) + 
@@ -110,9 +125,9 @@ ggplot(allom.uncert[,]) + #facet_grid(Site ~.) +
         axis.ticks.margin = unit(0.5, "cm"))
   
   #poster.theme1
-dev.off()
+#dev.off()
 
-save(allom.uncert, file="processed_data/valles_allometry_uncertainty.Rdata")
+save(allom.uncert, file="processed_data/valles_allometry_uncertainty_AGU2015.Rdata")
 # ------------------------
 
 

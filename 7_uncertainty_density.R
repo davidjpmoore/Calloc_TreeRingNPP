@@ -21,7 +21,7 @@ load("processed_data/Biomass_Array_Tree_kgm-2.RData") # loads plot-level bm.arra
 # Note: the CIs here will be rather weird since we only have 2 plots with cores for each site
 # ------------------------
 # Subsetting and using the mean allometric biomass estimate to get a biomass/tree
-biom.valles <- data.frame(apply(bm.array[,which(substr(dimnames(bm.array)[[2]],1,1)=="V"),], c(1,2), mean))
+biom.valles <- data.frame(apply(bm.array[,which(substr(dimnames(bm.array)[[2]],1,1)=="V" | substr(dimnames(bm.array)[[2]],1,1)=="M"),], c(1,2), mean))
 biom.valles$Year <- as.numeric(dimnames(bm.array)[[1]])
 summary(biom.valles)
 
@@ -39,7 +39,10 @@ summary(biom.plot)
 
 for(p in plots){
 	cols.plot <- which(substr(names(biom.valles),1,4)==p)
-	biom.plot[,p] <- apply(biom.valles[,cols.plot], 1, FUN=mean)
+	if(substr(p, 1, 1) == "V"){
+		biom.plot[,p] <- apply(biom.valles[,cols.plot], 1, FUN=mean)
+		} else{ biom.plot[,p] <- apply(biom.valles[,cols.plot], 1, FUN=sum)
+}
 }
 summary(biom.plot)
 
@@ -55,6 +58,13 @@ ci.vl <- data.frame(Year= biom.plot$Year, SiteID= "VLF",
                     Mean = apply(biom.plot[,cols.vl], 1, mean, na.rm=T),
                     LB   = apply(biom.plot[,cols.vl], 1, quantile, 0.025, na.rm=T), 
                     UB   = apply(biom.plot[,cols.vl], 1, quantile, 0.975, na.rm=T))
+                    
+cols.mm <- which(substr(names(biom.plot),1,2)=="MM") # creating an index for MMF
+ci.mm <- data.frame(Year= biom.plot$Year, SiteID= "MMF",
+                    Mean = apply(biom.plot[,cols.mm], 1, mean, na.rm=T),
+                    LB   = apply(biom.plot[,cols.mm], 1, quantile, 0.025, na.rm=T), 
+                    UB   = apply(biom.plot[,cols.mm], 1, quantile, 0.975, na.rm=T))
+
 # ------------------------
 
 
@@ -62,9 +72,9 @@ ci.vl <- data.frame(Year= biom.plot$Year, SiteID= "VLF",
 # Package everything together, make a quick plot and save it for later use
 # This is what goes to the stacked uncertainty figure
 # ------------------------
-dens.uncert <- data.frame(rbind(ci.vu, ci.vl))
-dens.uncert$Site <- recode(dens.uncert$SiteID, "'VUF'='1';'VLF'='2'")
-levels(dens.uncert$Site) <- c("Upper", "Lower")
+dens.uncert <- data.frame(rbind(ci.vu, ci.vl, ci.mm))
+dens.uncert$Site <- recode(dens.uncert$SiteID, "'VUF'='1';'VLF'='2'; 'MMF' = '3'")
+levels(dens.uncert$Site) <- c("Valles Upper", "Valles Lower", "Morgan-Monroe")
 summary(dens.uncert)
 poster.theme<-theme(axis.line=element_line(color="black"), panel.grid.major=element_blank(), panel.grid.minor=element_blank(), panel.border=element_blank(),
                     panel.background=element_blank(), axis.text.x=element_text(angle=0, color="black", size=21),
@@ -85,7 +95,7 @@ poster.theme<-theme(axis.line=element_line(color="black"), panel.grid.major=elem
 # dev.off()
 
 # Publication Figure
-pdf("figures/Uncertainty_Density_TimeSeries.pdf", height= 8.5, width = 13)
+#pdf("figures/Uncertainty_Density_TimeSeries.pdf", height= 8.5, width = 13)
 ggplot(dens.uncert[,]) + #facet_grid(Site ~.) +
   geom_ribbon(aes(x=Year, ymin=LB, ymax=UB, fill=Site), alpha=0.5) +
   geom_line(aes(x=Year, y=Mean, color= Site), size=1.5) + 
@@ -103,10 +113,10 @@ ggplot(dens.uncert[,]) + #facet_grid(Site ~.) +
   theme(strip.text=element_text(size=rel(1.5)))+
   theme(axis.ticks.length = unit(-0.25, "cm"),
         axis.ticks.margin = unit(0.5, "cm"))
-dev.off()
+#dev.off()
 
 
-save(dens.uncert, file="processed_data/valles_density_uncertainty.Rdata")
+save(dens.uncert, file="processed_data/valles_density_uncertainty_AGU2015.Rdata")
 # ------------------------
 
 # ------------------------
@@ -114,3 +124,4 @@ save(dens.uncert, file="processed_data/valles_density_uncertainty.Rdata")
 # ------------------------
 
 # ------------------------
+
