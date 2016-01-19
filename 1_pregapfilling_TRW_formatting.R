@@ -10,7 +10,7 @@ se <- function(x){
 
 #load in core details data sheet.  Has living/dead, pith info, measurement info.
 #loading the dplR to use the basal area reconstruction functions.
-core.data <- read.csv("raw_input_files/Core_data_DOE_summer_2014.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
+core.data <- read.csv("raw_input_files/Core_data_01192014.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
 #adding a column include which plot at the site the trees belong to
 names(core.data)
 core.data$plot <- substr(core.data$plot.id, 3, 3)
@@ -47,7 +47,7 @@ summary(tree.data)
 #importing ring widths of dated samples as an object and making plot a factor since there were two distinct plots.  We may remove this for the nested design.  
 #Removing NA's from the files
 # NOTE: reading in a single rwl with all measured trees otherwise you're going to need to make sure to change the file paths for EVERYTHING otherwise you overwrite important files and make a lot more work for yourself
-core.rw <- read.rwl("RWL/RWL_all_trees.rwl")
+core.rw <- read.rwl("RWL/RWL_all_trees.rwl", format="tucson")
 summary(core.rw)
 
 #removing the extra character that tellervo adds
@@ -69,7 +69,6 @@ core.rw <- core.rw/10
 summary(core.rw)
 core.rw[(nrow(core.rw)-20):nrow(core.rw), 1:10]
 
-
 # ----------------------------------------------------------------------------
 #add zeros to the outside if the tree is dead.  We do not want to generate modeled values for dead or zombie trees!
 # Separating Dead vs. Missing rings
@@ -77,6 +76,8 @@ core.rw[(nrow(core.rw)-20):nrow(core.rw), 1:10]
 #1) Dead trees -- fill missing years with 0
 #2) Live Trees, no growth in year (Zombie Trees) -- fill with 0
 #3) Live Trees, missing part of core -- model growth
+
+
 
 # CRR Note: This sets up what data gets gapfilled on the outside vs. which should have 0 growth in the most recent years
 
