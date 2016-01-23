@@ -378,7 +378,7 @@ for(p in plots){
 }
 summary(data.all) # This should introduce a handful of NAs back in 
 
-write.csv(data.all, "processed_data/RingData_All_Gapfilled.csv", row.names=F)
+write.csv(data.all, "processed_data/HAR_HOW_RingData_All_Gapfilled.csv", row.names=F)
 # ----------------------------------------------------------------
 
 
