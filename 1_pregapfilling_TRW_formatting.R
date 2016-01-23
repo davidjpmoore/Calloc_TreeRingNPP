@@ -10,10 +10,11 @@ se <- function(x){
 
 #load in core details data sheet.  Has living/dead, pith info, measurement info.
 #loading the dplR to use the basal area reconstruction functions.
-core.data <- read.csv("raw_input_files/Core_data_DOE_summer_2014.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
+core.data <- read.csv("raw_input_files/harvard_how.and_core_data2.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
 #adding a column include which plot at the site the trees belong to
 names(core.data)
-core.data$plot <- substr(core.data$plot.id, 3, 3)
+head(core.data)
+core.data$plot <- core.data$plot.id
 core.data$plot <- as.factor(core.data$plot)
 
 summary(core.data)
@@ -21,17 +22,19 @@ summary(core.data)
 # Doing some stuff to Canopy Class to make our lives easier
 #   1) Assume all Valles & Niwot trees are co-dominant
 #   2) give all dead trees without an existing canopy class a "SNAG" class
-core.data$canopy.class <- as.factor(ifelse(core.data$live.dead=="DEAD" & is.na(core.data$canopy.class), "SNAG", 
-									ifelse(substr(core.data$TreeID,1,1)=="V" | substr(core.data$TreeID,1,1)=="N", "C", 
-									paste(core.data$canopy.class)))) # Make a dead canopy class)
+# core.data$canopy.class <- as.factor(ifelse(core.data$live.dead=="DEAD" & is.na(core.data$canopy.class), "SNAG", 
+									# ifelse(substr(core.data$TreeID,1,1)=="V" | substr(core.data$TreeID,1,1)=="N", "C", 
+									# paste(core.data$canopy.class)))) # Make a dead canopy class)
 summary(core.data)
-write.csv(core.data, file="processed_data/core_data.csv", row.names=F)
+
+core.data$Site <- recode(core.data$Site, "'HOW'= 'Howland'; 'TP'='Harvard'")
+write.csv(core.data, file="processed_data/HARV_core_data.csv", row.names=F)
 
 #importing the diameter files of all trees sampled: includes tree id, spp, plot assignment, and DBH 
-tree.data <- read.csv("raw_input_files/tree_metadata_DOE_plus_valles.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
+tree.data <- read.csv("raw_input_files/harvard_howland_tree_metadata.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
 #adding a column include which plot at the site the trees belong to
 names(tree.data)
-tree.data$plot <- substr(tree.data$PlotID, 3, 3)
+# tree.data$plot <- substr(tree.data$PlotID, 3, 3)
 tree.data$plot <- as.factor(tree.data$plot)
 summary(tree.data)
 
@@ -47,13 +50,14 @@ summary(tree.data)
 #importing ring widths of dated samples as an object and making plot a factor since there were two distinct plots.  We may remove this for the nested design.  
 #Removing NA's from the files
 # NOTE: reading in a single rwl with all measured trees otherwise you're going to need to make sure to change the file paths for EVERYTHING otherwise you overwrite important files and make a lot more work for yourself
-core.rw <- read.rwl("RWL/RWL_all_trees.rwl")
+core.rw <- read.rwl("RWL/harv_how_all_trees.rwl")
 summary(core.rw)
 
 #removing the extra character that tellervo adds
-names(core.rw)<-substr(names(core.rw), 1, 7)
+# names(core.rw)<-substr(names(core.rw), 1, 7)
 names(core.rw)
 
+# fixed the capitalization issues manually to get thigns to work
 replace.b <- which(substr(names(core.rw),7,7)=="b") 
 names(core.rw)[replace.b] <- paste0(substr(names(core.rw)[replace.b], 1,6), "B")
 
@@ -61,6 +65,17 @@ replace.a <- which(substr(names(core.rw),7,7)=="a")
 names(core.rw)[replace.a] <- paste0(substr(names(core.rw)[replace.a], 1,6), "A")
 	
 names(core.rw) 
+
+# replace.b <- which(substr(core.data$CoreID,7,7)=="b" | substr(core.data$CoreID,8,8)=="b") 
+# core.data$CoreID[replace.b] <- paste0(substr(core.data$CoreID[replace.b], 1,6), "B")
+
+# replace.a <- which(substr(core.data$CoreID,7,7)=="a"| substr(core.data$CoreID,8,8)=="a") 
+# core.data[replace.a, "CoreID"] <- paste0(substr(core.data[replace.a, "CoreID"], 1,6), "A")
+
+# dim(core.data)
+summary(core.data)
+
+
 
 # NOTE: Unit Conversion Step
 #we divide by 10 here because we are in mm going to cm (as long as you upload with dplR) 
@@ -79,8 +94,11 @@ core.rw[(nrow(core.rw)-20):nrow(core.rw), 1:10]
 #3) Live Trees, missing part of core -- model growth
 
 # CRR Note: This sets up what data gets gapfilled on the outside vs. which should have 0 growth in the most recent years
+cores.bad <- core.data[is.na(core.data$live.dead),c("CoreID")]
+core.rw <- core.rw[,(names(core.rw) %in% core.data$CoreID) & !(names(core.rw) %in% cores.bad)]
+ncol(core.rw)
 
-for(j in colnames(core.rw)){ # rather than going by number, we're using names to make things a bit clearer
+for(j in names(core.rw)){ # rather than going by number, we're using names to make things a bit clearer
 
 	# If the core is a zombie or is dead, fill missing outer rings with 0s, otherwise it gets left alone
 	# NOTE: We may need to add another level here if you have cores from multiple years so that things that were cored in a prior year also get 0s (so they don't get gapfilled outsides)
@@ -104,12 +122,13 @@ summary(core.rw[,c(1:10, (ncol(core.rw)-10):ncol(core.rw))])
 ##########################################################################
 # ----------------------------------------------------------------------------
 # aggregate to the tree level using only dated trees where possible
-trees <- unique(substr(names(core.rw), 1, 6)) # listing trees we have measurements for
+trees <- unique(ifelse(substr(names(core.rw),1,3)=="HOW", substr(names(core.rw), 1, 7), substr(names(core.rw), 1, 6))) # listing trees we have measurements for
+
 tree.rw <- data.frame(array(NA, dim=c(nrow(core.rw), length(trees)))) # a blank data frame to put everything in
 row.names(tree.rw) <- row.names(core.rw)  # labeling the rows with the years from our rwl
-names(tree.rw)<-unique(substr(names(core.rw), 1, 6)) # labeling the columns as trees
+names(tree.rw)<-trees # labeling the columns as trees
 # summary(tree.rw) # this will get really big very quickly
-dim(tree.rw) # 266 trees, 112 years of data
+dim(tree.rw) # 206 trees, 441 years of data
 
 # 3 types of trees we have
 tree.dated    <- NA
@@ -119,7 +138,8 @@ length(trees); length(tree.missing)
 
 # The Aggregation Loop
 for(i in unique(trees)){
-  cols <- which(substr(names(core.rw),1,6)==i) # getting the columns we're working with
+  # cols <- which(substr(names(core.rw),1,6)==i) # getting the columns we're working with
+  cols <- which(ifelse(substr(names(core.rw),1,3)=="HOW", substr(names(core.rw), 1, 7), substr(names(core.rw), 1, 6))==i)
   cores <- names(core.rw)[cols] # getting the name of the cores we're working with
   
   # -----------------------
@@ -177,14 +197,14 @@ for(i in unique(trees)){
 min(tree.rw, na.rm=T); max(tree.rw, na.rm=T)
 dim(tree.rw)
 tree.rw[(nrow(tree.rw)-20):nrow(tree.rw),1:10]
-write.csv(tree.rw, "processed_data/tree_rw.csv")
+write.csv(tree.rw, "processed_data/HAR_HOW_tree_rw.csv")
 
 # We've updated the tree.data file, so lets save our changes before we move any further
 # We only added a new column and didn't change anything that was original, so it should be okay, but lets just double check before moving forward
 tree.data$Dated <- as.factor(tree.data$Dated)
 summary(tree.data)
 # NOTE: right now you have a ridculously long name for your tree data spreadsheet, so I'm going to call it something different for my own sanity right now :-P
-write.csv(tree.data, "processed_data/TreeData.csv", row.names=F)
+write.csv(tree.data, "processed_data/HAR_HOW_TreeData.csv", row.names=F)
 
 # ----------------------------------------------------------------------------
 
@@ -223,7 +243,7 @@ tree.stack <- merge(tree.stack, tree.data, all.x=T, all.y=F)
 summary(tree.stack)
 dim(tree.stack)
 
-write.csv(tree.stack, "processed_data/TreeRWL_AllSites_stacked.csv", row.names=F)
+write.csv(tree.stack, "processed_data/HAR_HOW_TreeRWL_AllSites_stacked.csv", row.names=F)
 
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
