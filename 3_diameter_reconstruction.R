@@ -1,16 +1,16 @@
 ##################################################################################
 # DBH Reconstruction
 ##################################################################################
-
+library(reshape)
 # ---------------------------------------
 # DBH..cm. Reconstruction
 # ---------------------------------------
 # Tree Data
-tree.data <- read.csv("processed_data/TreeData.csv")
+tree.data <- read.csv("processed_data/HAR_HOW_TreeData.csv")
 summary(tree.data)
 
 # Site Data (for year cored) 
-Site.data <- read.csv("raw_input_files/DOE_plus_valles.csv", na.strings="")
+Site.data <- read.csv("raw_input_files/HAR_HOW_site_data.csv", na.strings="")
 Site.data$Year.sample <- as.numeric(substr(Site.data$date.sample,7,10))
 summary(Site.data)
 
@@ -19,19 +19,19 @@ tree.data <- merge(tree.data, Site.data[,c("PlotID", "Year.sample")], all.x=T, a
 tree.data$Age <- tree.data$Year.sample - tree.data$Pith
 summary(tree.data)
 
-core.data <- read.csv("processed_data/core_data.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
+core.data <- read.csv("processed_data/harvard_how.and_core_data2.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
 #adding a column include which plot at the Site the trees belong to
 names(core.data)
 summary(core.data)
 
 #Load in the gap-filled data
-ring.data <- read.csv("processed_data/RingData_All_Gapfilled.csv", header=T)
+ring.data <- read.csv("processed_data/HAR_HOW_RingData_All_Gapfilled.csv", header=T)
 summary(ring.data)
 
 # making a data frame with trees as columns and years as ros
 ring.data$Year <- as.factor(ring.data$Year)
 trees.gapfilled <- recast(ring.data[,c("Year", "TreeID", "RW.gapfilled")], Year ~ TreeID)
-# summary(trees.gapfilled)
+summary(trees.gapfilled)
 
 row.names(trees.gapfilled) <- trees.gapfilled$Year
 trees.gapfilled <- trees.gapfilled[,2:ncol(trees.gapfilled)]
@@ -98,8 +98,8 @@ summary(dbh.recon[, trees.check])
 #trees.gapfilled[, trees.check]
 tree.data[tree.data$TreeID %in% trees.check,]
 # ---------------------------------------
-write.csv(dbh.recon, "processed_data/GapFilling_DBHrecon_ALL.csv", row.names=T)
-write.csv(trees.gapfilled, "processed_data/GapFilling_RingWidths_ALL.csv", row.names=T)
+write.csv(dbh.recon, "processed_data/HAR_HOW_GapFilling_DBHrecon_ALL.csv", row.names=T)
+write.csv(trees.gapfilled, "processed_data/HAR_HOW_GapFilling_RingWidths_ALL.csv", row.names=T)
 
 ##################################################################################
 # see next script for reconstructing basal area of trees with no samples 
