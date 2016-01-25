@@ -77,9 +77,12 @@ summary(ross.valles.dated)
 
 # detrending cores to make a composite site index
 spag.plot(ross.valles.dated)
-ross.valles.i<- detrend(ross.valles.dated, method="Spline", nyrs=30)
+dim(ross.valles.dated)
+
+ross.valles.i<- detrend(ross.valles.dated, method="Spline", nyr=30)
 min(ross.valles.i, na.rm=T)
 summary(ross.valles.i)
+dim(ross.valles.i)
 
 # Truncating to 1980 as that is the length of our analysis and 2007 as that is the common overlapping period with Ramzi Touchan's data
 ross.valles.i <- ross.valles.i[row.names(ross.valles.i) >= "1980" & row.names(ross.valles.i) <= "2007",]
@@ -90,16 +93,25 @@ summary(ross.valles.i)
 
 ross.upper.i <- ross.valles.i[,substr(names(ross.valles.i),1,3)=="VUF"]
 names(ross.upper.i)
+dim(ross.upper.i)
+
+#excluding trees that do not overlap in this dataframe
+tree.exclude <- "VUF105C"
+
+
+ross.upper.i <- ross.upper.i[,!(names(ross.upper.i) %in% tree.exclude)]
+dim(ross.upper.i)
+
 
 ross.lower.i <- ross.valles.i[,substr(names(ross.valles.i),1,3)=="VLF"]
 names(ross.lower.i)
 
 # creating a composite site chronology
 
-ross.upper.cr <- chron(ross.upper.i, prefix="VUF")
+ross.upper.cr <- chron(ross.upper.i, prefix="VUF", prewhiten=T)
 summary(ross.upper.cr)
 
-ross.lower.cr <- chron(ross.lower.i, prefix="VLF")
+ross.lower.cr <- chron(ross.lower.i, prefix="VLF", prewhiten=T)
 summary(ross.lower.cr)
 row.names(ross.lower.cr)
 
@@ -109,7 +121,6 @@ row.names(ross.lower.cr)
 ######################################################
 
 climate.upper.valles1 <- read.rwl("external_treering_data/nm586_touchan_PSME_bearcanyonwest_valles.rwl.txt")
-climate.upper.valles2 <- read.rwl("external_treering_data/nm587_touchan_fentonlake_psme_valles.rwl.txt")
 
 # Detrending external climate series
 
@@ -119,32 +130,61 @@ summary(climate.upper.valles1.i)
 row.names(climate.upper.valles1.i)
 
 
-climate.upper.valles2.i <- detrend(climate.upper.valles2, method="Spline", nyrs=30)
-min(climate.upper.valles2.i, na.rm=T)
-summary(climate.upper.valles2.i)
-row.names(climate.upper.valles2.i)
 
 # Truncate series to 1980 to most recent year
 climate.upper.valles1.i <- climate.upper.valles1.i[row.names(climate.upper.valles1.i) >= "1980",]
-climate.upper.valles2.i <- climate.upper.valles2.i[row.names(climate.upper.valles2.i) >= "1980",]
+
+# There are some trees that do not overlap with our 1980-2007 time period AT ALL.  We will need to remove these
+
+summary(climate.upper.valles1.i)
+dim(climate.upper.valles1.i)
+
+# Series to exclude
+tree.exclude <- c("BCW41", "BCW45", "BCW46", "BCW47", "BCW08A")
+climate.upper.valles1.i <- climate.upper.valles1.i[,!(names(climate.upper.valles1.i) %in% tree.exclude)]
+dim(climate.upper.valles1.i)
 
 # Create site chronologies from each set of external climate series
-climate.upper.valles1.cr <- chron(climate.upper.valles1.i, prefix="VU1")
+climate.upper.valles1.cr <- chron(climate.upper.valles1.i, prefix="VU1", prewhiten=T)
 summary(climate.upper.valles1.cr)
 
-climate.upper.valles2.cr <- chron(climate.upper.valles2.i, prefix="VU2")
-summary(climate.upper.valles2.cr)
 
+######################################################
+# Loading in Griffin NADEF CatMesa chronologies
+######################################################
+# Dan's chronologies are already the residual chronologies from the Catmesa update in 2011
 
+cat.mesa.chron <- read.csv("external_treering_data/Griffin_catmesa_CHRONS.csv", header=T)
+summary(cat.mesa.chron)
 
+row.names(cat.mesa.chron) <- cat.mesa.chron$Year
+cat.mesa.chron <- cat.mesa.chron[row.names(cat.mesa.chron)>="1980" & row.names(cat.mesa.chron)<= "2007", "CMMt_RES"]
+summary(cat.mesa.chron)
+
+head(cat.mesa.chron)
+
+# Loading in sample depth, because Dan already calculated the chronology for me
+cat.mesa.depth <- read.csv("external_treering_data/Griffin_catmesa_total.csv", header=T, row.names=1)
+summary(cat.mesa.depth)
+row.names(cat.mesa.depth)
+
+test <- chron(cat.mesa.depth, prefix="CAT")
+summary(test)
+
+cat.mesa.depth <- test[row.names(test)>=1980 & row.names(test)<=2007,]
+
+summary(cat.mesa.depth)
+names(cat.mesa.depth) <- c("CATstd", "cat.n")
+summary(cat.mesa.depth)
+dim(cat.mesa.depth)
 ###################################################################################################
 # Merging all indecies together to form one dataframe on which we can run the climate correlations
 ###################################################################################################
-valles.climate.cr <- cbind(ross.upper.cr, ross.lower.cr, climate.upper.valles1.cr, climate.upper.valles2.cr) 
-names(valles.climate.cr) <- c("vuf", "vuf.n", "vlf", "vlf.n", "vu1", "vu1.n", "vu2", "vu2.n")
+valles.climate.cr <- cbind(ross.upper.cr, ross.lower.cr, climate.upper.valles1.cr, cat.mesa.chron, cat.mesa.depth[,"cat.n"]) 
+names(valles.climate.cr) <- c("vuf.std", "vuf.res", "vuf.n", "vlf.std", "vlf.res", "vlf.n", "vu1.std","vu1.res", "vu1.n","cm.tot", "cm.n")
 
 summary(valles.climate.cr)
-
+head(valles.climate.cr)
 # saving as Rdata file to be used for the climate correlations
 
 save(valles.climate.cr, file="processed_data/valles_combined_climate_chronologies.rdata")
