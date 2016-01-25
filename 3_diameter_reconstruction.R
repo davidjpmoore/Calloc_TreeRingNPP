@@ -1,12 +1,12 @@
 ##################################################################################
 # DBH Reconstruction
 ##################################################################################
-
+library(reshape)
 # ---------------------------------------
 # DBH..cm. Reconstruction
 # ---------------------------------------
 # Tree Data
-tree.data <- read.csv("processed_data/TreeData.csv")
+tree.data <- read.csv("processed_data/DOE_AllsitesTreeData.csv")
 summary(tree.data)
 
 # Site Data (for year cored) 
@@ -25,7 +25,7 @@ names(core.data)
 summary(core.data)
 
 #Load in the gap-filled data
-ring.data <- read.csv("processed_data/RingData_All_Gapfilled.csv", header=T)
+ring.data <- read.csv("processed_data/DOE_Allsites_RingData_All_Gapfilled.csv", header=T)
 summary(ring.data)
 
 # making a data frame with trees as columns and years as ros
@@ -98,8 +98,8 @@ summary(dbh.recon[, trees.check])
 #trees.gapfilled[, trees.check]
 tree.data[tree.data$TreeID %in% trees.check,]
 # ---------------------------------------
-write.csv(dbh.recon, "processed_data/GapFilling_DBHrecon_ALL.csv", row.names=T)
-write.csv(trees.gapfilled, "processed_data/GapFilling_RingWidths_ALL.csv", row.names=T)
+write.csv(dbh.recon, "processed_data/DOE_Allsites_GapFilling_DBHrecon_ALL.csv", row.names=T)
+write.csv(trees.gapfilled, "processed_data/DOE_Allsites_GapFilling_RingWidths_ALL.csv", row.names=T)
 
 ##################################################################################
 # see next script for reconstructing basal area of trees with no samples 
