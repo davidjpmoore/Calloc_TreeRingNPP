@@ -245,7 +245,7 @@ for(s in site.codes){
 	# if(substr(s,1,1)=="V" | substr(s,1,1)=="N"){ # This is no longer necessary, but an example of how to select special options  based on certain sites
 		# gamm.out <- gapfill.gamm(data= data.use, DBH="DBH..cm.", Species.Use="Species", Canopy.Class="Canopy.Class", canopy=F, out.prefix=out.path)
 	# } else {
-		gamm.out <- gapfill.gamm(data= data.use, DBH="DBH..cm.", Species.Use="Species", Canopy.Class="Canopy.Class", smooth.by="TreeID", canopy=T, out.prefix=out.path)
+		gamm.out <- gapfill.gamm(data= data.use, DBH="DBH..cm.", Species.Use="Species", Canopy.Class="Canopy.Class", smooth.by="spp.plot", canopy=T, out.prefix=out.path)
 	# }
 	ring.data[rows.site, "RW.modeled"] <- gamm.out$data$RW.modeled
 }
@@ -343,7 +343,7 @@ for(p in plots){
 }
 summary(data.all) # This should introduce a handful of NAs back in 
 
-write.csv(data.all, "processed_data/RingData_All_Gapfilled.csv", row.names=F)
+write.csv(data.all, "processed_data/DOE_Allsites_RingData_All_Gapfilled.csv", row.names=F)
 # ----------------------------------------------------------------
 
 

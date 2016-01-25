@@ -10,12 +10,12 @@ se <- function(x){
 
 #load in core details data sheet.  Has living/dead, pith info, measurement info.
 #loading the dplR to use the basal area reconstruction functions.
-core.data <- read.csv("raw_input_files/Core_data_01202014.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
+core.data <- read.csv("raw_input_files/Core_data_01202014.csv", na.strings=c("", "NA", "#VALUE!", "*", " "), header=T)
 #adding a column include which plot at the site the trees belong to
 names(core.data)
 core.data$plot <- substr(core.data$plot.id, 3, 3)
 core.data$plot <- as.factor(core.data$plot)
-
+unique(core.data$pith.yr)
 summary(core.data)
 
 # Doing some stuff to Canopy Class to make our lives easier
@@ -67,7 +67,7 @@ names(core.rw)
 summary(core.rw)
 core.rw <- core.rw/10
 summary(core.rw)
-core.rw[(nrow(core.rw)-20):nrow(core.rw), 1:10]
+core.rw[(nrow(core.rw)-20):nrow(core.rw), 500:510]
 
 # ----------------------------------------------------------------------------
 #add zeros to the outside if the tree is dead.  We do not want to generate modeled values for dead or zombie trees!
@@ -110,7 +110,7 @@ tree.rw <- data.frame(array(NA, dim=c(nrow(core.rw), length(trees)))) # a blank 
 row.names(tree.rw) <- row.names(core.rw)  # labeling the rows with the years from our rwl
 names(tree.rw)<-unique(substr(names(core.rw), 1, 6)) # labeling the columns as trees
 # summary(tree.rw) # this will get really big very quickly
-dim(tree.rw) # 266 trees, 112 years of data
+dim(tree.rw) # 1102 trees, 270 years of data
 
 # 3 types of trees we have
 tree.dated    <- NA
@@ -178,14 +178,14 @@ for(i in unique(trees)){
 min(tree.rw, na.rm=T); max(tree.rw, na.rm=T)
 dim(tree.rw)
 tree.rw[(nrow(tree.rw)-20):nrow(tree.rw),1:10]
-write.csv(tree.rw, "processed_data/tree_rw.csv")
+write.csv(tree.rw, "processed_data/DOE_Allsites_tree_rw.csv")
 
 # We've updated the tree.data file, so lets save our changes before we move any further
 # We only added a new column and didn't change anything that was original, so it should be okay, but lets just double check before moving forward
 tree.data$Dated <- as.factor(tree.data$Dated)
 summary(tree.data)
 # NOTE: right now you have a ridculously long name for your tree data spreadsheet, so I'm going to call it something different for my own sanity right now :-P
-write.csv(tree.data, "processed_data/TreeData.csv", row.names=F)
+write.csv(tree.data, "processed_data/DOE_AllsitesTreeData.csv", row.names=F)
 
 # ----------------------------------------------------------------------------
 
@@ -224,7 +224,7 @@ tree.stack <- merge(tree.stack, tree.data, all.x=T, all.y=F)
 summary(tree.stack)
 dim(tree.stack)
 
-write.csv(tree.stack, "processed_data/TreeRWL_AllSites_stacked.csv", row.names=F)
+write.csv(tree.stack, "processed_data/DOE_Allsites_TreeRWL_AllSites_stacked.csv", row.names=F)
 
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
