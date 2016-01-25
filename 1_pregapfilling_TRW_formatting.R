@@ -1,4 +1,5 @@
 library(dplR)
+library(car)
 se <- function(x){
   sd(x, na.rm=TRUE) / sqrt((length(!is.na(x))))}
 

@@ -253,6 +253,10 @@ site.codes <- sites.ring.data
 # If adding new sites select those that haven't already been gapfilled
 site.codes <- sites.ring.data[!(sites.ring.data %in% unique(substr(rings.filled$PlotID,1,2)))]
 # ---------------
+# Adding in a column to have species by plot
+ring.data$spp.plot <- as.factor(paste(ring.data$Species, ring.data$PlotID, sep="."))
+summary(ring.data)
+
 
 # Running the gapfilling loop
 for(s in site.codes){
@@ -267,7 +271,7 @@ for(s in site.codes){
 	# if(substr(s,1,1)=="V" | substr(s,1,1)=="N"){ # This is no longer necessary, but an example of how to select special options  based on certain sites
 		# gamm.out <- gapfill.gamm(data= data.use, DBH="DBH..cm.", Species.Use="Species", Canopy.Class="Canopy.Class", canopy=F, out.prefix=out.path)
 	# } else {
-		gamm.out <- gapfill.gamm(data= data.use, smooth.by="Species", DBH="DBH..cm.", Species.Use="Species", Canopy.Class="Canopy.Class", canopy=T, out.prefix=out.path)
+		gamm.out <- gapfill.gamm(data= data.use, smooth.by="spp.plot", DBH="DBH..cm.", Species.Use="Species", Canopy.Class="Canopy.Class", canopy=T, out.prefix=out.path)
 	# }
 	ring.data[rows.site, "RW.modeled"] <- gamm.out$data$RW.modeled
 }
