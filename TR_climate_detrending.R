@@ -1,6 +1,7 @@
 library(dplR)
 se <- function(x){
   sd(x, na.rm=TRUE) / sqrt((length(!is.na(x))))}
+rm(list=ls())
 
 
 #################################################################################################
@@ -10,7 +11,7 @@ se <- function(x){
 
 #load in core details data sheet.  Has living/dead, pith info, measurement info.
 #loading the dplR to use the basal area reconstruction functions.
-core.data <- read.csv("raw_input_files/Core_data_DOE_summer_2014.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
+core.data <- read.csv("raw_input_files/Core_data_01202014.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
 #adding a column include which plot at the site the trees belong to
 names(core.data)
 core.data$plot <- substr(core.data$plot.id, 3, 3)
@@ -145,7 +146,7 @@ climate.upper.valles1.i <- climate.upper.valles1.i[,!(names(climate.upper.valles
 dim(climate.upper.valles1.i)
 
 # Create site chronologies from each set of external climate series
-climate.upper.valles1.cr <- chron(climate.upper.valles1.i, prefix="VU1", prewhiten=T)
+climate.upper.valles1.cr <- chron(climate.upper.valles1.i, prefix="BCW", prewhiten=T)
 summary(climate.upper.valles1.cr)
 
 
@@ -181,7 +182,7 @@ dim(cat.mesa.depth)
 # Merging all indecies together to form one dataframe on which we can run the climate correlations
 ###################################################################################################
 valles.climate.cr <- cbind(ross.upper.cr, ross.lower.cr, climate.upper.valles1.cr, cat.mesa.chron, cat.mesa.depth[,"cat.n"]) 
-names(valles.climate.cr) <- c("vuf.std", "vuf.res", "vuf.n", "vlf.std", "vlf.res", "vlf.n", "vu1.std","vu1.res", "vu1.n","cm.tot", "cm.n")
+names(valles.climate.cr) <- c("vuf.std", "vuf.res", "vuf.n", "vlf.std", "vlf.res", "vlf.n", "bcw.std","bcw.res", "bcw.n","cm.tot", "cm.n")
 
 summary(valles.climate.cr)
 head(valles.climate.cr)

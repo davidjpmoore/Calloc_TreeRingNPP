@@ -10,11 +10,14 @@ se <- function(x){
 
 #load in core details data sheet.  Has living/dead, pith info, measurement info.
 #loading the dplR to use the basal area reconstruction functions.
-core.data <- read.csv("raw_input_files/Core_data_DOE_summer_2014.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
+core.data <- read.csv("raw_input_files/Core_data_01202014.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
 #adding a column include which plot at the site the trees belong to
 names(core.data)
 core.data$plot <- substr(core.data$plot.id, 3, 3)
 core.data$plot <- as.factor(core.data$plot)
+
+# Slimming down core.data to be just the valles
+core.data <- core.data[substr(core.data$CoreID, 1, 1)=="V",]
 
 summary(core.data)
 
@@ -53,6 +56,10 @@ summary(core.rw)
 #removing the extra character that tellervo adds
 names(core.rw)<-substr(names(core.rw), 1, 7)
 names(core.rw)
+
+#SUBSETTING JUST THE VALLES SAMPLES
+core.rw <- core.rw [,substr(names(core.rw),1,1)=="V"]
+summary(core.rw)
 
 replace.b <- which(substr(names(core.rw),7,7)=="b") 
 names(core.rw)[replace.b] <- paste0(substr(names(core.rw)[replace.b], 1,6), "B")
