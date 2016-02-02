@@ -226,7 +226,7 @@ for(p in 1:length(plots)){
 summary(bm.plot[,,1]) # 1st value of 3rd dimension still our reference point
 summary(bm.plot[,,2]) 
 # -------------
-
+save(bm.plot, file="processed_data/mort_boot_bm_plot.Rdata")
 # -------------
 # Aggregating to the site level
 # -------------

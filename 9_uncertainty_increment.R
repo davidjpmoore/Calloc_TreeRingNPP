@@ -44,6 +44,8 @@ for(j in 1:ncol(bm.increment)){
 }
 # -----------------------------------
 
+save(bm.increment, file="processed_data/bm_increment.Rdata")
+
 # -----------------------------------
 # Calculating mean & CI, graphing
 # -----------------------------------

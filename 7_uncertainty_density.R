@@ -43,6 +43,8 @@ for(p in plots){
 }
 summary(biom.plot)
 
+save(biom.plot, file="processed_data/density_biom_plot.Rdata")
+
 #  Plot to Site, get CI from differences among plots
 cols.vu <- which(substr(names(biom.plot),1,2)=="VU") # creating an index for VUF
 ci.vu <- data.frame(Year= biom.plot$Year, SiteID= "VUF",
