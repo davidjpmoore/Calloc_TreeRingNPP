@@ -1,5 +1,5 @@
 # Read in RWL
-
+library(ggplot2)
 library(dplR)
 core.rw <- read.rwl("RWL/harv_how_all_trees.rwl")
 
@@ -16,6 +16,49 @@ write.csv(summary(core.rw), file="harv_how_summary.csv")
 tree.data <- read.csv("raw_input_files/harvard_howland_tree_metadata.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
 
 summary(tree.data)
+
+# Making 5cm diameter bins
+dbh.bins1 <- seq(0,max(tree.data$DBH..cm., na.rm=T),5)
+
+
+
+# Making quick plot to see the species breakdown of DBH at each site
+# All Trees
+# DBH by site Species Fill
+qplot(x=DBH..cm., data=tree.data, geom="histogram", breaks=dbh.bins1, fill=Species) +
+	facet_grid(Site ~ . ) + theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=12), axis.text.y=element_text(color="black", size=12)) + scale_x_continuous(name="DBH") + ggtitle("Size Distribution")
+
+# DBH by plots Species Fill
+qplot(x=DBH..cm., data=tree.data, geom="histogram", breaks=dbh.bins1, fill=Species) +
+	facet_grid(Site ~ plot ) + theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=12), axis.text.y=element_text(color="black", size=12)) + scale_x_continuous(name="DBH") + ggtitle("Size Distribution")
+
+# DBH by canopy class Species Fill
+qplot(x=DBH..cm., data=tree.data, geom="histogram", breaks=dbh.bins1, fill=Species) +
+	facet_grid(Site ~ Canopy.Class) + theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=12), axis.text.y=element_text(color="black", size=12)) + scale_x_continuous(name="DBH") + ggtitle("Size Distribution")
+	
+# DBH by Site by species with Canopy fill
+qplot(x=DBH..cm., data=tree.data, geom="histogram", breaks=dbh.bins1, fill=Canopy.Class) +
+	facet_grid(Site ~ Species) + theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=12), axis.text.y=element_text(color="black", size=12)) + scale_x_continuous(name="DBH") + ggtitle("Size Distribution")
+
+
+
+# Living trees only
+# DBH by site Species Fill
+qplot(x=DBH..cm., data=tree.data[tree.data$Live.Dead=="LIVE",], geom="histogram", breaks=dbh.bins1, fill=Species) +
+	facet_grid(Site ~ . ) + theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=12), axis.text.y=element_text(color="black", size=12)) + scale_x_continuous(name="DBH") + ggtitle("Size Distribution")
+
+# DBH by plots Species Fill
+qplot(x=DBH..cm., data=tree.data[tree.data$Live.Dead=="LIVE",], geom="histogram", breaks=dbh.bins1, fill=Species) +
+	facet_grid(Site ~ plot ) + theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=12), axis.text.y=element_text(color="black", size=12)) + scale_x_continuous(name="DBH") + ggtitle("Size Distribution")
+
+# DBH by canopy class Species Fill
+qplot(x=DBH..cm., data=tree.data[tree.data$Live.Dead=="LIVE",], geom="histogram", breaks=dbh.bins1, fill=Species) +
+	facet_grid(Site ~ Canopy.Class) + theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=12), axis.text.y=element_text(color="black", size=12)) + scale_x_continuous(name="DBH") + ggtitle("Size Distribution")
+	
+# DBH by Site by species with Canopy fill
+qplot(x=DBH..cm., data=tree.data[tree.data$Live.Dead=="LIVE",], geom="histogram", breaks=dbh.bins1, fill=Canopy.Class) +
+	facet_grid(Site ~ Species) + theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=12), axis.text.y=element_text(color="black", size=12)) + scale_x_continuous(name="DBH") + ggtitle("Size Distribution")
+
 
 # Loading in core data
 core.data <- read.csv("raw_input_files/harvard_howland_core_data.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
