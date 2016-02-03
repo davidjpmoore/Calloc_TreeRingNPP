@@ -7,84 +7,198 @@ library(car)
 # -----------------------------------
 # loading in & formatting the various datasets that will be needed
 # -----------------------------------
+# Reading in site level biomass so that we have something to scale all of the uncertainties toward
+bm.site <- read.csv("processed_data/Biomass_Site_Total_kgm-2.csv", header=T)
+summary(bm.site)
+dim(bm.site)
 
+vuf.site <- bm.site[bm.site$SiteID=="VU",c("Year", "BM.Mean")]
+
+vuf.site <- vuf.site[order(vuf.site$Year, decreasing=T),]
+head(vuf.site)
+row.names(vuf.site)<- vuf.site$Year
+vuf.site <- vuf.site[vuf.site$Year<=2011,]
+summary(vuf.site)
+names(vuf.site) <- c("Year", "vuf.base")
+
+
+vuf.site.inc <- vuf.site
+
+for(i in 1:(length(vuf.site.inc$vuf.base)-1)){
+	vuf.site.inc[i,"vuf.base"] <- vuf.site[i,"vuf.base"] - vuf.site[i+1,"vuf.base"]
+}
+summary(vuf.site.inc)
+head(vuf.site.inc)
+
+
+vlf.site <- bm.site[bm.site$SiteID=="VL",c("Year", "BM.Mean")]
+
+vlf.site <- vlf.site[order(vlf.site$Year, decreasing=T),]
+head(vlf.site)
+row.names(vlf.site)<- vlf.site$Year
+vlf.site <- vlf.site[vlf.site$Year<=2011,]
+summary(vlf.site)
+names(vlf.site) <- c("Year", "vlf.base")
+
+
+vlf.site.inc <- vlf.site
+
+for(i in 1:(length(vlf.site.inc$vlf.base)-1)){
+	vlf.site.inc[i,"vlf.base"] <- vlf.site[i,"vlf.base"] - vlf.site[i+1, "vlf.base"]
+}
+summary(vlf.site.inc)
+head(vlf.site.inc)
+
+valles.base.inc <- merge(vlf.site.inc, vuf.site.inc, by="Year", all.x=T, all.y=T)
+summary(valles.base.inc)
+head(valles.base.inc)
+
+valles.base.inc <- valles.base.inc[order(valles.base.inc$Year, decreasing=T),]
+head(valles.base.inc)
+
+# Now we have increments for each site that are ordered in the same way that we ordered the various uncertainty matrices.
+
+#---------------------------------------------------
 # allometric uncertainty of BM at the site level
-load("processed_data/valles_allometry_uncertainty.Rdata")
-allom.uncert$range <- allom.uncert$UB - allom.uncert$LB
-allom.uncert$LB.dev <- allom.uncert$Mean - allom.uncert$LB
-allom.uncert$UB.dev <-  allom.uncert$UB - allom.uncert$Mean
-allom.uncert$SiteID <- recode(allom.uncert$SiteID, "'VUF'='1'; 'VLF'='2'")
-levels(allom.uncert$SiteID) <- c("VUF", "VLF")
-allom.uncert <- allom.uncert[order(allom.uncert$Year),]
-allom.uncert <- allom.uncert[order(allom.uncert$SiteID),]
-summary(allom.uncert)
-summary(allom.uncert[allom.uncert$SiteID=="VLF",])
-summary(allom.uncert[allom.uncert$SiteID=="VUF",])
+#---------------------------------------------------
+load("processed_data/vuf_allom_inc.Rdata")
+load("processed_data/vlf_allom_inc.Rdata")
 
-# density BM--uses mean allometric eqtn. and accounts for differences in density with just ROSS plots
-load("processed_data/valles_density_uncertainty.Rdata")
-dens.uncert$range <- dens.uncert$UB - dens.uncert$LB
-dens.uncert$LB.dev <- dens.uncert$Mean - dens.uncert$LB
-dens.uncert$UB.dev <-  dens.uncert$UB - dens.uncert$Mean
-dens.uncert$SiteID <- recode(dens.uncert$SiteID, "'VUF'='1'; 'VLF'='2'")
-levels(dens.uncert$SiteID) <- c("VUF", "VLF")
-dens.uncert <- dens.uncert[order(dens.uncert$Year),]
-dens.uncert <- dens.uncert[order(dens.uncert$SiteID),]
-summary(dens.uncert)
-summary(dens.uncert[dens.uncert$SiteID=="VLF",])
-summary(dens.uncert[dens.uncert$SiteID=="VUF",])
+dim(vuf.allom.inc)
+summary(vuf.allom.inc[,1:10,1])
 
-# mortality Uncertainty of BM at the site level
-load("processed_data/valles_mortality_uncertainty.Rdata")
-names(uncert.mort) <- c("SiteID", "Mean", "Year", "SD", "LB", "UB", "Site")
-# we're missing some years here that we need to add back in to make things play nice
-dummy.year <- data.frame(Year=dens.uncert$Year, SiteID=dens.uncert$SiteID, Site=dens.uncert$Site) 
-uncert.mort <- merge(uncert.mort, dummy.year, all.x=T, all.y=T)
-uncert.mort <- uncert.mort[order(uncert.mort$Year),]
-uncert.mort$SiteID <- recode(uncert.mort$SiteID, "'VUF'='1'; 'VLF'='2'")
-levels(uncert.mort$SiteID) <- c("VUF", "VLF")
-uncert.mort <- uncert.mort[order(uncert.mort$SiteID),]
-
-uncert.mort$range <- uncert.mort$UB - uncert.mort$LB
-uncert.mort$LB.dev <- uncert.mort$Mean - uncert.mort$LB
-uncert.mort$UB.dev <-  uncert.mort$UB - uncert.mort$Mean
-summary(uncert.mort)
-summary(uncert.mort[uncert.mort$SiteID=="VLF",])
-summary(uncert.mort[uncert.mort$SiteID=="VUF",])
+dim(vlf.allom.inc)
+summary(vlf.allom.inc[,1:10,1])
 
 
-# uncertainty in the increment
-load("processed_data/valles_increment_uncertainty.Rdata")
-names(uncert.increment) <- c("SiteID", "Year", "Mean", "LB", "UB", "Site")
-uncert.increment$range <- uncert.increment$UB - uncert.increment$LB
-uncert.increment$SiteID <- recode(uncert.increment$SiteID, "'VUF'='1'; 'VLF'='2'")
-levels(uncert.increment$SiteID) <- c("VUF", "VLF")
-uncert.increment <- uncert.increment[order(uncert.increment$Year),]
-uncert.increment <- uncert.increment[order(uncert.increment$SiteID),]
-uncert.increment$LB.dev <- uncert.increment$Mean - uncert.increment$LB
-uncert.increment$UB.dev <- uncert.increment$UB - uncert.increment$Mean
-summary(uncert.increment)
-summary(uncert.increment[uncert.increment$SiteID=="VLF",])
-summary(uncert.increment[uncert.increment$SiteID=="VUF",])
-# -----------------------------------
 
-# Need to change each element of uncertainty into an increment THEN add them together in quadrature
-
-summary(uncert.increment)
-
-
-# Allometry component
-load("processed_data/Biomass_Array_Tree_kgm-2.RData")
-dim(bm.array)
-
+#---------------------------------------------------
 # Density component
+#---------------------------------------------------
+load(file="processed_data/dens_inc.Rdata")
+dim(dens.inc)
+summary(dens.inc)
+head(dens.inc)
 
 
-
-# Mortality Component
-
+#---------------------------------------------------
 # increment Component
+#---------------------------------------------------
+load("processed_data/vuf_inc.Rdata")
+load("processed_data/vlf_inc.Rdata")
 
+dim(vuf.inc)
+summary(vuf.inc)
+head(vuf.inc)
+
+dim(vlf.inc)
+summary(vlf.inc)
+head(vlf.inc)
+
+
+#---------------------------------------------------
+# Mortality Component
+# Composed of 500 pulls for the mortality for each site over the timespan 1905-2011
+#---------------------------------------------------
+load("processed_data/vuf_mort_inc.Rdata")
+load("processed_data/vlf_mort_inc.Rdata")
+
+dim(vuf.mort.inc)
+summary(vuf.mort.inc)
+row.names(vuf.mort.inc)
+
+dim(vlf.mort.inc)
+summary(vlf.mort.inc)
+row.names(vlf.mort.inc)
+
+#---------------------------------------------------
+# Need to do three things
+# 1) get the deviations of the wiggles of each area of uncertainty
+#	 1a) Which means subtracting the wiggles of each area from the base wiggles
+# 2) get random samples of each uncertainty deviation for each year at each site
+# 3) add  up the different devaitions of uncertainty, relativeizing to the base increment for each site, to show how the uncertainty of the increment changes through time.
+#
+
+# This will create a data frame for each site (VLF, VUF) that we can then draw random samples from for the climate sensitivity analysis.
+
+
+
+#---------------------------------------------------
+
+# test <- vuf.allom.inc[,,sample(1:dim(vuf.allom.inc)[3], 1000, replace=T)]
+# summary(test)
+# dim(test)
+
+#---------------------------------------------------
+# Allometry Deviations
+#---------------------------------------------------
+
+par(new=F)
+for(i in 1:length(dimnames(vuf.allom.inc)[[2]])){
+	for(j in 1:5){
+		plot(vuf.allom.inc[,i,j] ~ dimnames(vuf.allom.inc)[[1]], type="l", ylim=c(0,10))
+		par(new=T)
+	}
+}
+plot(valles.base.inc$vuf.base ~ dimnames(vuf.allom.inc)[[1]], type="l", ylim=c(0,10), col="red", lwd=3)
+
+# We want to figure out how each run of the allometries differs from the base increment
+# VUF
+vuf.allom.inc.dev <- vuf.allom.inc
+vuf.allom.inc.dev[,,] <- NA
+
+vuf.allom.inc.dev <- vuf.allom.inc[,,] -  valles.base.inc$vuf.base  
+
+dim(vuf.allom.inc.dev)
+dimnames(vuf.allom.inc.dev)
+summary(vuf.allom.inc.dev[,1:10,1])
+
+# Condense dimensions down to mean tree at a site but keep iterations to retain the variability in the allometric equations used; this will help us add things together easier in the next step
+
+#													c(,) ==> lists dimensions we want to KEEP!
+vuf.allom.inc.dev <- data.frame(apply(vuf.allom.inc.dev, c(1,3), mean, na.rm=T))
+dim(vuf.allom.inc.dev)
+summary(vuf.allom.inc.dev[,1:10])
+
+# VLF
+vlf.allom.inc.dev <- vlf.allom.inc
+vlf.allom.inc.dev[,,] <- NA
+
+vlf.allom.inc.dev <- vlf.allom.inc[,,] -  valles.base.inc$vlf.base  
+
+dim(vlf.allom.inc.dev)
+dimnames(vlf.allom.inc.dev)
+summary(vlf.allom.inc.dev[,1:10,1])
+
+# Condensing down to just two dimensions like we did in ln. 159 above
+vlf.allom.inc.dev <- data.frame(apply(vlf.allom.inc.dev, c(1,3), mean, na.rm=T))
+dim(vlf.allom.inc.dev)
+summary(vlf.allom.inc.dev[,1:10])
+
+#---------------------------------------------------
+# Density
+#---------------------------------------------------
+
+
+#---------------------------------------------------
+# Increment
+#---------------------------------------------------
+
+#---------------------------------------------------
+# Mortality
+#---------------------------------------------------
+
+
+#---------------------------------------------------
+# Adding up in quadrature the deviations from the different areas while bootstrapping
+#---------------------------------------------------
+n.pulls=20
+vuf.inc.tot <- valles.base.inc$vuf.base + sqrt(vuf.allom.inc.dev[,sample(1:ncol(vuf.allom.inc.dev), n.pulls, replace=T)]^2)  
+
+summary(vuf.inc.tot)
+plot(vuf.inc.tot[,1]~ row.names(vuf.inc.tot),type="l")
+	lines(valles.base.inc$vuf.base~valles.base.inc$Year, col="red", lwd=3)
+summary(valles.base.inc$vuf.base)
 
 inc[i] <- base + sqrt(plot.uncert[,,sample(1:dim(bm.array)[3])]^2 + mort.uncert.inc[i] + (base.incr-dens.uncert.inc[,sample(cols.vu)])^2 + inc.uncert[i])
 
