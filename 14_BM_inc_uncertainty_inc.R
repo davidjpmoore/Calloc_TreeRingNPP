@@ -176,47 +176,112 @@ dim(vlf.allom.inc.dev)
 summary(vlf.allom.inc.dev[,1:10])
 
 #---------------------------------------------------
-# Density
+# Density Deviations
 #---------------------------------------------------
+
+dim(dens.inc)
+summary(dens.inc)
+head(dens.inc)
+
+vuf.dens <- dens.inc[,substr(names(dens.inc), 1,2)=="VU"]
+summary(vuf.dens)
+
+vuf.dens.dev <- vuf.dens - valles.base.inc$vuf.base
+summary(vuf.dens.dev)
+head(vuf.dens.dev)
+
+
+vlf.dens <- dens.inc[,substr(names(dens.inc), 1,2)=="VL"]
+summary(vlf.dens)
+
+vlf.dens.dev <- vlf.dens - valles.base.inc$vlf.base
+summary(vlf.dens.dev)
+head(vlf.dens.dev)
 
 
 #---------------------------------------------------
-# Increment
+# Increment Deviations
 #---------------------------------------------------
 
+dim(vuf.inc)
+summary(vuf.inc)
+head(vuf.inc)
+
+
+vuf.inc.dev <- vuf.inc - valles.base.inc$vuf.base
+summary(vuf.inc.dev)
+
+dim(vlf.inc)
+summary(vlf.inc)
+head(vlf.inc)
+
+vlf.inc.dev <- vlf.inc - valles.base.inc$vlf.base
+summary(vlf.inc.dev)
+
+
 #---------------------------------------------------
-# Mortality
+# Mortality Deviations
 #---------------------------------------------------
 
+dim(vuf.mort.inc)
+summary(vuf.mort.inc)
+row.names(vuf.mort.inc)
+
+# Adding a row of NA's for 1904 so the dimensions align
+vuf.mort.inc <- rbind(vuf.mort.inc, NA) 
+row.names(vuf.mort.inc)<- c(2011:1904)
+
+
+
+
+vuf.mort.dev <- vuf.mort.inc[,] - valles.base.inc$vuf.base
+summary(vuf.mort.dev)
+vuf.mort.dev
+
+
+dim(vlf.mort.inc)
+summary(vlf.mort.inc)
+row.names(vlf.mort.inc)
+# Adding a row of NA's for 1904 so dimensions align.
+vlf.mort.inc <- rbind(vlf.mort.inc, NA)
+row.names(vlf.mort.inc) <- c(2011:1904)
+
+
+vlf.mort.dev <- vlf.mort.inc[,] - valles.base.inc$vlf.base
+summary(vlf.mort.dev)
 
 #---------------------------------------------------
 # Adding up in quadrature the deviations from the different areas while bootstrapping
 #---------------------------------------------------
-n.pulls=20
-vuf.inc.tot <- valles.base.inc$vuf.base + sqrt(vuf.allom.inc.dev[,sample(1:ncol(vuf.allom.inc.dev), n.pulls, replace=T)]^2)  
+n.pulls=1000
+set.seed(1117)
+# VUF Site
+
+vuf.inc.tot <- valles.base.inc$vuf.base + sqrt(vuf.allom.inc.dev[,sample(1:ncol(vuf.allom.inc.dev), n.pulls, replace=T)]^2) + sqrt(vuf.dens.dev[,sample(1:ncol(vuf.dens.dev), n.pulls, replace=T)]^2) + sqrt(vuf.inc.dev[,sample(1:ncol(vuf.inc.dev), n.pulls, replace=T)]^2)
 
 summary(vuf.inc.tot)
-plot(vuf.inc.tot[,1]~ row.names(vuf.inc.tot),type="l")
-	lines(valles.base.inc$vuf.base~valles.base.inc$Year, col="red", lwd=3)
-summary(valles.base.inc$vuf.base)
 
-inc[i] <- base + sqrt(plot.uncert[,,sample(1:dim(bm.array)[3])]^2 + mort.uncert.inc[i] + (base.incr-dens.uncert.inc[,sample(cols.vu)])^2 + inc.uncert[i])
 
-inc.use.in.r2 <- base + sqrt(allom.inc.uncert[,,sample(XXX)]^2 + mort.inc.uncert[,sample(XXX)]^2 + [...])
 
-# VLF increments first
+par(new=F)
+for(i in 1:ncol(vuf.inc.tot)){
+		plot(vuf.inc.tot[,i] ~ row.names(vuf.inc.tot), type="l", ylim=c(0,10))
+		par(new=T)
+}
+lines	(valles.base.inc$vuf.base ~ dimnames(vuf.allom.inc)[[1]], type="l", ylim=c(0,10), col="red", lwd=3)
 
-for(j in 3:dim(vlf.tot.inc)[2]){
-	
-		for (i in 1:(length(vlf.tot.inc[,j])-1)){
-		vlf.tot.inc[i,j]<- ifelse(!is.na(vlf.tot.dev[i,j]), vlf.tot.dev[i,j] - vlf.tot.dev[i+1,j], valles.tot.dev[i,j])
-	}
-}  
+save(vuf.inc.tot, file="processed_data/vuf_bm_boot_tot_inc.Rdata")
+# VLF Site
 
-summary(vlf.tot.inc)
+vlf.inc.tot <- valles.base.inc$vlf.base + sqrt(vlf.allom.inc.dev[,sample(1:ncol(vlf.allom.inc.dev), n.pulls, replace=T)]^2) + sqrt(vlf.dens.dev[,sample(1:ncol(vlf.dens.dev), n.pulls, replace=T)]^2) + sqrt(vlf.inc.dev[,sample(1:ncol(vlf.inc.dev), n.pulls, replace=T)]^2) + sqrt(vlf.mort.dev[,sample(1:ncol(vlf.mort.dev), n.pulls, replace=T)]^2)
 
-ggplot(data = vlf.tot.inc[vlf.tot.inc$Year>1990,]) + #facet_grid(SiteID~.) +
-	geom_line(aes(x=Year, y=Base), size=1.5, color="black") +
+summary(vlf.inc.tot)
 
-  #1) Increment Uncertainty
-  geom_ribbon(aes(x=Year, ymin=Base - LB.dev, ymax=Base + UB, fill="1"), alpha=0.6) +
+par(new=F)
+for(i in 1:ncol(vlf.inc.tot)){
+		plot(vlf.inc.tot[,i] ~ row.names(vlf.inc.tot), type="l", ylim=c(0,10))
+		par(new=T)
+}
+lines	(valles.base.inc$vlf.base ~ dimnames(vlf.allom.inc)[[1]], type="l", ylim=c(0,10), col="red", lwd=3)
+
+save(vlf.inc.tot, file="processed_data/vlf_bm_boot_tot_inc.Rdata")
