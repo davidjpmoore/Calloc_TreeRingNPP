@@ -253,7 +253,7 @@ summary(vlf.mort.dev)
 #---------------------------------------------------
 # Adding up in quadrature the deviations from the different areas while bootstrapping
 #---------------------------------------------------
-n.pulls=1000
+n.pulls=100
 set.seed(1117)
 # VUF Site
 
