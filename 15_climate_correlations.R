@@ -216,15 +216,17 @@ levels(all.valles.climate.stack)
 
 # Critical Value for 28 years (n-2 = 26) 0.330
 
-
+pdf("figures/climate_chron_all_months.pdf", width=13, height=8.5)
 ggplot(data=all.valles.climate.stack[all.valles.climate.stack$month %in% c("pDJF", "MAM", "JJA", "SON"),]) + facet_grid(chron ~ type, scales="free_x")+
 	geom_bar(aes(x=month, y=corr, fill=sig), stat="identity", position="dodge") +
 	scale_fill_manual(values=c("blue", "gray50"))
+dev.off()
 
+pdf("figures/iclimate_chron_seasons.pdf", width=13, height=8.5)
 ggplot(data=all.valles.climate.stack) + facet_grid(chron ~ type, scales="free_x")+
 	geom_bar(aes(x=month, y=corr, fill=sig), stat="identity", position="dodge") +
 	scale_fill_manual(values=c("blue", "gray50"))
-
+dev.off()
 
 #######################################################
 # loading in BM bootstraps for correlation runs
@@ -703,24 +705,29 @@ summary(all.valles.bm.stack)
 
 # Critical Value for 28 years (n-2 = 26) 0.330
 
+pdf("figures/BMI_barplot_all_months.pdf", width=13, height=8.5)
 ggplot(data=all.valles.bm.stack[all.valles.bm.stack$month %in% c("pDJF", "MAM","JJA","SON"),]) + facet_grid(site ~ type , scales="free_x")+
 	geom_boxplot(aes(x=month, y=corr, fill=sig)) +
 	scale_fill_manual(values=c("blue", "gray50"))
-	
+dev.off()	
+
+pdf("figures/BMI_barplot_seasons.pdf", width=13, height=8.5)	
 ggplot(data=all.valles.bm.stack) + facet_grid(site ~ type , scales="free_x")+
 	geom_boxplot(aes(x=month, y=corr, fill=sig)) +
 	scale_fill_manual(values=c("blue", "gray50"))
+dev.off()
 
-
-
+pdf("figures/BMI_violin_all_months.pdf", width=13, height=8.5)
 ggplot(data=all.valles.bm.stack[all.valles.bm.stack$month %in% c("pDJF", "MAM","JJA","SON"),]) + facet_grid(site ~ type , scales="free_x")+
 	geom_violin(aes(x=month, y=corr, fill=sig)) +
 	scale_fill_manual(values=c("blue", "gray50"))
-	
+dev.off()
+
+pdf("figures/BMI_violin_seasons.pdf", width=13, height=8.5)	
 ggplot(data=all.valles.bm.stack) + facet_grid(site ~ type , scales="free_x")+
 	geom_violin(aes(x=month, y=corr, fill=sig)) +
 	scale_fill_manual(values=c("blue", "gray50"))
-	
+dev.off()	
 
 
 
