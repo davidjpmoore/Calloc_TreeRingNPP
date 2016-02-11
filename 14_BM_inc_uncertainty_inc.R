@@ -257,8 +257,10 @@ n.pulls=100
 set.seed(1117)
 # VUF Site
 
-vuf.inc.tot <- valles.base.inc$vuf.base + sqrt(vuf.allom.inc.dev[,sample(1:ncol(vuf.allom.inc.dev), n.pulls, replace=T)]^2) + sqrt(vuf.dens.dev[,sample(1:ncol(vuf.dens.dev), n.pulls, replace=T)]^2) + sqrt(vuf.inc.dev[,sample(1:ncol(vuf.inc.dev), n.pulls, replace=T)]^2)
+vuf.inc.tot <- valles.base.inc$vuf.base + sqrt(vuf.allom.inc.dev[,sample(1:ncol(vuf.allom.inc.dev), n.pulls, replace=T)]^2 + vuf.dens.dev[,sample(1:ncol(vuf.dens.dev), n.pulls, replace=T)]^2 + vuf.inc.dev[,sample(1:ncol(vuf.inc.dev), n.pulls, replace=T)]^2 +
+vuf.mort.dev[,sample(1:ncol(vuf.mort.dev), n.pulls, replace=T)]^2)
 
+dim(vuf.inc.tot)
 summary(vuf.inc.tot)
 
 
@@ -273,8 +275,14 @@ lines	(valles.base.inc$vuf.base ~ dimnames(vuf.allom.inc)[[1]], type="l", ylim=c
 save(vuf.inc.tot, file="processed_data/vuf_bm_boot_tot_inc.Rdata")
 # VLF Site
 
-vlf.inc.tot <- valles.base.inc$vlf.base + sqrt(vlf.allom.inc.dev[,sample(1:ncol(vlf.allom.inc.dev), n.pulls, replace=T)]^2) + sqrt(vlf.dens.dev[,sample(1:ncol(vlf.dens.dev), n.pulls, replace=T)]^2) + sqrt(vlf.inc.dev[,sample(1:ncol(vlf.inc.dev), n.pulls, replace=T)]^2) + sqrt(vlf.mort.dev[,sample(1:ncol(vlf.mort.dev), n.pulls, replace=T)]^2)
+vlf.inc.tot <- valles.base.inc$vlf.base + 
+				sqrt(vlf.allom.inc.dev[,sample(1:ncol(vlf.allom.inc.dev), n.pulls, replace=T)]^2 + 
+				     vlf.dens.dev     [,sample(1:ncol(vlf.dens.dev     ), n.pulls, replace=T)]^2 + 
+				     vlf.inc.dev      [,sample(1:ncol(vlf.inc.dev      ), n.pulls, replace=T)]^2 + 
+				     vlf.mort.dev     [,sample(1:ncol(vlf.mort.dev     ), n.pulls, replace=T)]^2
+				     )
 
+dim(vlf.inc.tot)
 summary(vlf.inc.tot)
 
 par(new=F)
@@ -285,3 +293,42 @@ for(i in 1:ncol(vlf.inc.tot)){
 lines	(valles.base.inc$vlf.base ~ dimnames(vlf.allom.inc)[[1]], type="l", ylim=c(0,10), col="red", lwd=3)
 
 save(vlf.inc.tot, file="processed_data/vlf_bm_boot_tot_inc.Rdata")
+
+################################################
+# Graphing the cumulative increment uncertainty
+################################################
+
+#---------------
+# Upper Site VUF
+#---------------
+
+summary(vuf.inc.tot)
+row.names(vuf.inc.tot)
+
+vuf.inc.tot.graph <- data.frame(year = as.numeric(row.names(vuf.inc.tot)), 
+                                mean = apply(vuf.inc.tot, 1,FUN=mean, na.rm=T), 
+                                ci.lo = apply(vuf.inc.tot, 1, FUN=quantile, 0.025, na.rm=T), 
+                                ci.hi = apply(vuf.inc.tot, 1, FUN=quantile, 0.975, na.rm=T))
+
+vuf.inc.tot.graph$site <- as.factor("VUF")
+summary(vuf.inc.tot.graph)                                
+
+vlf.inc.tot.graph <- data.frame(year = as.numeric(row.names(vlf.inc.tot)), 
+                                mean = apply(vlf.inc.tot, 1,FUN=mean, na.rm=T), 
+                                ci.lo = apply(vlf.inc.tot, 1, FUN=quantile, 0.025, na.rm=T), 
+                                ci.hi = apply(vlf.inc.tot, 1, FUN=quantile, 0.975, na.rm=T))
+
+vlf.inc.tot.graph$site <- as.factor("VLF")
+summary(vlf.inc.tot.graph)                                
+
+valles.inc.tot <- rbind(vuf.inc.tot.graph, vlf.inc.tot.graph)
+summary(valles.inc.tot)
+
+pdf("figures/bm_inc_uncert_quad.pdf", width=13, height=8.5)
+ggplot(data=valles.inc.tot) + facet_grid(site ~.) +
+	
+	geom_ribbon(aes(x=year, ymin=ci.lo, ymax=ci.hi), fill="green3", alpha=0.6) +
+	
+	geom_line(aes(x=year, y=mean), size=1.5, color="black") +
+	labs(title= "Biomass Increment Uncertainty", x="Year", y=expression(bold(paste("Biomass (kg/m2)"))))
+dev.off()                                

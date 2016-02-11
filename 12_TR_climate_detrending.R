@@ -178,6 +178,15 @@ summary(cat.mesa.depth)
 names(cat.mesa.depth) <- c("CATstd", "cat.n")
 summary(cat.mesa.depth)
 dim(cat.mesa.depth)
+
+######################################################
+# Loading in Guitermann Canyon del Potero Chronology
+######################################################
+can.del.pot <- read.rwl("external_treering_data/nm588.rwl.txt", header=T)
+summary(can.del.pot)
+
+can.del.pot.chron
+
 ###################################################################################################
 # Merging all indecies together to form one dataframe on which we can run the climate correlations
 ###################################################################################################
