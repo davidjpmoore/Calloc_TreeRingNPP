@@ -9,15 +9,33 @@ summary(valles.climate.cr)
 # Taking just the residual chronologies
 valles.res <- valles.climate.cr[,substr(names(valles.climate.cr),5,7)=="res"]
 summary(valles.res)
-valles.res$cm.res <- valles.climate.cr$cm.n
+#valles.res$cm.res <- valles.climate.cr$cm.n
+valles.res$vuf.mean.res <- valles.climate.cr$vuf.mean.res
+valles.res$vlf.mean.res <- valles.climate.cr$vlf.mean.res
+
 
 summary(valles.res)
+row.names(valles.res)
+head(valles.res)
 
-upper.res <- valles.res[,c("vuf.res", "bcw.res")]
+# Loading in the mean biomass time series for each site.
+load("processed_data/valles_base_increment.Rdata")
+summary(valles.base.inc)
+valles.base.inc <- valles.base.inc[valles.base.inc$Year >=1980 & valles.base.inc$Year <=2007,]
+head(valles.base.inc)
+
+valles.base.inc <- valles.base.inc[order(valles.base.inc$Year, decreasing=F),]
+head(valles.base.inc)
+
+
+valles.res <- cbind(valles.res, valles.base.inc[,c("vlf.base", "vuf.base")]) 
+summary(valles.res)
+
+upper.res <- valles.res[,c("vuf.res", "bcw.res", "vuf.base", "vuf.mean.res")]
 row.names(upper.res)<- row.names(valles.res)
 summary(upper.res)
 
-lower.res <- valles.res[,c("vlf.res", "cm.res")]
+lower.res <- valles.res[,c("vlf.res", "cat.res", "vlf.base", "chg.res", "vlf.mean.res")]
 row.names(lower.res)<- row.names(valles.res)
 summary(lower.res)
 
@@ -303,28 +321,28 @@ head(vlf.corr.precip)
 vuf.tmean.stack <- stack(vuf.corr.tmean)
 summary(vuf.tmean.stack)
 names(vuf.tmean.stack) <- c("corr", "month")
-vuf.tmean.stack$chron <- as.factor(c("vuf.res", "bcw.res"))
+vuf.tmean.stack$chron <- as.factor(c("vuf.res", "bcw.res", "vuf.base", "vuf.mean.res"))
 vuf.tmean.stack$type <- as.factor("tmean")
 vuf.tmean.stack$elevation <- as.factor("Upper")
 
 vuf.tmin.stack <- stack(vuf.corr.tmin)
 summary(vuf.tmin.stack)
 names(vuf.tmin.stack) <- c("corr", "month")
-vuf.tmin.stack$chron <- as.factor(c("vuf.res", "bcw.res"))
+vuf.tmin.stack$chron <- as.factor(c("vuf.res", "bcw.res", "vuf.base", "vuf.mean.res"))
 vuf.tmin.stack$type <- as.factor("tmin")
 vuf.tmin.stack$elevation <- as.factor("Upper")
 
 vuf.tmax.stack <- stack(vuf.corr.tmax)
 summary(vuf.tmax.stack)
 names(vuf.tmax.stack) <- c("corr", "month")
-vuf.tmax.stack$chron <- as.factor(c("vuf.res", "bcw.res"))
+vuf.tmax.stack$chron <- as.factor(c("vuf.res", "bcw.res", "vuf.base", "vuf.mean.res"))
 vuf.tmax.stack$type <- as.factor("tmax")
 vuf.tmax.stack$elevation <- as.factor("Upper")
 
 vuf.precip.stack <- stack(vuf.corr.precip)
 summary(vuf.precip.stack)
 names(vuf.precip.stack) <- c("corr", "month")
-vuf.precip.stack$chron <- as.factor(c("vuf.res", "bcw.res"))
+vuf.precip.stack$chron <- as.factor(c("vuf.res", "bcw.res", "vuf.base", "vuf.mean.res"))
 vuf.precip.stack$type <- as.factor("precip")
 vuf.precip.stack$elevation <- as.factor("Upper")
 
@@ -332,28 +350,28 @@ vuf.precip.stack$elevation <- as.factor("Upper")
 vlf.tmean.stack <- stack(vlf.corr.tmean)
 summary(vlf.tmean.stack)
 names(vlf.tmean.stack) <- c("corr", "month")
-vlf.tmean.stack$chron <- as.factor(c("vlf.res", "cm.res"))
+vlf.tmean.stack$chron <- as.factor(c("vlf.res", "cm.res", "vlf.base", "chg.res", "vlf.mean.res"))
 vlf.tmean.stack$type <- as.factor("tmean")
 vlf.tmean.stack$elevation <- as.factor("Lower")
 
 vlf.tmin.stack <- stack(vlf.corr.tmin)
 summary(vlf.tmin.stack)
 names(vlf.tmin.stack) <- c("corr", "month")
-vlf.tmin.stack$chron <- as.factor(c("vlf.res", "cm.res"))
+vlf.tmin.stack$chron <- as.factor(c("vlf.res", "cm.res", "vlf.base", "chg.res", "vlf.mean.res"))
 vlf.tmin.stack$type <- as.factor("tmin")
 vlf.tmin.stack$elevation <- as.factor("Lower")
 
 vlf.tmax.stack <- stack(vlf.corr.tmax)
 summary(vlf.tmax.stack)
 names(vlf.tmax.stack) <- c("corr", "month")
-vlf.tmax.stack$chron <- as.factor(c("vlf.res", "cm.res"))
+vlf.tmax.stack$chron <- as.factor(c("vlf.res", "cm.res", "vlf.base", "chg.res", "vlf.mean.res"))
 vlf.tmax.stack$type <- as.factor("tmax")
 vlf.tmax.stack$elevation <- as.factor("Lower")
 
 vlf.precip.stack <- stack(vlf.corr.precip)
 summary(vlf.precip.stack)
 names(vlf.precip.stack) <- c("corr", "month")
-vlf.precip.stack$chron <- as.factor(c("vlf.res", "cm.res"))
+vlf.precip.stack$chron <- as.factor(c("vlf.res", "cm.res", "vlf.base", "chg.res", "vlf.mean.res"))
 vlf.precip.stack$type <- as.factor("precip")
 vlf.precip.stack$elevation <- as.factor("Lower")
 
@@ -369,7 +387,7 @@ summary(all.valles.climate.stack)
 all.valles.climate.stack$month <- factor(all.valles.climate.stack$month, levels = names(vuf.corr.tmean))
 summary(all.valles.climate.stack$month)
 
-all.valles.climate.stack$chron <- factor(all.valles.climate.stack$chron, levels = c("vuf.res", "bcw.res", "vlf.res", "cm.res"))
+all.valles.climate.stack$chron <- factor(all.valles.climate.stack$chron, levels = c("vuf.res", "vuf.mean.res", "vuf.base", "bcw.res", "vlf.res","vlf.mean.res", "vlf.base", "cm.res", "chg.res"))
 
 all.valles.climate.stack$elevation <- factor(all.valles.climate.stack$elevation, levels = c("Upper", "Lower"))
 
@@ -448,6 +466,14 @@ summary(vlf.inc.tot)
 vuf.bm <- vuf.inc.tot[row.names(vuf.inc.tot)>=1980 & row.names(vuf.inc.tot)<=2007,]
 vlf.bm <- vlf.inc.tot[row.names(vlf.inc.tot)>=1980 & row.names(vlf.inc.tot)<=2007,]
 
+head(vuf.bm)
+head(vlf.bm)
+
+vuf.bm <- vuf.bm[order(row.names(vuf.bm), decreasing=F),]
+vlf.bm <- vlf.bm[order(row.names(vlf.bm), decreasing=F),]
+
+head(vuf.bm)
+head(vlf.bm)
 
 # ---------------------------------------
 # Climate Correlations with BM arrays
@@ -1021,6 +1047,7 @@ pdf("figures/BMI_boxplot_seasons.pdf", width=13, height=8.5)
 ggplot(data=all.valles.bm.stack[all.valles.bm.stack$month %in% c("pFall", "Winter","Spring", "Summer"),]) + facet_grid(site*elevation ~ type , scales="free_x")+
 	geom_boxplot(aes(x=month, y=corr, fill=sig)) +
 	scale_fill_manual(values=c("green","gray50")) +
+	geom_hline(yintercept=0, linetype="dashed") +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	
 	labs(title= "Biomass Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)")))) #+
@@ -1040,6 +1067,7 @@ pdf("figures/BMI_boxplot_all_months.pdf", width=13, height=8.5)
 ggplot(data=all.valles.bm.stack) + facet_grid(site*elevation ~ type , scales="free_x")+
 	geom_boxplot(aes(x=month, y=corr, fill=sig)) +
 	scale_fill_manual(values=c("green","gray50")) +
+	geom_hline(yintercept=0, linetype="dashed") +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	
 	labs(title= "Biomass Climate Correlations", x="Months", y=expression(bold(paste("Correlation Value (r)")))) # +
@@ -1058,6 +1086,7 @@ pdf("figures/BMI_violin_seasons.pdf", width=13, height=8.5)
 ggplot(data=all.valles.bm.stack[all.valles.bm.stack$month %in% c("pFall", "Winter","Spring", "Summer"),]) + facet_grid(site*elevation ~ type , scales="free_x")+
 	geom_violin(aes(x=month, y=corr, fill=sig), adjust=3) +
 	scale_fill_manual(values=c("green","gray50")) +
+	geom_hline(yintercept=0, linetype="dashed") +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	
 	
@@ -1077,6 +1106,7 @@ pdf("figures/BMI_violin_all_months.pdf", width=13, height=8.5)
 ggplot(data=all.valles.bm.stack) + facet_grid(site*elevation ~ type , scales="free_x")+
 	geom_violin(aes(x=month, y=corr, fill=sig), adjust=3) +
 	scale_fill_manual(values=c("green","gray50")) +
+	geom_hline(yintercept=0, linetype="dashed") +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	
 	labs(title= "Biomass Climate Correlations", x="Months", y=expression(bold(paste("Correlation Value (r)"))))

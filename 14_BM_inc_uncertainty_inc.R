@@ -56,6 +56,8 @@ head(valles.base.inc)
 valles.base.inc <- valles.base.inc[order(valles.base.inc$Year, decreasing=T),]
 head(valles.base.inc)
 
+save(valles.base.inc, file="processed_data/valles_base_increment.Rdata")
+
 # Now we have increments for each site that are ordered in the same way that we ordered the various uncertainty matrices.
 
 #---------------------------------------------------
@@ -293,7 +295,72 @@ for(i in 1:ncol(vlf.inc.tot)){
 lines	(valles.base.inc$vlf.base ~ dimnames(vlf.allom.inc)[[1]], type="l", ylim=c(0,10), col="red", lwd=3)
 
 save(vlf.inc.tot, file="processed_data/vlf_bm_boot_tot_inc.Rdata")
+################################################################################################
+# Breaking down and looking at each area of uncertainty andn using in correlations in the next script; Still using 100 pulls.
+################################################################################################
 
+# Increment only
+set.seed(0851)
+vuf.inc.only <- valles.base.inc$vuf.base + vuf.inc.dev[,sample(1:ncol(vuf.inc.dev), n.pulls, 					replace=T)] 
+
+dim(vuf.inc.only)
+summary(vuf.inc.only)
+save(vuf.inc.only, file="processed_data/vuf_bm_inc_only.Rdata")
+
+set.seed(0851)
+vlf.inc.only <- valles.base.inc$vlf.base + vlf.inc.dev[,sample(1:ncol(vlf.inc.dev), n.pulls, 					replace=T)] 
+
+dim(vlf.inc.only)
+summary(vlf.inc.only)
+save(vlf.inc.only, file="processed_data/vlf_bm_inc_only.Rdata")
+#--------------------------------------------------------------------
+
+# Allometry only
+set.seed(0856)
+vuf.allom.only <- valles.base.inc$vuf.base + vuf.allom.inc.dev[,sample(1:ncol(vuf.allom.inc.dev), 					n.pulls, replace=T)]
+
+dim(vuf.allom.only)
+summary(vuf.allom.only)
+save(vuf.allom.only, file="processed_data/vuf_bm_allom_only.Rdata")
+
+set.seed(0856)
+vlf.allom.only <- valles.base.inc$vlf.base + vlf.allom.inc.dev[,sample(1:ncol(vlf.allom.inc.dev), 					n.pulls, replace=T)] 
+
+dim(vlf.allom.only)
+summary(vlf.allom.only)
+save(vlf.allom.only, file="processed_data/vlf_bm_allom_only.Rdata")
+#--------------------------------------------------------------------
+
+# Density only 
+set.seed(0856)
+vuf.dens.only <- valles.base.inc$vuf.base + vuf.dens.dev[,sample(1:ncol(vuf.dens.dev), n.pulls, 					replace=T)]
+dim(vuf.dens.only)
+summary(vuf.allom.only)
+save(vuf.dens.only, file="processed_data/vuf_bm_dens_only.Rdata")
+
+set.seed(0856)
+vlf.dens.only <- valles.base.inc$vlf.base + vlf.dens.dev[,sample(1:ncol(vlf.dens.dev), n.pulls, 					replace=T)]
+dim(vlf.dens.only)
+summary(vlf.allom.only)
+save(vlf.dens.only, file="processed_data/vlf_bm_dens_only.Rdata")
+#--------------------------------------------------------------------
+
+# Mortality Only
+set.seed(0856)
+vuf.mort.only <- valles.base.inc$vuf.base + vuf.mort.dev[,sample(1:ncol(vuf.mort.dev), n.pulls, 					replace=T)]
+dim(vuf.dens.only)
+summary(vuf.allom.only)
+save(vuf.mort.only, file="processed_data/vuf_bm_mort_only.Rdata")
+
+
+set.seed(0856)
+vlf.mort.only <- valles.base.inc$vlf.base + vlf.mort.dev[,sample(1:ncol(vlf.mort.dev), n.pulls, 					replace=T)]
+dim(vlf.dens.only)
+summary(vlf.allom.only)
+save(vlf.mort.only, file="processed_data/vlf_bm_mort_only.Rdata")
+
+
+#--------------------------------------------------------------------
 ################################################
 # Graphing the cumulative increment uncertainty
 ################################################

@@ -80,7 +80,7 @@ summary(ross.valles.dated)
 spag.plot(ross.valles.dated)
 dim(ross.valles.dated)
 
-ross.valles.i<- detrend(ross.valles.dated, method="Spline", nyr=30)
+ross.valles.i<- detrend(ross.valles.dated, method="Mean")
 min(ross.valles.i, na.rm=T)
 summary(ross.valles.i)
 dim(ross.valles.i)
@@ -107,7 +107,7 @@ dim(ross.upper.i)
 ross.lower.i <- ross.valles.i[,substr(names(ross.valles.i),1,3)=="VLF"]
 names(ross.lower.i)
 
-# creating a composite site chronology
+# creating a composite site chronology using biweights robust mean
 
 ross.upper.cr <- chron(ross.upper.i, prefix="VUF", prewhiten=T)
 summary(ross.upper.cr)
@@ -115,6 +115,16 @@ summary(ross.upper.cr)
 ross.lower.cr <- chron(ross.lower.i, prefix="VLF", prewhiten=T)
 summary(ross.lower.cr)
 row.names(ross.lower.cr)
+
+# creating a composite site chronology using an ARITHEMETIC MEAN
+ross.upper.cr.mean <- chron(ross.upper.i, prefix="VUF", prewhiten=T, biweight=F)
+summary(ross.upper.cr.mean)
+
+ross.lower.cr.mean <- chron(ross.lower.i, prefix="VLF", prewhiten=T, biweight=F)
+summary(ross.lower.cr.mean)
+row.names(ross.lower.cr.mean)
+
+
 
 
 ######################################################
@@ -125,7 +135,7 @@ climate.upper.valles1 <- read.rwl("external_treering_data/nm586_touchan_PSME_bea
 
 # Detrending external climate series
 
-climate.upper.valles1.i <- detrend(climate.upper.valles1, method="Spline", nyrs=30)
+climate.upper.valles1.i <- detrend(climate.upper.valles1, method="Mean")
 min(climate.upper.valles1.i, na.rm=T)
 summary(climate.upper.valles1.i)
 row.names(climate.upper.valles1.i)
@@ -148,8 +158,7 @@ dim(climate.upper.valles1.i)
 # Create site chronologies from each set of external climate series
 climate.upper.valles1.cr <- chron(climate.upper.valles1.i, prefix="BCW", prewhiten=T)
 summary(climate.upper.valles1.cr)
-
-
+head(climate.upper.valles1.cr)
 ######################################################
 # Loading in Griffin NADEF CatMesa chronologies
 ######################################################
@@ -159,8 +168,14 @@ cat.mesa.chron <- read.csv("external_treering_data/Griffin_catmesa_CHRONS.csv", 
 summary(cat.mesa.chron)
 
 row.names(cat.mesa.chron) <- cat.mesa.chron$Year
-cat.mesa.chron <- cat.mesa.chron[row.names(cat.mesa.chron)>="1980" & row.names(cat.mesa.chron)<= "2007", "CMMt_RES"]
+cat.mesa.chron <- data.frame(cat.mesa.chron[row.names(cat.mesa.chron)>="1980" & row.names(cat.mesa.chron)<= "2007", ])
 summary(cat.mesa.chron)
+cat.mesa.chron <- cat.mesa.chron[,c("CMMt_RES", "Year")]
+
+summary(cat.mesa.chron)
+row.names(cat.mesa.chron) <- cat.mesa.chron$Year
+
+
 
 head(cat.mesa.chron)
 
@@ -178,6 +193,11 @@ summary(cat.mesa.depth)
 names(cat.mesa.depth) <- c("CATstd", "cat.n")
 summary(cat.mesa.depth)
 dim(cat.mesa.depth)
+head(cat.mesa.depth)
+
+cat.mesa.tot <- cbind(cat.mesa.chron[,"CMMt_RES"], cat.mesa.depth)
+summary(cat.mesa.tot)
+names(cat.mesa.tot) <- c("cat.res", "cat.std", "cat.n")
 
 ######################################################
 # Loading in Guitermann Canyon del Potero Chronology
@@ -185,13 +205,21 @@ dim(cat.mesa.depth)
 can.del.pot <- read.rwl("external_treering_data/nm588.rwl.txt", header=T)
 summary(can.del.pot)
 
-can.del.pot.chron
+can.del.pot.i <- detrend(can.del.pot, method="Spline", nyr=30)
+can.del.pot.chron <- chron(can.del.pot.i, prefix="CDP", prewhiten=T, biweight=T)
+summary(can.del.pot.chron)
+#can.del.pot.chron <- can.del.pot.chron[order(row.names(can.del.pot.chron), decreasing=T),]
+row.names(can.del.pot.chron)
+
+can.del.pot.chron <- can.del.pot.chron[row.names(can.del.pot.chron)>=1980 & row.names(can.del.pot.chron) <=2007,]
+
+
 
 ###################################################################################################
 # Merging all indecies together to form one dataframe on which we can run the climate correlations
 ###################################################################################################
-valles.climate.cr <- cbind(ross.upper.cr, ross.lower.cr, climate.upper.valles1.cr, cat.mesa.chron, cat.mesa.depth[,"cat.n"]) 
-names(valles.climate.cr) <- c("vuf.std", "vuf.res", "vuf.n", "vlf.std", "vlf.res", "vlf.n", "bcw.std","bcw.res", "bcw.n","cm.tot", "cm.n")
+valles.climate.cr <- cbind(ross.upper.cr, ross.lower.cr, climate.upper.valles1.cr, cat.mesa.tot, ross.upper.cr.mean, ross.lower.cr.mean, can.del.pot.chron) 
+names(valles.climate.cr) <- c("vuf.std", "vuf.res", "vuf.n", "vlf.std", "vlf.res", "vlf.n", "bcw.std","bcw.res", "bcw.n","cat.res", "cat.std", "cat.n", "vuf.mean.std", "vuf.mean.res", "vuf.mean.n", "vlf.mean.std", "vlf.mean.res", "vlf.mean.n", "chg.std", "chg.res", "chg.n")
 
 summary(valles.climate.cr)
 head(valles.climate.cr)
