@@ -2051,22 +2051,22 @@ library(ggplot2)
 
 summary(all.valles.uncert.stack)
 
-pdf("figures/tmean_uncert_type_seasons.pdf", width=13, height=8.5)
+pdf("figures/climate_uncert_type_seasons.pdf", width=13, height=8.5)
 ggplot(data=all.valles.uncert.stack[all.valles.uncert.stack$month %in% c("pFall", "Winter", "Spring", "Summer"),]) + facet_grid(uncert*site ~ type, scales="free_x")+
 	geom_violin(aes(x=month, y=corr, fill=sig)) +
 	scale_fill_manual(values=c("green","gray50")) +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	geom_hline(yintercept=0, linetype="dashed") +
-	labs(title= "Tree Ring : Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)"))))
+	labs(title= "Uncertainty Area : Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)"))))
 dev.off()
 
-pdf("figures/climate_chron_all_months.pdf", width=13, height=8.5)
+pdf("figures/climate_uncert_type_all_months.pdf", width=13, height=8.5)
 ggplot(data=all.valles.uncert.stack) + facet_grid(uncert*site ~ type, scales="free_x")+
 	geom_violin(aes(x=month, y=corr, fill=sig)) +
 	scale_fill_manual(values=c("green","gray50")) +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	geom_hline(yintercept=0, linetype="dashed") +
-	labs(title= "Tree Ring : Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)"))))
+	labs(title= "Uncertainty Area : Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)"))))
 dev.off()
 
 
