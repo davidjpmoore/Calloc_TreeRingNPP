@@ -30,15 +30,19 @@ head(valles.base.inc)
 
 valles.res <- cbind(valles.res, valles.base.inc[,c("vlf.base", "vuf.base")]) 
 summary(valles.res)
+save(valles.res, file="processed_data/all_valles_chron_combined.Rdata")
+
 
 upper.res <- valles.res[,c("vuf.res", "bcw.res", "vuf.base", "vuf.mean.res")]
 row.names(upper.res)<- row.names(valles.res)
 summary(upper.res)
+save(upper.res, file="processed_data/upper_chron_combined.Rdata")
+
 
 lower.res <- valles.res[,c("vlf.res", "cat.res", "vlf.base", "chg.res", "vlf.mean.res")]
 row.names(lower.res)<- row.names(valles.res)
 summary(lower.res)
-
+save(lower.res, file="processed_data/lower_chron_combined.Rdata")
 # Load in climate data
 
 t.mean <- read.csv("climate_data/prism_met_sites_wide_tmean.csv", header=T)
@@ -387,7 +391,14 @@ summary(all.valles.climate.stack)
 all.valles.climate.stack$month <- factor(all.valles.climate.stack$month, levels = names(vuf.corr.tmean))
 summary(all.valles.climate.stack$month)
 
-all.valles.climate.stack$chron <- factor(all.valles.climate.stack$chron, levels = c("vuf.res", "vuf.mean.res", "vuf.base", "bcw.res", "vlf.res","vlf.mean.res", "vlf.base", "cm.res", "chg.res"))
+# all.valles.climate.stack$chron <- factor(all.valles.climate.stack$chron, levels = c("vuf.res", "vuf.mean.res", "vuf.base", "bcw.res", "vlf.res","vlf.mean.res", "vlf.base", "cm.res", "chg.res"))
+
+all.valles.climate.stack$chron <- recode(all.valles.climate.stack$chron, "'vuf.res' = 'Upper Ecology'; 'vlf.res' = 'Lower Ecology'; 'vuf.mean.res' = 'Upper Ecology Mean'; 'vlf.mean.res' = 'Lower Ecology Mean'; 'vuf.base'= 'Upper BM'; 'vlf.base' = 'Lower BM'; 
+")
+
+all.valles.climate.stack$chron <- factor(all.valles.climate.stack$chron, levels = c("Upper Ecology", "Upper Ecology Mean", "Upper BM", "bcw.res", "Lower Ecology","Lower Ecology Mean", "Lower BM", "cm.res", "chg.res"))
+
+
 
 all.valles.climate.stack$elevation <- factor(all.valles.climate.stack$elevation, levels = c("Upper", "Lower"))
 
@@ -421,6 +432,10 @@ save(all.valles.climate.stack, file="processed_data/valles_climate_plus_chron_st
 library(ggplot2)
 summary(all.valles.climate.stack)
 
+# Removing arithemetic mean chronology
+all.valles.climate.stack.short <- all.valles.climate.stack[all.valles.climate.stack$chron %in% c("Upper Ecology", "Upper BM", "bcw.res", "Lower Ecology","Lower BM", "cm.res", "chg.res"),] 
+summary(all.valles.climate.stack.short)
+
 test <- all.valles.climate.stack[all.valles.climate.stack$month %in% c("pDJF", "MAM", "JJA", "SON"),]
 summary(test)
 
@@ -429,8 +444,10 @@ levels(all.valles.climate.stack$sig)
 # Critical Value for 28 years (n-2 = 26) 0.330
 
 pdf("figures/climate_chron_seasons.pdf", width=13, height=8.5)
-ggplot(data=all.valles.climate.stack[all.valles.climate.stack$month %in% c("pFall", "Winter", "Spring", "Summer"),]) + facet_grid(chron*elevation ~ type, scales="free_x")+
-	geom_bar(aes(x=month, y=corr, fill=sig), stat="identity", position="dodge") +
+ggplot(data=all.valles.climate.stack.short[all.valles.climate.stack.short$month %in% c("pFall", "Winter", "Spring", "Summer"),]) + 
+	facet_grid(chron*elevation ~ type, scales="free_x")+
+	geom_bar(aes(x=month, y=corr, fill=sig), stat="identity", position="dodge") + 
+	geom_hline(yintercept=0, linetype="dashed") +
 	scale_fill_manual(values=c("green","gray50")) +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	
@@ -441,6 +458,7 @@ pdf("figures/climate_chron_all_months.pdf", width=13, height=8.5)
 ggplot(data=all.valles.climate.stack) + facet_grid(chron*elevation ~ type, scales="free_x")+
 	geom_bar(aes(x=month, y=corr, fill=sig), stat="identity", position="dodge") +
 	scale_fill_manual(values=c("green","gray50")) +
+	geom_hline(yintercept=0, linetype="dashed") +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	labs(title= "Tree Ring : Climate Correlations", x="Months", y=expression(bold(paste("Correlation Value (r)"))))
 dev.off()

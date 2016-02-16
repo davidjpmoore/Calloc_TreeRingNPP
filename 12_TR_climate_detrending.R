@@ -80,7 +80,9 @@ summary(ross.valles.dated)
 spag.plot(ross.valles.dated)
 dim(ross.valles.dated)
 
-ross.valles.i<- detrend(ross.valles.dated, method="Mean")
+# ross.valles.i<- detrend(ross.valles.dated, method="Mean")
+ross.valles.i<- detrend(ross.valles.dated, method="Spline", nyrs=30)
+
 min(ross.valles.i, na.rm=T)
 summary(ross.valles.i)
 dim(ross.valles.i)
@@ -135,7 +137,9 @@ climate.upper.valles1 <- read.rwl("external_treering_data/nm586_touchan_PSME_bea
 
 # Detrending external climate series
 
-climate.upper.valles1.i <- detrend(climate.upper.valles1, method="Mean")
+# climate.upper.valles1.i <- detrend(climate.upper.valles1, method="Mean")
+climate.upper.valles1.i <- detrend(climate.upper.valles1, method="Spline", nyrs=30)
+
 min(climate.upper.valles1.i, na.rm=T)
 summary(climate.upper.valles1.i)
 row.names(climate.upper.valles1.i)
