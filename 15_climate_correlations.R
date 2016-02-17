@@ -459,7 +459,7 @@ ggplot(data=all.valles.climate.stack.short[all.valles.climate.stack.short$month 
 dev.off()
 
 pdf("figures/climate_chron_all_months.pdf", width=13, height=8.5)
-ggplot(data=all.valles.climate.stack) + facet_grid(chron*elevation ~ type, scales="free_x")+
+ggplot(data=all.valles.climate.stack.short) + facet_grid(chron*elevation ~ type, scales="free_x")+
 	geom_bar(aes(x=month, y=corr, fill=sig), stat="identity", position="dodge") +
 	scale_fill_manual(values=c("green","gray50")) +
 	geom_hline(yintercept=0, linetype="dashed") +
