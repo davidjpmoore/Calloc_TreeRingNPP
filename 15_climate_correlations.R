@@ -1,3 +1,7 @@
+library(car)
+library(ggplot2)
+
+
 ########################################################################################
 # Running Correlations between CRU climate data and various chronologies
 ########################################################################################
@@ -393,10 +397,10 @@ summary(all.valles.climate.stack$month)
 
 # all.valles.climate.stack$chron <- factor(all.valles.climate.stack$chron, levels = c("vuf.res", "vuf.mean.res", "vuf.base", "bcw.res", "vlf.res","vlf.mean.res", "vlf.base", "cm.res", "chg.res"))
 
-all.valles.climate.stack$chron <- recode(all.valles.climate.stack$chron, "'vuf.res' = 'Upper Ecology'; 'vlf.res' = 'Lower Ecology'; 'vuf.mean.res' = 'Upper Ecology Mean'; 'vlf.mean.res' = 'Lower Ecology Mean'; 'vuf.base'= 'Upper BM'; 'vlf.base' = 'Lower BM'; 
+all.valles.climate.stack$chron <- recode(all.valles.climate.stack$chron, "'vuf.res' = 'Upper Ecology'; 'vlf.res' = 'Lower Ecology'; 'vuf.mean.res' = 'Upper Ecology Mean'; 'vlf.mean.res' = 'Lower Ecology Mean'; 'vuf.base'= 'Upper BM'; 'vlf.base' = 'Lower BM'; 'bcw.res' = 'Upper Climate'; 'cm.res' = 'Lower Climate1'; 'chg.res' = 'Lower Climate2' 
 ")
 
-all.valles.climate.stack$chron <- factor(all.valles.climate.stack$chron, levels = c("Upper Ecology", "Upper Ecology Mean", "Upper BM", "bcw.res", "Lower Ecology","Lower Ecology Mean", "Lower BM", "cm.res", "chg.res"))
+all.valles.climate.stack$chron <- factor(all.valles.climate.stack$chron, levels = c("Upper Ecology", "Upper Ecology Mean", "Upper BM", "Upper Climate", "Lower Ecology","Lower Ecology Mean", "Lower BM", "Lower Climate1", "Lower Climate2"))
 
 
 
@@ -430,10 +434,10 @@ save(all.valles.climate.stack, file="processed_data/valles_climate_plus_chron_st
 # Plotting Correlations with climate chronologies
 #######################################################
 library(ggplot2)
-summary(all.valles.climate.stack)
+ summary(all.valles.climate.stack)
 
 # Removing arithemetic mean chronology
-all.valles.climate.stack.short <- all.valles.climate.stack[all.valles.climate.stack$chron %in% c("Upper Ecology", "Upper BM", "bcw.res", "Lower Ecology","Lower BM", "cm.res", "chg.res"),] 
+all.valles.climate.stack.short <- all.valles.climate.stack[all.valles.climate.stack$chron %in% c("Upper Ecology", "Upper BM", "Upper Climate", "Lower Ecology","Lower BM", "Lower Climate1", "Lower Climate2"),] 
 summary(all.valles.climate.stack.short)
 
 test <- all.valles.climate.stack[all.valles.climate.stack$month %in% c("pDJF", "MAM", "JJA", "SON"),]
@@ -1102,7 +1106,7 @@ dev.off()
 
 pdf("figures/BMI_violin_seasons.pdf", width=13, height=8.5)
 ggplot(data=all.valles.bm.stack[all.valles.bm.stack$month %in% c("pFall", "Winter","Spring", "Summer"),]) + facet_grid(site*elevation ~ type , scales="free_x")+
-	geom_violin(aes(x=month, y=corr, fill=sig), adjust=3) +
+	geom_violin(aes(x=month, y=corr, fill=sig), adjust=2.5) +
 	scale_fill_manual(values=c("green","gray50")) +
 	geom_hline(yintercept=0, linetype="dashed") +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
@@ -1122,7 +1126,7 @@ dev.off()
 
 pdf("figures/BMI_violin_all_months.pdf", width=13, height=8.5)	
 ggplot(data=all.valles.bm.stack) + facet_grid(site*elevation ~ type , scales="free_x")+
-	geom_violin(aes(x=month, y=corr, fill=sig), adjust=3) +
+	geom_violin(aes(x=month, y=corr, fill=sig), adjust=2.5) +
 	scale_fill_manual(values=c("green","gray50")) +
 	geom_hline(yintercept=0, linetype="dashed") +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
