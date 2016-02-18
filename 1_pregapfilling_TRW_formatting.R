@@ -246,6 +246,16 @@ dim(tree.stack)
 
 write.csv(tree.stack, "processed_data/HAR_HOW_TreeRWL_AllSites_stacked.csv", row.names=F)
 
+# Merge with the Doe Sites
+doe.trees <- read.csv("processed_data/DOE_Allsites_TreeRWL_AllSites_stacked.csv", header=T)
+summary(doe.trees)
+dim(doe.trees)
+
+doe.har.combo <- rbind(doe.trees, tree.stack)
+summary(doe.har.combo)
+dim(doe.har.combo)
+
+write.csv(doe.har.combo, "processed_data/DOE_Harvard_combo_TreeRWL_AllSites_stacked.csv", row.names=F)
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
 # GO TO GAPFILLING SCRIPT NOW!!:-)
