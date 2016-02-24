@@ -197,6 +197,61 @@ allometries[["TIAM"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, rep
 summary(allometries)
 summary(allometries$TIAM)
 
+# loading in LIST pecan mcmc runs
+load(file.path(allom.base, "Allom.LIST.2.Rdata"))
+allometries[["LIST"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
+summary(allometries)
+summary(allometries$LIST)
+
+# loading in JUVI pecan mcmc runs
+load(file.path(allom.base, "Allom.JUVI.2.Rdata"))
+allometries[["JUVI"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
+summary(allometries)
+summary(allometries$JUVI)
+
+# loading in QUERC pecan mcmc runs
+load(file.path(allom.base, "Allom.QUERC.2.Rdata"))
+allometries[["QUERC"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
+summary(allometries)
+summary(allometries$QUERC)
+
+# loading in PITA pecan mcmc runs
+load(file.path(allom.base, "Allom.PITA.2.Rdata"))
+allometries[["PITA"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
+summary(allometries)
+summary(allometries$PITA)
+
+# loading in PRSE pecan mcmc runs
+load(file.path(allom.base, "Allom.PRSE.2.Rdata"))
+allometries[["PRSE"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
+summary(allometries)
+summary(allometries$PRSE)
+
+# loading in CARYA pecan mcmc runs
+load(file.path(allom.base, "Allom.CARYA.2.Rdata"))
+allometries[["CARYA"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
+summary(allometries)
+summary(allometries$CARYA)
+
+# loading in broad.decid pecan mcmc runs
+load(file.path(allom.base, "Allom.broad.decid.2.Rdata"))
+allometries[["broad.decid"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
+summary(allometries)
+summary(allometries$broad.decid)
+
+# loading in con.eg pecan mcmc runs
+load(file.path(allom.base, "Allom.con.eg.2.Rdata"))
+allometries[["con.eg"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
+summary(allometries)
+summary(allometries$con.eg)
+
+# loading in broad.eg pecan mcmc runs
+load(file.path(allom.base, "Allom.broad.eg.2.Rdata"))
+allometries[["broad.eg"]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=500, replace=T),]
+summary(allometries)
+summary(allometries$broad.eg)
+
+
 ##Instead of these repeated code fragments can we have a list containing all the names of the the species and then loop through all the 
 
 #save the list as ______ to draw from later when we convert diameter reconstructions into biomass

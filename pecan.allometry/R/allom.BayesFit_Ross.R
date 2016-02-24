@@ -99,6 +99,9 @@ allom.BayesFit <- function(allom,nrep=10000,form="power",dmin=0.1,dmax=500) {
   ##		We need the max of the allometry EQ to be >= min of interest and the min to be <=
   # ntally = nrow(allom[['parm']]); if(is.null(ntally)) ntally = 0;
 
+  
+
+
   rng.mod <- cbind(ifelse(nu(allom$parm$Xmin)>dmin, nu(allom$parm$Xmin), dmin),
                    ifelse(nu(allom$parm$Xmax)<dmax, nu(allom$parm$Xmax), dmax))
 
@@ -111,7 +114,6 @@ allom.BayesFit <- function(allom,nrep=10000,form="power",dmin=0.1,dmax=500) {
   ntally  <- which(nu(allom[['parm']][,"Xmax"])>=dmin & nu(allom[['parm']][,"Xmin"])<=dmax & n.mod>0); 
   if(is.null(ntally)) ntally = 0;
   print(c("Dropping allom rows: ", which(!(1:nrow(allom[['parm']]) %in% ntally))))
-  
   if(ntally==0) {
   	print(c("allomBayesFit no data"))
     return(NULL)

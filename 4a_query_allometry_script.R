@@ -7,7 +7,7 @@ setwd("pecan.allometry")
 outdir <- "../allometries"
 
 #File Path of allometry database
-parm.path <- "data/Table3_GTR-NE-319.v2.csv"
+parm.path <- "data/Table3_GTR-NE-319.v2_RossAdendum4.csv"
 #parm.path <- "data/Table3_GTR-NE-319.v2_RossAdendum4.csv"
 #allometry file needs to be replaced with Ross's custom file 
 #should the main PECAN allometry file be updated with Ross's additions?
@@ -101,6 +101,64 @@ AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dm
 pfts = list(ACSA2 = data.frame(spcd=318,acronym="ACSA2"))
 AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
 
+#Carya Sp.
+pfts = list(CARYA = data.frame(spcd=400,acronym="CARYA"))
+AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# # Paw Paw (ASTR)--NO EQUATION
+# pfts = list(ASTR = data.frame(spcd=367,acronym="ASTR"))
+# AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10, dmin=6, dmax=500)
+
+# Ulmus sp.--NOEQUATION
+# pfts = list(ULMUS = data.frame(spcd=970,acronym="ULMUS"))
+# AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10, dmin=6, dmax=500)
+
+# Frax sp.--NO EQUATION
+# pfts = list(FRAXI = data.frame(spcd=540,acronym="FRAXI"))
+# AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10, dmin=6, dmax=500)
+
+# # JUVI--NO Equation; use THUJA OCCIDENTALIS
+pfts = list(JUVI = data.frame(spcd=241,acronym="JUVI"))
+AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# LIST
+pfts = list(LIST2 = data.frame(spcd=611,acronym="LIST"))
+AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# Oak sp.
+pfts = list(QUERC = data.frame(spcd=800,acronym="QUERC"))
+AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# PITA
+pfts = list(PITA = data.frame(spcd=131,acronym="PITA"))
+AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# PRSE
+pfts = list(PRSE = data.frame(spcd=762,acronym="PRSE"))
+AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000 dmin=6, dmax=500)
+
+# # QUBI-- NO EQUATION
+# pfts = list(QUBI = data.frame(spcd=804,acronym="QUBI"))
+# AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10, dmin=6, dmax=500)
+
+# QUMU--NO EQUATION
+pfts = list(QUMU = data.frame(spcd=826,acronym="QUMU"))
+AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# QUPH--NO EQUATION
+# pfts = list(QUPH = data.frame(spcd=831,acronym="QUPH"))
+# AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10, dmin=6, dmax=500)
+
+# ULAL--NO EQUATION
+# pfts = list(ULAL = data.frame(spcd=971,acronym="ULAL"))
+# AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10, dmin=6, dmax=500)
+
+
+# ULRU--NO EQUATION
+# pfts = list(ULRU = data.frame(spcd=975,acronym="ULRU"))
+# AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+
 
 ##########################################################
 #making up our own PFT's, just need a species
@@ -165,4 +223,30 @@ s.pine<- pft.db[pft.db$pft=="NP", c("acronym", "spcd")]
 
 pfts = list(s.pine = data.frame(spcd=s.pine$spcd,acronym=s.pine$acronym))
 AllomAve(pfts,2,outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+
+#################################################################
+# Making CLM PFT's from the cross-walk
+#--------------------------------------
+
+# Broadleaf deciduous
+broad.decid <- pft.db[pft.db$CLM=="BLD", c("acronym", "spcd")]
+
+pfts = list(broad.decid = data.frame(spcd=broad.decid$spcd, acronym = broad.decid$acronym))
+AllomAve(pfts,2,outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# Coniferous Evergreen
+con.eg <- pft.db[pft.db$CLM=="CEG", c("acronym", "spcd")]
+
+pfts = list(con.eg = data.frame(spcd = con.eg$spcd, acronym = con.eg$acronym))
+AllomAve(pfts,2,outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+
+# Broadleaf Evergreen
+broad.eg <- pft.db[pft.db$CLM=="BLE", c("acronym", "spcd")]
+
+pfts = list(broad.eg = data.frame(spcd = broad.eg$spcd, acronym = broad.eg$acronym))
+AllomAve(pfts,2,outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+
 

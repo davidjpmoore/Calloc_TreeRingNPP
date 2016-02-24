@@ -107,8 +107,10 @@ AllomAve <- function(pfts,components=6,outdir=NULL,con=NULL,field=NULL,
       for(i in 1:nchain){
         if(component == 40){
           allom.out = allom.BayesFit(allom,ngibbs,"exp",dmin,dmax)
+          if(is.null(allom.out)) next
         } else {
           allom.out = allom.BayesFit(allom,ngibbs,dmin=dmin,dmax=dmax)
+          if(is.null(allom.out)) next
         }
         mc[[i]] <- as.mcmc(allom.out[["mc"]][sel,])
         obs[[i]] <- allom.out[["obs"]]
