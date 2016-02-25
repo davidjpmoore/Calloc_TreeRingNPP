@@ -75,6 +75,34 @@ summary(core.data.dated)
 ross.valles.dated <- ross.valles.rw[,names(ross.valles.rw) %in% core.data.dated$CoreID] 
 summary(ross.valles.dated)
 
+summary(core.data.dated)
+
+vlf.cores <- core.data.dated[substr(core.data.dated$plot.id,1,2)=="VL",]
+summary(vlf.cores)
+
+vuf.cores <- core.data.dated[substr(core.data.dated$plot.id,1,2)=="VU",]
+summary(vuf.cores)
+
+# Taking the upper 10% and lower 10% of DBH to get a big tree and a small tree chronology for both sites.
+vuf.dated.big <- vuf.cores[vuf.cores$dbh >= quantile(vuf.cores$dbh, 0.9, na.rm=T),]
+vuf.dated.small <- vuf.cores[vuf.cores$dbh <= quantile(vuf.cores$dbh, 0.1, na.rm=T),]
+
+summary(vuf.dated.big)
+summary(vuf.dated.small)
+
+vlf.dated.big <- vlf.cores[vlf.cores$dbh >= quantile(vlf.cores$dbh, 0.9, na.rm=T),]
+vlf.dated.small <- vlf.cores[vlf.cores$dbh <= quantile(vlf.cores$dbh, 0.1, na.rm=T),]
+
+summary(vlf.dated.big)
+summary(vlf.dated.small)
+
+vuf.big.cores <- ross.valles.dated[,names(ross.valles.dated) %in% vuf.dated.big$CoreID]
+vuf.small.cores <- ross.valles.dated[,names(ross.valles.dated) %in% vuf.dated.small$CoreID]
+
+vlf.big.cores <- ross.valles.dated[,names(ross.valles.dated) %in% vlf.dated.big$CoreID]
+vlf.small.cores <- ross.valles.dated[,names(ross.valles.dated) %in% vlf.dated.small$CoreID]
+
+#-----------------------------------------------------------------------------------------
 
 # detrending cores to make a composite site index
 spag.plot(ross.valles.dated)
@@ -82,6 +110,13 @@ dim(ross.valles.dated)
 
 # ross.valles.i<- detrend(ross.valles.dated, method="Mean")
 ross.valles.i<- detrend(ross.valles.dated, method="Spline", nyrs=30)
+
+vuf.dated.big.i <- detrend(vuf.big.cores, method="Spline", nyrs=30)
+vlf.dated.big.i <- detrend(vlf.big.cores, method="Spline", nyrs=30)
+
+vuf.dated.small.i <- detrend(vuf.small.cores, method="Spline", nyrs=30) 
+vlf.dated.small.i <- detrend(vlf.small.cores, method="Spline", nyrs=30)
+
 
 min(ross.valles.i, na.rm=T)
 summary(ross.valles.i)
@@ -117,6 +152,19 @@ summary(ross.upper.cr)
 ross.lower.cr <- chron(ross.lower.i, prefix="VLF", prewhiten=T)
 summary(ross.lower.cr)
 row.names(ross.lower.cr)
+
+vuf.big.cr <- chron(vuf.dated.big.i, prefix="VUB", prewhiten=T)
+vuf.small.cr <- chron(vuf.dated.small.i, prefix="VUS", prewhiten=T)
+
+vlf.big.cr <- chron(vlf.dated.big.i, prefix="VLB", prewhiten=T)
+vlf.small.cr <- chron(vlf.dated.small.i, prefix="VLS", prewhiten=T)
+
+vuf.big.cr <- vuf.big.cr[row.names(vuf.big.cr)<=2007 & row.names(vuf.big.cr) >= 1980,]
+vuf.small.cr <- vuf.small.cr[row.names(vuf.small.cr)<=2007 & row.names(vuf.small.cr) >= 1980,]
+
+vlf.big.cr <- vlf.big.cr[row.names(vlf.big.cr)<=2007 & row.names(vlf.big.cr) >= 1980,]
+vlf.small.cr <- vlf.small.cr[row.names(vlf.small.cr)<=2007 & row.names(vlf.small.cr) >= 1980,]
+
 
 # creating a composite site chronology using an ARITHEMETIC MEAN
 ross.upper.cr.mean <- chron(ross.upper.i, prefix="VUF", prewhiten=T, biweight=F)
@@ -222,8 +270,8 @@ can.del.pot.chron <- can.del.pot.chron[row.names(can.del.pot.chron)>=1980 & row.
 ###################################################################################################
 # Merging all indecies together to form one dataframe on which we can run the climate correlations
 ###################################################################################################
-valles.climate.cr <- cbind(ross.upper.cr, ross.lower.cr, climate.upper.valles1.cr, cat.mesa.tot, ross.upper.cr.mean, ross.lower.cr.mean, can.del.pot.chron) 
-names(valles.climate.cr) <- c("vuf.std", "vuf.res", "vuf.n", "vlf.std", "vlf.res", "vlf.n", "bcw.std","bcw.res", "bcw.n","cat.res", "cat.std", "cat.n", "vuf.mean.std", "vuf.mean.res", "vuf.mean.n", "vlf.mean.std", "vlf.mean.res", "vlf.mean.n", "chg.std", "chg.res", "chg.n")
+valles.climate.cr <- cbind(ross.upper.cr, ross.lower.cr, climate.upper.valles1.cr, cat.mesa.tot, ross.upper.cr.mean, ross.lower.cr.mean, can.del.pot.chron, vuf.big.cr, vuf.small.cr, vlf.big.cr, vlf.small.cr) 
+names(valles.climate.cr) <- c("vuf.std", "vuf.res", "vuf.n", "vlf.std", "vlf.res", "vlf.n", "bcw.std","bcw.res", "bcw.n","cat.res", "cat.std", "cat.n", "vuf.mean.std", "vuf.mean.res", "vuf.mean.n", "vlf.mean.std", "vlf.mean.res", "vlf.mean.n", "chg.std", "chg.res", "chg.n", "VUB.std", "VUB.res", "VUB.n", "VUS.std", "VUS.res", "VUS.n", "VLB.std", "VLB.res", "VLB.n", "VLS.std", "VLS.res", "VLS.n")
 
 summary(valles.climate.cr)
 head(valles.climate.cr)

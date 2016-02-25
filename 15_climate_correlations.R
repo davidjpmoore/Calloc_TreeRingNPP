@@ -37,13 +37,13 @@ summary(valles.res)
 save(valles.res, file="processed_data/all_valles_chron_combined.Rdata")
 
 
-upper.res <- valles.res[,c("vuf.res", "bcw.res", "vuf.base", "vuf.mean.res")]
+upper.res <- valles.res[,c("vuf.res", "bcw.res", "vuf.base", "vuf.mean.res", "VUB.res", "VUS.res")]
 row.names(upper.res)<- row.names(valles.res)
 summary(upper.res)
 save(upper.res, file="processed_data/upper_chron_combined.Rdata")
 
 
-lower.res <- valles.res[,c("vlf.res", "cat.res", "vlf.base", "chg.res", "vlf.mean.res")]
+lower.res <- valles.res[,c("vlf.res", "cat.res", "vlf.base", "chg.res", "vlf.mean.res", "VLB.res", "VLS.res")]
 row.names(lower.res)<- row.names(valles.res)
 summary(lower.res)
 save(lower.res, file="processed_data/lower_chron_combined.Rdata")
@@ -329,28 +329,28 @@ head(vlf.corr.precip)
 vuf.tmean.stack <- stack(vuf.corr.tmean)
 summary(vuf.tmean.stack)
 names(vuf.tmean.stack) <- c("corr", "month")
-vuf.tmean.stack$chron <- as.factor(c("vuf.res", "bcw.res", "vuf.base", "vuf.mean.res"))
+vuf.tmean.stack$chron <- as.factor(c("vuf.res", "bcw.res", "vuf.base", "vuf.mean.res", "VUB.res", "VUS.res"))
 vuf.tmean.stack$type <- as.factor("tmean")
 vuf.tmean.stack$elevation <- as.factor("Upper")
 
 vuf.tmin.stack <- stack(vuf.corr.tmin)
 summary(vuf.tmin.stack)
 names(vuf.tmin.stack) <- c("corr", "month")
-vuf.tmin.stack$chron <- as.factor(c("vuf.res", "bcw.res", "vuf.base", "vuf.mean.res"))
+vuf.tmin.stack$chron <- as.factor(c("vuf.res", "bcw.res", "vuf.base", "vuf.mean.res", "VUB.res", "VUS.res"))
 vuf.tmin.stack$type <- as.factor("tmin")
 vuf.tmin.stack$elevation <- as.factor("Upper")
 
 vuf.tmax.stack <- stack(vuf.corr.tmax)
 summary(vuf.tmax.stack)
 names(vuf.tmax.stack) <- c("corr", "month")
-vuf.tmax.stack$chron <- as.factor(c("vuf.res", "bcw.res", "vuf.base", "vuf.mean.res"))
+vuf.tmax.stack$chron <- as.factor(c("vuf.res", "bcw.res", "vuf.base", "vuf.mean.res", "VUB.res", "VUS.res"))
 vuf.tmax.stack$type <- as.factor("tmax")
 vuf.tmax.stack$elevation <- as.factor("Upper")
 
 vuf.precip.stack <- stack(vuf.corr.precip)
 summary(vuf.precip.stack)
 names(vuf.precip.stack) <- c("corr", "month")
-vuf.precip.stack$chron <- as.factor(c("vuf.res", "bcw.res", "vuf.base", "vuf.mean.res"))
+vuf.precip.stack$chron <- as.factor(c("vuf.res", "bcw.res", "vuf.base", "vuf.mean.res", "VUB.res", "VUS.res"))
 vuf.precip.stack$type <- as.factor("precip")
 vuf.precip.stack$elevation <- as.factor("Upper")
 
@@ -358,28 +358,28 @@ vuf.precip.stack$elevation <- as.factor("Upper")
 vlf.tmean.stack <- stack(vlf.corr.tmean)
 summary(vlf.tmean.stack)
 names(vlf.tmean.stack) <- c("corr", "month")
-vlf.tmean.stack$chron <- as.factor(c("vlf.res", "cm.res", "vlf.base", "chg.res", "vlf.mean.res"))
+vlf.tmean.stack$chron <- as.factor(c("vlf.res", "cat.res","chg.res", "vlf.base", "vlf.mean.res", "VLB.res", "VLS.res"))
 vlf.tmean.stack$type <- as.factor("tmean")
 vlf.tmean.stack$elevation <- as.factor("Lower")
 
 vlf.tmin.stack <- stack(vlf.corr.tmin)
 summary(vlf.tmin.stack)
 names(vlf.tmin.stack) <- c("corr", "month")
-vlf.tmin.stack$chron <- as.factor(c("vlf.res", "cm.res", "vlf.base", "chg.res", "vlf.mean.res"))
+vlf.tmin.stack$chron <- as.factor(c("vlf.res", "cat.res","chg.res", "vlf.base", "vlf.mean.res", "VLB.res", "VLS.res"))
 vlf.tmin.stack$type <- as.factor("tmin")
 vlf.tmin.stack$elevation <- as.factor("Lower")
 
 vlf.tmax.stack <- stack(vlf.corr.tmax)
 summary(vlf.tmax.stack)
 names(vlf.tmax.stack) <- c("corr", "month")
-vlf.tmax.stack$chron <- as.factor(c("vlf.res", "cm.res", "vlf.base", "chg.res", "vlf.mean.res"))
+vlf.tmax.stack$chron <- as.factor(c("vlf.res", "cat.res","chg.res", "vlf.base", "vlf.mean.res", "VLB.res", "VLS.res"))
 vlf.tmax.stack$type <- as.factor("tmax")
 vlf.tmax.stack$elevation <- as.factor("Lower")
 
 vlf.precip.stack <- stack(vlf.corr.precip)
 summary(vlf.precip.stack)
 names(vlf.precip.stack) <- c("corr", "month")
-vlf.precip.stack$chron <- as.factor(c("vlf.res", "cm.res", "vlf.base", "chg.res", "vlf.mean.res"))
+vlf.precip.stack$chron <- as.factor(c("vlf.res", "cat.res","chg.res", "vlf.base", "vlf.mean.res", "VLB.res", "VLS.res"))
 vlf.precip.stack$type <- as.factor("precip")
 vlf.precip.stack$elevation <- as.factor("Lower")
 
@@ -397,12 +397,29 @@ summary(all.valles.climate.stack$month)
 
 # all.valles.climate.stack$chron <- factor(all.valles.climate.stack$chron, levels = c("vuf.res", "vuf.mean.res", "vuf.base", "bcw.res", "vlf.res","vlf.mean.res", "vlf.base", "cm.res", "chg.res"))
 
-all.valles.climate.stack$chron <- recode(all.valles.climate.stack$chron, "'vuf.res' = 'Upper Ecology'; 'vlf.res' = 'Lower Ecology'; 'vuf.mean.res' = 'Upper Ecology Mean'; 'vlf.mean.res' = 'Lower Ecology Mean'; 'vuf.base'= 'Upper BM'; 'vlf.base' = 'Lower BM'; 'bcw.res' = 'Upper Climate'; 'cm.res' = 'Lower Climate1'; 'chg.res' = 'Lower Climate2' 
+all.valles.climate.stack$chron <- recode(all.valles.climate.stack$chron, "'vuf.res' = 'Upper Ecology'; 'vlf.res' = 'Lower Ecology'; 'vuf.mean.res' = 'Upper Ecology Mean'; 'vlf.mean.res' = 'Lower Ecology Mean'; 'vuf.base'= 'Upper BM'; 'vlf.base' = 'Lower BM'; 'bcw.res' = 'Upper Climate'; 'cat.res' = 'Lower Climate1'; 'chg.res' = 'Lower Climate2'; 'VUB.res' = 'Upper Big'; 'VUS.res' = 'Upper Small'; 'VLB.res' = 'Lower Big'; 'VLS.res' = 'Lower Small'   
 ")
 
-all.valles.climate.stack$chron <- factor(all.valles.climate.stack$chron, levels = c("Upper Ecology", "Upper Ecology Mean", "Upper BM", "Upper Climate", "Lower Ecology","Lower Ecology Mean", "Lower BM", "Lower Climate1", "Lower Climate2"))
+all.valles.climate.stack$chron <- factor(all.valles.climate.stack$chron, levels = c("Upper Ecology", "Upper Big", "Upper Small", "Upper Ecology Mean", "Upper BM", "Upper Climate", "Lower Ecology", "Lower Big", "Lower Small","Lower Ecology Mean", "Lower BM", "Lower Climate1", "Lower Climate2"))
 
+all.valles.climate.stack$chron.type <- ifelse(all.valles.climate.stack$chron =="Upper Ecology", "Ecology",
+											ifelse(all.valles.climate.stack$chron== "Upper Big", "Big",
+											ifelse(all.valles.climate.stack$chron== "Upper Small", "Small",
+											ifelse(all.valles.climate.stack$chron== "Upper Ecology Mean", "Mean",
+											ifelse(all.valles.climate.stack$chron== "Upper BM", "BM",
+											ifelse(all.valles.climate.stack$chron== "Upper Climate", "Climate",
+											ifelse(all.valles.climate.stack$chron =="Lower Ecology", "Ecology",
+											ifelse(all.valles.climate.stack$chron== "Lower Big", "Big",
+											ifelse(all.valles.climate.stack$chron== "Lower Small", "Small",
+											ifelse(all.valles.climate.stack$chron== "Lower Ecology Mean", "Mean",
+											ifelse(all.valles.climate.stack$chron== "Lower BM", "BM",
+											ifelse(all.valles.climate.stack$chron== "Lower Climate1", "Climate",  												
+											all.valles.climate.stack$chron)))))))))))) 
 
+all.valles.climate.stack$chron.type <- as.factor(all.valles.climate.stack$chron.type)
+summary(all.valles.climate.stack$chron.type)
+
+all.valles.climate.stack$chron.type <- factor(all.valles.climate.stack$chron.type, levels = c("Ecology", "Big", "Small", "BM", "Climate"))
 
 all.valles.climate.stack$elevation <- factor(all.valles.climate.stack$elevation, levels = c("Upper", "Lower"))
 
@@ -437,7 +454,10 @@ library(ggplot2)
  summary(all.valles.climate.stack)
 
 # Removing arithemetic mean chronology
-all.valles.climate.stack.short <- all.valles.climate.stack[all.valles.climate.stack$chron %in% c("Upper Ecology", "Upper BM", "Upper Climate", "Lower Ecology","Lower BM", "Lower Climate1", "Lower Climate2"),] 
+all.valles.climate.stack.short <- all.valles.climate.stack[all.valles.climate.stack$chron %in% c("Upper Ecology", "Upper Big", "Upper Small","Upper BM", "Upper Climate", "Lower Ecology","Lower BM", "Lower Climate1", "Lower Big", "Lower Small"),]
+
+all.valles.climate.stack.short <- all.valles.climate.stack.short[all.valles.climate.stack.short$month %in% c("pOct", "pNov", "pDec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "pFall", "Winter", "Spring", "Summer"),]
+ 
 summary(all.valles.climate.stack.short)
 
 test <- all.valles.climate.stack[all.valles.climate.stack$month %in% c("pDJF", "MAM", "JJA", "SON"),]
@@ -445,27 +465,74 @@ summary(test)
 
 levels(all.valles.climate.stack$sig)
 
+chron.col <- read.csv("chron_colors.csv", header=T)
+summary(chron.col)
 # Critical Value for 28 years (n-2 = 26) 0.330
 
-pdf("figures/climate_chron_seasons.pdf", width=13, height=8.5)
+pdf("figures/climate_chron_seasons_separate.pdf", width=13, height=8.5)
 ggplot(data=all.valles.climate.stack.short[all.valles.climate.stack.short$month %in% c("pFall", "Winter", "Spring", "Summer"),]) + 
 	facet_grid(chron*elevation ~ type, scales="free_x")+
-	geom_bar(aes(x=month, y=corr, fill=sig), stat="identity", position="dodge") + 
-	geom_hline(yintercept=0, linetype="dashed") +
-	scale_fill_manual(values=c("green","gray50")) +
+	geom_bar(aes(x=month, y=corr, fill=sig), stat="identity", position="dodge", colour="black") + 
+	geom_hline(yintercept=0.374, linetype="dashed") +
+	geom_hline(yintercept=-0.374, linetype="dashed") +
+	geom_hline(yintercept=0, linetype="solid") +
+	scale_fill_manual(values= c("green", "grey50")) +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	
 	labs(title= "Tree Ring : Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)"))))
 dev.off()
 
+
+
+pdf("figures/climate_chron_seasons_together.pdf", width=13, height=8.5)
+ggplot(data=all.valles.climate.stack.short[all.valles.climate.stack.short$month %in% c("pFall", "Winter", "Spring", "Summer"),]) + 
+	facet_grid(elevation ~ type, scales="free_x")+
+	geom_bar(aes(x=month, y=corr, fill=chron.type), stat="identity", position="dodge", colour="black") + 
+	geom_hline(yintercept=0.374, linetype="dashed") +
+	geom_hline(yintercept=-0.374, linetype="dashed") +
+	geom_hline(yintercept=0, linetype="solid") +
+	scale_fill_manual(values= c("green", "blue", "red", "darkgreen", "dodgerblue")) +
+	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+	
+	labs(title= "Tree Ring : Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)"))))
+dev.off()
+
+
 pdf("figures/climate_chron_all_months.pdf", width=13, height=8.5)
 ggplot(data=all.valles.climate.stack.short) + facet_grid(chron*elevation ~ type, scales="free_x")+
 	geom_bar(aes(x=month, y=corr, fill=sig), stat="identity", position="dodge") +
-	scale_fill_manual(values=c("green","gray50")) +
-	geom_hline(yintercept=0, linetype="dashed") +
+	scale_fill_manual(values= c("green", "grey50")) + 
+	geom_hline(yintercept=0.374, linetype="dashed") +
+	geom_hline(yintercept=-0.374, linetype="dashed") +
+	geom_hline(yintercept=0, linetype="solid") +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	labs(title= "Tree Ring : Climate Correlations", x="Months", y=expression(bold(paste("Correlation Value (r)"))))
 dev.off()
+
+
+pdf("figures/climate_chron_all_months_BigSmall.pdf", width=13, height=8.5)
+ggplot(data=all.valles.climate.stack.short[all.valles.climate.stack.short$chron.type=="Big" | all.valles.climate.stack.short$chron.type=="Small" | all.valles.climate.stack.short$chron.type=="Climate",]) + facet_grid(elevation ~ type, scales="free_x")+
+	geom_bar(aes(x=month, y=corr, fill=chron.type), stat="identity", position="dodge") +
+	scale_fill_manual(values= c("blue", "red", "dodgerblue")) + 
+	geom_hline(yintercept=0.374, linetype="dashed") +
+	geom_hline(yintercept=-0.374, linetype="dashed") +
+	geom_hline(yintercept=0, linetype="solid") +
+	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+	labs(title= "Tree Ring : Climate Correlations", x="Months", y=expression(bold(paste("Correlation Value (r)"))))
+dev.off()
+
+pdf("figures/climate_chron_all_months_EcolBM.pdf", width=13, height=8.5)
+ggplot(data=all.valles.climate.stack.short[all.valles.climate.stack.short$chron.type=="Ecology" | all.valles.climate.stack.short$chron.type=="BM" | all.valles.climate.stack.short$chron.type=="Climate",]) + facet_grid(elevation ~ type, scales="free_x")+
+	geom_bar(aes(x=month, y=corr, fill=chron.type), stat="identity", position="dodge") +
+	scale_fill_manual(values= c("green", "darkgreen", "dodgerblue")) + 
+	geom_hline(yintercept=0.374, linetype="dashed") +
+	geom_hline(yintercept=-0.374, linetype="dashed") +
+	geom_hline(yintercept=0, linetype="solid") +
+	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+	labs(title= "Tree Ring : Climate Correlations", x="Months", y=expression(bold(paste("Correlation Value (r)"))))
+dev.off()
+
+
 
 plot(vuf.tmax[, "Summer"] ~ vuf.tmax[,"Year"], type="l", ylim=c(0,30))
 	lines(vlf.tmax$Summer ~ vuf.tmax$Year, col="red")
