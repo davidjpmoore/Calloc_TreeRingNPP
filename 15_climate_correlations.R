@@ -591,9 +591,12 @@ head(vuf.corr.tmean.bm)
 
 vuf.tmean.upper.corr <- vuf.corr.tmean.bm
 vuf.tmean.lower.corr <- vuf.corr.tmean.bm
+# vuf.tmean.mean.corr <- vuf.corr.tmean.bm
 for(j in 1:ncol(vuf.corr.tmean.bm)){
 	vuf.tmean.upper.corr[,j] <- quantile(vuf.corr.tmean.bm[,j],0.975, na.rm=T)
 	vuf.tmean.lower.corr[,j] <- quantile(vuf.corr.tmean.bm[,j],0.025, na.rm=T)
+	# vuf.tmean.mean.corr[,j] <- apply(vuf.corr.tmean.bm[,j], FUN=mean, na.rm=T)
+	
 }
 head(vuf.tmean.upper.corr)
 head(vuf.tmean.lower.corr)
@@ -1136,7 +1139,9 @@ pdf("figures/BMI_boxplot_seasons.pdf", width=13, height=8.5)
 ggplot(data=all.valles.bm.stack[all.valles.bm.stack$month %in% c("pFall", "Winter","Spring", "Summer"),]) + facet_grid(site*elevation ~ type , scales="free_x")+
 	geom_boxplot(aes(x=month, y=corr, fill=sig)) +
 	scale_fill_manual(values=c("green","gray50")) +
-	geom_hline(yintercept=0, linetype="dashed") +
+	geom_hline(yintercept=0, linetype="solid") +
+	geom_hline(yintercept=0.374, linetype="dashed") +
+	geom_hline(yintercept=-0.374, linetype="dashed") +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	
 	labs(title= "Biomass Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)")))) #+
@@ -1156,7 +1161,10 @@ pdf("figures/BMI_boxplot_all_months.pdf", width=13, height=8.5)
 ggplot(data=all.valles.bm.stack) + facet_grid(site*elevation ~ type , scales="free_x")+
 	geom_boxplot(aes(x=month, y=corr, fill=sig)) +
 	scale_fill_manual(values=c("green","gray50")) +
-	geom_hline(yintercept=0, linetype="dashed") +
+	geom_hline(yintercept=0, linetype="solid") +
+	geom_hline(yintercept=0.374, linetype="dashed") +
+	geom_hline(yintercept=-0.374, linetype="dashed") +
+
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	
 	labs(title= "Biomass Climate Correlations", x="Months", y=expression(bold(paste("Correlation Value (r)")))) # +
@@ -1174,8 +1182,11 @@ dev.off()
 pdf("figures/BMI_violin_seasons.pdf", width=13, height=8.5)
 ggplot(data=all.valles.bm.stack[all.valles.bm.stack$month %in% c("pFall", "Winter","Spring", "Summer"),]) + facet_grid(site*elevation ~ type , scales="free_x")+
 	geom_violin(aes(x=month, y=corr, fill=sig), adjust=2.5) +
+	stat_summary(aes(x=month, y=corr), fun.y="median", geom="point", shape="-", size=20) +
 	scale_fill_manual(values=c("green","gray50")) +
-	geom_hline(yintercept=0, linetype="dashed") +
+	geom_hline(yintercept=0, linetype="solid") +
+	geom_hline(yintercept=0.374, linetype="dashed") +
+	geom_hline(yintercept=-0.374, linetype="dashed") +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	
 	
@@ -1194,8 +1205,11 @@ dev.off()
 pdf("figures/BMI_violin_all_months.pdf", width=13, height=8.5)	
 ggplot(data=all.valles.bm.stack) + facet_grid(site*elevation ~ type , scales="free_x")+
 	geom_violin(aes(x=month, y=corr, fill=sig), adjust=2.5) +
+	stat_summary(aes(x=month, y=corr), fun.y="median", geom="point", shape="-", size=10) +
 	scale_fill_manual(values=c("green","gray50")) +
-	geom_hline(yintercept=0, linetype="dashed") +
+	geom_hline(yintercept=0, linetype="solid") +
+	geom_hline(yintercept=0.374, linetype="dashed") +
+	geom_hline(yintercept=-0.374, linetype="dashed") +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	
 	labs(title= "Biomass Climate Correlations", x="Months", y=expression(bold(paste("Correlation Value (r)"))))

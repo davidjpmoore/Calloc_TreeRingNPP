@@ -278,3 +278,26 @@ head(valles.climate.cr)
 # saving as Rdata file to be used for the climate correlations
 
 save(valles.climate.cr, file="processed_data/valles_combined_climate_chronologies.rdata")
+
+
+
+#---------------------------------------------------
+# Looking at how well the chronologies from the upper and lower site compare
+
+test <- lm(valles.climate.cr[,"vuf.res"]~valles.climate.cr[,"vlf.res"])
+summary(test)
+
+# Plotting with R squared of the fit line
+pdf("figures/chron_fit.pdf", width=13, height=8.5)
+ggplot(data=valles.climate.cr)+
+	geom_point(aes(x=vuf.res, y=vlf.res))+
+	stat_smooth(aes(x=vuf.res, y=vlf.res), method="lm")+
+	scale_x_continuous(limits=range(valles.climate.cr[,c("vuf.res", "vlf.res")]))+
+	scale_y_continuous(limits=range(valles.climate.cr[,c("vuf.res", "vlf.res")]))+
+	coord_equal(ratio=1)+
+	annotate("text",x=0.25, y=1.5, label=paste("R^2 == 0.51"), parse=T, size= rel(10))
+dev.off()
+
+
+
+

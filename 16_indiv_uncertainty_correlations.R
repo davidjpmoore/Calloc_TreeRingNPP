@@ -2056,7 +2056,10 @@ ggplot(data=all.valles.uncert.stack[all.valles.uncert.stack$month %in% c("pFall"
 	geom_violin(aes(x=month, y=corr, fill=sig), adjust=2) +
 	scale_fill_manual(values=c("green","gray50")) +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-	geom_hline(yintercept=0, linetype="dashed") +
+	geom_hline(yintercept=0, linetype="solid") +
+	geom_hline(yintercept=0.374, linetype="dashed") +
+	geom_hline(yintercept=-0.374, linetype="dashed") +
+
 	labs(title= "Uncertainty Area : Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)"))))
 dev.off()
 
@@ -2065,9 +2068,34 @@ ggplot(data=all.valles.uncert.stack) + facet_grid(uncert*site ~ type, scales="fr
 	geom_violin(aes(x=month, y=corr, fill=sig), adjust=2) +
 	scale_fill_manual(values=c("green","gray50")) +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-	geom_hline(yintercept=0, linetype="dashed") +
+	geom_hline(yintercept=0, linetype="solid") +
+	geom_hline(yintercept=0.374, linetype="dashed") +
+	geom_hline(yintercept=-0.374, linetype="dashed") +
 	labs(title= "Uncertainty Area : Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)"))))
 dev.off()
 
+pdf("figures/climate_uncert_type_seasons_boxplot.pdf", width=13, height=8.5)
+ggplot(data=all.valles.uncert.stack[all.valles.uncert.stack$month %in% c("pFall", "Winter", "Spring", "Summer"),]) + facet_grid(uncert*site ~ type, scales="free_x")+
+	geom_boxplot(aes(x=month, y=corr, fill=sig)) +
+	scale_fill_manual(values=c("green","gray50")) +
+	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+	geom_hline(yintercept=0, linetype="solid") +
+	geom_hline(yintercept=0.374, linetype="dashed") +
+	geom_hline(yintercept=-0.374, linetype="dashed") +
+
+	labs(title= "Uncertainty Area : Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)"))))
+dev.off()
+
+pdf("figures/climate_uncert_type_all_months_boxplot.pdf", width=13, height=8.5)
+ggplot(data=all.valles.uncert.stack) + facet_grid(uncert*site ~ type, scales="free_x")+
+	geom_boxplot(aes(x=month, y=corr, fill=sig)) +
+	scale_fill_manual(values=c("green","gray50")) +
+	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+	geom_hline(yintercept=0, linetype="solid") +
+	geom_hline(yintercept=0.374, linetype="dashed") +
+	geom_hline(yintercept=-0.374, linetype="dashed") +
+
+	labs(title= "Uncertainty Area : Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)"))))
+dev.off()
 
 
