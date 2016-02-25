@@ -25,7 +25,7 @@ names(core.data)
 summary(core.data)
 
 #Load in the gap-filled data
-ring.data <- read.csv("processed_data/DOE_Allsites_RingData_All_Gapfilled.csv", header=T)
+ring.data <- read.csv("processed_data/DOE_AllSites_Gapfilled.csv", header=T)
 summary(ring.data)
 
 # making a data frame with trees as columns and years as ros

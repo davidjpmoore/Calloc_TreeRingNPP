@@ -7,7 +7,7 @@ setwd("pecan.allometry")
 outdir <- "../allometries"
 
 #File Path of allometry database
-parm.path <- "data/Table3_GTR-NE-319.v2.csv"
+parm.path <- "data/Table3_GTR-NE-319.v2_RossAdendum4.csv"
 #parm.path <- "data/Table3_GTR-NE-319.v2_RossAdendum4.csv"
 #allometry file needs to be replaced with Ross's custom file 
 #should the main PECAN allometry file be updated with Ross's additions?
@@ -49,57 +49,157 @@ pfts = list(east.hard = data.frame(spcd=1000,acronym="EHW"),
             NYSY = data.frame(spcd=693,acronym="NYSY"),
             ASTR = data.frame(spcd=367,acronym="ASTR"))
             
-AllomAve(pfts,2,outdir= file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+AllomAve(pfts,c(2,6),outdir= file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
 
 
 #TIAM Runs
 pfts = list(TIAM = data.frame(spcd=951,acronym="TIAM"))
-AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=1, dmax=500)
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=1, dmax=500)
 
 #SAAL Runs
 pfts = list(SAAL = data.frame(spcd=951,acronym="SAAL"))
-AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=1, dmax=500)
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=1, dmax=500)
 
 #ULRU Runs
 pfts = list(ULRU = data.frame(spcd=951,acronym="ULRU"))
-AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=1, dmax=500)
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=1, dmax=500)
 
 
 #PIPO runs with Tyson and Chojnacky equations manually added by Ross
 pfts = list(PIPO = data.frame(spcd=122,acronym="PIPO"))
-AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
 
 # General Fir from Chojnacky
 pfts = list(ABIES = data.frame(spcd=10,acronym="ABIES"))
-AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
 
 # General pine from Chojnacky
 pfts = list(PINUS = data.frame(spcd=100,acronym="PINUS"))
-AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
 
 # General spruce from Chojnacky
 pfts = list(PICEA = data.frame(spcd=90,acronym="PICEA"))
-AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
 
 # General doug fir from Chojnacky
 pfts = list(PSME = data.frame(spcd=202,acronym="PSME"))
-AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
 
 #ABCO runs
 pfts = list(ABCO = data.frame(spcd=15,acronym="ABCO"))
-AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
 
 #POTR
 pfts = list(POTR = data.frame(spcd=746,acronym="POTR"))
-AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
 
 #QUVE
 pfts = list(QUVE = data.frame(spcd=837,acronym="QUVE"))
-AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
 
 #Silver Maple
 pfts = list(ACSA2 = data.frame(spcd=318,acronym="ACSA2"))
-AllomAve(pfts,2,outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+#Carya Sp.
+pfts = list(CARYA = data.frame(spcd=400,acronym="CARYA"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# Paw Paw (ASTR)--NO EQUATION
+pfts = list(ASTR = data.frame(spcd=367,acronym="ASTR"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10, dmin=6, dmax=500)
+
+# Ulmus sp.--NOEQUATION
+pfts = list(ULMUS = data.frame(spcd=970,acronym="ULMUS"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10, dmin=6, dmax=500)
+
+# Frax sp.--NO EQUATION
+pfts = list(FRAXI = data.frame(spcd=540,acronym="FRAXI"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10, dmin=6, dmax=500)
+
+# # JUVI--NO Equation; use THUJA OCCIDENTALIS
+pfts = list(JUVI = data.frame(spcd=241,acronym="JUVI"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# LIST
+pfts = list(LIST2 = data.frame(spcd=611,acronym="LIST"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# Oak sp.
+pfts = list(QUERC = data.frame(spcd=800,acronym="QUERC"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# PITA
+pfts = list(PITA = data.frame(spcd=131,acronym="PITA"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# PRSE
+pfts = list(PRSE = data.frame(spcd=762,acronym="PRSE"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000 dmin=6, dmax=500)
+
+# QUBI-- NO EQUATION
+pfts = list(QUBI = data.frame(spcd=804,acronym="QUBI"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10, dmin=6, dmax=500)
+
+# QUMU--NO EQUATION
+pfts = list(QUMU = data.frame(spcd=826,acronym="QUMU"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+QUPH--NO EQUATION
+pfts = list(QUPH = data.frame(spcd=831,acronym="QUPH"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10, dmin=6, dmax=500)
+
+ULAL--NO EQUATION
+pfts = list(ULAL = data.frame(spcd=971,acronym="ULAL"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10, dmin=6, dmax=500)
+
+ULRU--NO EQUATION
+pfts = list(ULRU = data.frame(spcd=975,acronym="ULRU"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+#------------------------------------
+
+# PICO
+pfts = list(PICO = data.frame(spcd=108,acronym="PICO"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# PIEN
+pfts = list(PIEN = data.frame(spcd=93,acronym="PIEN"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# # ABLA--NO EQUATION
+# pfts = list(ABLA = data.frame(spcd=19,acronym="ABLA"))
+# AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10, dmin=6, dmax=500)
+
+# PCRU
+pfts = list(PCRU = data.frame(spcd=97,acronym="PCRU"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# TSCA
+pfts = list(TSCA = data.frame(spcd=261,acronym="TSCA"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# THOC
+pfts = list(THOC = data.frame(spcd=241,acronym="THOC"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# ABBA
+pfts = list(ABBA = data.frame(spcd=12,acronym="ABBA"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# BEAL
+pfts = list(BEAL = data.frame(spcd=371,acronym="BEAL"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# BELE
+pfts = list(BELE = data.frame(spcd=372,acronym="BELE"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# PIAB-- NO EQUATION
+pfts = list(PIAB = data.frame(spcd=91,acronym="PIAB"))
+AllomAve(pfts,c(2,6),outdir=file.path(outdir),parm=parm.path,ngibbs=100000, dmin=6, dmax=500)
+
+
 
 
 ##########################################################
@@ -112,57 +212,83 @@ pft.db <- read.csv("../raw_input_files/FIA_conversion_v0.2.csv", header=T)
 
 ##########################################################
 #Early hardwood
-early.hardwood<- pft.db[pft.db$pft=="EH", c("acronym", "spcd")]
+early_hardwood<- pft.db[pft.db$pft=="EH", c("acronym", "spcd")]
 
-pfts = list(early.hardwood = data.frame(spcd=early.hardwood$spcd,acronym=early.hardwood$acronym))
-AllomAve(pfts,2,outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+pfts = list(early_hardwood = data.frame(spcd=early_hardwood$spcd,acronym=early_hardwood$acronym))
+AllomAve(pfts,c(1,2,6,18,27,28,29),outdir=outdir,parm=parm.path,ngibbs=10, dmin=0.1, dmax=500)
 
 ##########################################################
 #Southern Mid hardwood
-s.mid.hardwood<- pft.db[pft.db$pft=="SMH", c("acronym", "spcd")]
+s_mid_hardwood<- pft.db[pft.db$pft=="SMH", c("acronym", "spcd")]
 
-pfts = list(s.mid.hardwood = data.frame(spcd=s.mid.hardwood$spcd,acronym=s.mid.hardwood$acronym))
-AllomAve(pfts,2,outdir=outdir,parm=parm.path,ngibbs=10000, dmin=0.1, dmax=500)
+pfts = list(s_mid_hardwood = data.frame(spcd=s_mid_hardwood$spcd,acronym=s_mid_hardwood$acronym))
+AllomAve(pfts,c(1,2,6,18,27,28,29),outdir=outdir,parm=parm.path,ngibbs=10000, dmin=0.1, dmax=500)
 
 ##########################################################
 #Northern Mid hardwood
-n.mid.hardwood<- pft.db[pft.db$pft=="NMH", c("acronym", "spcd")]
+n_mid_hardwood<- pft.db[pft.db$pft=="NMH", c("acronym", "spcd")]
 
-pfts = list(n.mid.hardwood = data.frame(spcd=n.mid.hardwood$spcd,acronym=n.mid.hardwood$acronym))
-AllomAve(pfts,2,outdir=outdir,parm=parm.path,ngibbs=10000, dmin=0.1, dmax=500)
+pfts = list(n_mid_hardwood = data.frame(spcd=n_mid_hardwood$spcd,acronym=n_mid_hardwood$acronym))
+AllomAve(pfts,c(1,2,6,18,27,28,29),outdir=outdir,parm=parm.path,ngibbs=10000, dmin=0.1, dmax=500)
 
 ##########################################################
 #Late hardwood
-late.hardwood<- pft.db[pft.db$pft=="LH", c("acronym", "spcd")]
+late_hardwood<- pft.db[pft.db$pft=="LH", c("acronym", "spcd")]
 
-pfts = list(late.hardwood = data.frame(spcd=late.hardwood$spcd,acronym=late.hardwood$acronym))
-AllomAve(pfts,2,outdir=outdir,parm=parm.path,ngibbs=10000, dmin=0.1, dmax=500)
+pfts = list(late_hardwood = data.frame(spcd=late_hardwood$spcd,acronym=late_hardwood$acronym))
+AllomAve(pfts,c(1,2,6,18,27,28,29),outdir=outdir,parm=parm.path,ngibbs=10000, dmin=0.1, dmax=500)
 
 ##########################################################
 #Mid Conifer
-mid.con<- pft.db[pft.db$pft=="MC", c("acronym", "spcd")]
+mid_con<- pft.db[pft.db$pft=="MC", c("acronym", "spcd")]
 
-pfts = list(mid.con = data.frame(spcd=mid.con$spcd,acronym=mid.con$acronym))
-AllomAve(pfts,2,outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+pfts = list(mid_con = data.frame(spcd=mid_con$spcd,acronym=mid_con$acronym))
+AllomAve(pfts,c(1,2,6,18,27,28,29),outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
 
 ##########################################################
 #Late Conifer
-late.con<- pft.db[pft.db$pft=="LC", c("acronym", "spcd")]
+late_con<- pft.db[pft.db$pft=="LC", c("acronym", "spcd")]
 
-pfts = list(late.con = data.frame(spcd=late.con$spcd,acronym=late.con$acronym))
-AllomAve(pfts,2,outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+pfts = list(late_con = data.frame(spcd=late_con$spcd,acronym=late_con$acronym))
+AllomAve(pfts,c(1,2,6,18,27,28,29),outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
 
 ##########################################################
 #Northern Pine
-n.pine<- pft.db[pft.db$pft=="NP", c("acronym", "spcd")]
+n_pine<- pft.db[pft.db$pft=="NP", c("acronym", "spcd")]
 
-pfts = list(n.pine = data.frame(spcd=n.pine$spcd,acronym=n.pine$acronym))
-AllomAve(pfts,2,outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+pfts = list(n_pine = data.frame(spcd=n_pine$spcd,acronym=n_pine$acronym))
+AllomAve(pfts,c(1,2,6,18,27,28,29),outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
 
 ##########################################################
 #Southern Pine
-s.pine<- pft.db[pft.db$pft=="NP", c("acronym", "spcd")]
+s_pine<- pft.db[pft.db$pft=="NP", c("acronym", "spcd")]
 
-pfts = list(s.pine = data.frame(spcd=s.pine$spcd,acronym=s.pine$acronym))
-AllomAve(pfts,2,outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+pfts = list(s_pine = data.frame(spcd=s_pine$spcd,acronym=s_pine$acronym))
+AllomAve(pfts,c(1,2,6,18,27,28,29),outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+
+#################################################################
+# Making CLM PFT's from the cross-walk
+#--------------------------------------
+
+# Broadleaf deciduous
+broad_decid <- pft.db[pft.db$CLM=="BLD", c("acronym", "spcd")]
+
+pfts = list(broad_decid = data.frame(spcd=broad_decid$spcd, acronym = broad_decid$acronym))
+AllomAve(pfts,c(1,2,6,18,27,28,29),outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+# Coniferous Evergreen
+con_eg <- pft.db[pft.db$CLM=="CEG", c("acronym", "spcd")]
+
+pfts = list(con_eg = data.frame(spcd = con_eg$spcd, acronym = con_eg$acronym))
+AllomAve(pfts,c(1,2,6,18,27,28,29),outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+
+# Broadleaf Evergreen
+broad_eg <- pft.db[pft.db$CLM=="BLE", c("acronym", "spcd")]
+
+pfts = list(broad_eg = data.frame(spcd = broad_eg$spcd, acronym = broad_eg$acronym))
+AllomAve(pfts,c(1,2,6,18,27,28,29),outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+
 

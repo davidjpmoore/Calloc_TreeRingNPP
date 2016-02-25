@@ -8,11 +8,11 @@ se <- function(x){
 
 # Load in diameter reconstrcutions generated from step 3.
 
-g.filled.diam <- read.csv("processed_data/GapFilling_DBHrecon_ALL.csv", header=T, row.names=1)
+g.filled.diam <- read.csv("processed_data/DOE_Allsites_GapFilling_DBHrecon_ALL.csv", header=T, row.names=1)
 # summary(g.filled.diam)
 
 # read in tree data
-tree.data <- read.csv("processed_data/TreeData.csv", header=T)
+tree.data <- read.csv("processed_data/DOE_AllsitesTreeData.csv", header=T)
 summary(tree.data)
 
 #select sites for which to run the biomass reconstruction
@@ -39,7 +39,9 @@ load("processed_data/allometries_list.Rdata")
 # Find out what species we don't have allometries for that need to be renames
 unique(trees.use$Species)[!(unique(trees.use$Species) %in% names(allometries))]
 
-trees.use$spp.allom <- recode(trees.use$Species, " 'PIEN'='picea.sp'; 'FRAX'='FRAM'; 'ASTR'='e.hard'; 'PRSE'='e.hard'; 'ULRU'='e.hard'")
+# Need to recode the missing species to relate to genus level equations.
+
+trees.use$spp.allom <- recode(trees.use$Species, "  'FRAX'='FRAM'; 'ASTR'='e.hard'; 'PRSE'='e.hard'; 'ULRU'='e.hard'")
 summary(trees.use)
 plots <- unique(trees.use$PlotID) # find out what plots we need
 

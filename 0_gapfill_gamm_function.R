@@ -36,23 +36,32 @@ data$smooth.by    <- data[,smooth.by]
 # Note: the log link with the gaussian family to prevent fitting negative values requires that you can't actually have 0 growth so we're going to make it really really small instead
 data$RW <- ifelse(data$RW==0, 1e-6, data$RW)
 
-if(canopy==T){
-	gamm.fill <- gamm(log(RW) ~ s(Year, bs="cs", k=3, by=smooth.by) + DBH, random=list(Species.Use=~1, Site=~1, PlotID=~1, Canopy=~1), data= data, na.action=na.omit)
-} else {
-	gamm.fill <- gamm(log(RW) ~ s(Year, bs="cs", k=3, by=smooth.by) + DBH, random=list(Species.Use=~1, Site=~1, PlotID=~1), data= data, na.action=na.omit)
-}
-
+# if(year.effect==T){
+	# if(canopy==T){
+		# gamm.fill <- gamm(log(RW) ~ s(Year, bs="cs", k=3, by=smooth.by) + as.factor(Year) + DBH, random=list(Species.Use=~1, Site=~1, PlotID=~1, Canopy=~1), data= data, na.action=na.omit,  control=list(niterEM=0, sing.tol=1e-20, opt="optim"))
+	# } else {
+		# gamm.fill <- gamm(log(RW) ~ s(Year, bs="cs", k=3, by=smooth.by) + as.factor(Year) + DBH, random=list(Species.Use=~1, Site=~1, PlotID=~1), data= data, na.action=na.omit,  control=list(niterEM=0, sing.tol=1e-20, opt="optim"))
+	# }
+# } else{
+	if(canopy==T){
+		gamm.fill <- gamm(log(RW) ~ s(Year, bs="cs", k=3, by=smooth.by) + DBH, random=list(Species.Use=~1, Site=~1, PlotID=~1, Canopy=~1), data= data, na.action=na.omit,  control=list(niterEM=0, sing.tol=1e-20, opt="optim"))
+	} else {
+		gamm.fill <- gamm(log(RW) ~ s(Year, bs="cs", k=3, by=smooth.by) + DBH, random=list(Species.Use=~1, Site=~1, PlotID=~1), data= data, na.action=na.omit,  control=list(niterEM=0, sing.tol=1e-20, opt="optim"))
+	}
+# }
 # Making Predicted ring widths
 data$RW.modeled <- exp(predict(gamm.fill, data))
+
 
 # Graphing of the modeled rings we will use to fill the data (note this isn't truncating ones that are past where we think pith actually is)
 if(plot.diagnostics==T)
 pdf(paste0(out.prefix, "_gapfill.pdf"), height=7.5, width=10)
 print(
-ggplot() + facet_wrap(~Species) +
-	geom_path(aes(x=Year, y=RW, color=Species.Use), data=data, size=0.5) +
-	geom_point(aes(x=Year, y=RW.modeled), data[is.na(data$RW),], size=0.5) +
+ggplot(data=data) + facet_wrap(~Species) +
+	geom_path(aes(x=Year, y=RW, color=Species), size=0.5) +
+	geom_point(data=data[is.na(data$RW),], aes(x=Year, y=RW.modeled), size=0.5) +
 	scale_y_continuous(limits=c(0,1.25)) +
+	guides(color=F) +
 	theme_bw()
 )
 dev.off()

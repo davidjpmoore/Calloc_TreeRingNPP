@@ -185,7 +185,31 @@ write.csv(tree.rw, "processed_data/DOE_Allsites_tree_rw.csv")
 tree.data$Dated <- as.factor(tree.data$Dated)
 summary(tree.data)
 # NOTE: right now you have a ridculously long name for your tree data spreadsheet, so I'm going to call it something different for my own sanity right now :-P
-write.csv(tree.data, "processed_data/DOE_AllsitesTreeData.csv", row.names=F)
+
+# Loading in niwot and harvard data to be merged with the DOE_Allsites tree data
+
+harvard.tree.data <-read.csv("processed_data/Har_How_TreeData.csv", header=T)
+summary(harvard.tree.data)
+
+# We made some assumptions to get things to run prior that were not correct.  We received no pith estimates from Dan/Alex so leaving them as NA
+harvard.tree.data$Pith <- NA
+
+dim(harvard.tree.data)
+dim(tree.data)
+
+
+tree.data2 <- merge(harvard.tree.data, tree.data, all.x=T, all.y=T)
+dim(tree.data2)
+
+niwot.tree.data <- read.csv("processed_data/niwot_TreeData.csv", header=T)
+summary(niwot.tree.data)
+dim(niwot.tree.data)
+
+tree.data3 <- merge(niwot.tree.data, tree.data2, all.x=T, all.y=T)
+dim(tree.data3)
+summary(tree.data3)
+
+write.csv(tree.data3, "processed_data/DOE_AllsitesTreeData.csv", row.names=F)
 
 # ----------------------------------------------------------------------------
 
@@ -224,9 +248,69 @@ tree.stack <- merge(tree.stack, tree.data, all.x=T, all.y=F)
 summary(tree.stack)
 dim(tree.stack)
 
-write.csv(tree.stack, "processed_data/DOE_Allsites_TreeRWL_AllSites_stacked.csv", row.names=F)
+# merging in the stacked tree measurements from Niwot and Harvard
+
+harvard.rw.stack <- read.csv("processed_data/HAR_HOW_TreeRWL_AllSites_stacked.csv", header=T)
+summary(harvard.rw.stack)
+dim(harvard.rw.stack)
+
+
+tree.stack2 <- merge(harvard.rw.stack, tree.stack, all.x=T, all.y=T)
+dim(tree.stack2)
+summary(tree.stack2)
+tree.stack2$plot <- as.factor(tree.stack2$plot)
+
+niwot.rw.stack <- read.csv("processed_data/niwot_TreeRWL_AllSites_stacked.csv", header=T)
+summary(niwot.rw.stack)
+dim(niwot.rw.stack)
+
+tree.stack3 <- merge(niwot.rw.stack, tree.stack2, all.x=T, all.y=T)
+dim(tree.stack3)
+summary(tree.stack3)
+
+write.csv(tree.stack3, "processed_data/DOE_Allsites_TreeRWL_AllSites_stacked.csv", row.names=F)
 
 # ----------------------------------------------------------------------------
+# Merging together the core data from All DOE, niwot, and harvard
+summary(core.data)
+dim(core.data)
+names(core.data)
+
+harvard.core.data <- read.csv("raw_input_files/harvard_how.and_core_data2.csv", header=T)
+
+harvard.core.data$plot <- harvard.core.data$plot.id
+harvard.core.data$plot <- as.factor(harvard.core.data$plot)
+
+summary(harvard.core.data)
+dim(harvard.core.data)
+names(harvard.core.data)
+
+core.data2 <- merge(harvard.core.data, core.data, all.x=T, all.y=T)
+dim(core.data2)
+summary(core.data2)
+names(core.data2)
+
+niwot.core.data <- read.csv("processed_data/Niwot_core_data.csv", header=T)
+summary(niwot.core.data)
+dim(niwot.core.data)
+names(niwot.core.data)
+
+
+core.data3 <- merge(niwot.core.data[,names(niwot.core.data) %in% names(core.data2)], core.data2, all.x=T, all.y=T)
+dim(core.data3 )
+summary(core.data3)
+
+# Cleaning up some things
+library(car)
+core.data3$Site <- recode(core.data3$Site, "'HOW'='Howland'; 'TP' = 'Harvard Forest'")
+summary(core.data3)
+
+core.data3$canopy.class <- as.factor(core.data3$canopy.class)
+core.data3$bark.present <- as.factor(core.data3$bark.present)
+core.data3$zombie <- as.factor(core.data3$zombie)
+
+write.csv(core.data3, "processed_data/DOE_AllSites_core_data.csv", row.names=F)
+
 # ----------------------------------------------------------------------------
 # GO TO GAPFILLING SCRIPT NOW!!:-)
 # ----------------------------------------------------------------------------

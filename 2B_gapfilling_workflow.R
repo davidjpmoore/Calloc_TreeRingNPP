@@ -68,10 +68,24 @@ Site.data$Year.sample <- as.numeric(substr(Site.data$date.sample,7,10))
 Site.data <- Site.data[!is.na(Site.data$PlotID),] # something was getting read in weird, so lets get rid of any false rows
 summary(Site.data)
 
-# merging in the year sampled into the tree data & calculating age
+ # merging in the year sampled into the tree data & calculating age
 tree.data <- merge(tree.data, Site.data[,c("PlotID", "Year.sample")], all.x=T, all.y=F)
 tree.data$PlotID
-tree.data$Age <- tree.data$Year.sample - tree.data$Pith
+
+
+# Filling some sort of age estimate
+summary(tree.data)
+summary(ring.data)
+tree.data$Age <- NA
+for(t in unique(tree.data$TreeID)[unique(tree.data$TreeID) %in% unique(ring.data$TreeID)]){
+	# Some trees are missing ring widths because they weren't dated & Alex is as cautious as Ross, 
+	# so lets skip those
+	if(length(ring.data[ring.data$TreeID==t & !is.na(ring.data$RW), "Year"])==0) next 
+	
+	pith.est <- ifelse(!is.na(tree.data[tree.data$TreeID==t, "Pith"]), tree.data[tree.data$TreeID==t, "Pith"], min(ring.data[ring.data$TreeID==t & !is.na(ring.data$RW), "Year"], na.rm=T))
+	tree.data[tree.data$TreeID==t, "Age"] <- tree.data[tree.data$TreeID==t, "Year.sample"] - pith.est 
+}
+# tree.data$Age <- ifelse(!is.na(tree.data$Pith), tree.data$Year.sample - tree.data$Pith, tree.data$Year.sample - )
 summary(tree.data)
 
 # We're going to run 2 sets of fillin models:
@@ -123,6 +137,8 @@ qplot(DBH..cm., Age, color=Species, data=tree.data3) + facet_wrap(~Species) +
 
 
 # Making a very basic linear model looking at Site-specific species-DBH..cm.-age relationships
+# add *Site-1 when we have more than 1 site
+
 dbh.age <- lm(Age ~ Species*DBH..cm., data=tree.data3)
 summary(dbh.age)
 summary(dbh.age)$r.squared # Note, this very basic model works pretty well!
@@ -174,6 +190,11 @@ for(i in unique(ring.data$TreeID)){
 	#year.fill = the oldest year to fill based on above step (prediction interval, size-species-Site relationships)
 	#------------------------------
 	yr.fill <- tree.data.model[tree.data.model$TreeID==i,"fill.year"]
+	
+	# If for some reason we're not able to create an estimated range of years we
+	# could potentially have, just use whatever the oldest fill year there is
+	# (this is not a great way to do it, but it keeps things from breaking)
+	if(is.na(yr.fill)) yr.fill <- min(tree.data.model$fill.year, na.rm=T)
 	#------------------------------
 
 	#------------------------------
@@ -182,7 +203,7 @@ for(i in unique(ring.data$TreeID)){
 	ring.data <- ring.data[!(ring.data$TreeID==i & ring.data$Year<yr.fill),]
 	#------------------------------
 }
-summary(ring.data) 
+summary(ring.data)
 dim(ring.data)
 # ---------------------------------------
 # ----------------------------------------------------------------
@@ -222,6 +243,7 @@ summary(ring.data)
 # PAY ATTENTION HERE: YOU HAVE A CHOICE TO MAKE!
 # ---------------
 sites.ring.data <- unique(substr(ring.data$PlotID,1,2))
+# summary(ring.data[is.na(ring.data$PlotID),])
 
 # If starting from scratch:
 site.codes <- sites.ring.data
@@ -229,11 +251,12 @@ site.codes <- sites.ring.data
 # If adding new sites select those that haven't already been gapfilled
 site.codes <- sites.ring.data[!(sites.ring.data %in% unique(substr(rings.filled$PlotID,1,2)))]
 # ---------------
-
-# Adding in a variable of Species * Plot to find a compromise between speed and information.  Running things at the tree level would give us the most detailed model possible but take eons to run (Also more likely to have problems at this level).  Moving up to the Spp*Plot level allows us to keep a reasonable level of detail, but speed things along a bit.  We will place this in the "smooth.by" argument in the gapfill.gamm function.  
-
-ring.data$spp.plot <- as.factor(paste(ring.data$PlotID, ring.data$Species, sep=".")  )
+# Adding in a column to have species by plot
+ring.data$spp.plot <- as.factor(paste(ring.data$Species, ring.data$PlotID, sep="."))
 summary(ring.data)
+
+# Something got off, so lets re-order our data
+ring.data <- ring.data[order(ring.data$PlotID, ring.data$TreeID, ring.data$Year),]
 
 # Running the gapfilling loop
 for(s in site.codes){
@@ -248,7 +271,9 @@ for(s in site.codes){
 	# if(substr(s,1,1)=="V" | substr(s,1,1)=="N"){ # This is no longer necessary, but an example of how to select special options  based on certain sites
 		# gamm.out <- gapfill.gamm(data= data.use, DBH="DBH..cm.", Species.Use="Species", Canopy.Class="Canopy.Class", canopy=F, out.prefix=out.path)
 	# } else {
-		gamm.out <- gapfill.gamm(data= data.use, DBH="DBH..cm.", Species.Use="Species", Canopy.Class="Canopy.Class", smooth.by="spp.plot", canopy=T, out.prefix=out.path)
+#		gamm.out <- gapfill.gamm(data= data.use, smooth.by="spp.plot", DBH="DBH..cm.", Species.Use="Species", Canopy.Class="Canopy.Class", canopy=T, out.prefix=out.path)
+		gamm.out <- gapfill.gamm(data= data.use, DBH="DBH..cm.", Species.Use="Species", smooth.by="spp.plot", Canopy.Class="Canopy.Class", canopy=T, out.prefix=out.path)
+
 	# }
 	ring.data[rows.site, "RW.modeled"] <- gamm.out$data$RW.modeled
 }
@@ -264,8 +289,14 @@ summary(ring.data)
 #	The best options are probably species or PlotID; Ross votes PlotID because of variation in the Valles
 # ----------------------------------------------------------------
 # creating a data frame of blank ring widths to fill with the gamm
-trees.missing <- tree.data.model[!(tree.data.model$TreeID %in% unique(ring.data$TreeID)), c("Species", "Site", "PlotID", "TreeID", "DBH..cm.", "Canopy.Class")]
+trees.missing <- tree.data.model[!(tree.data.model$TreeID %in% unique(ring.data$TreeID)), c("Species", "Site", "PlotID", "TreeID", "DBH..cm.", "Canopy.Class", "Live.Dead")]
+
+# Harvard and Howland had CWD intermingled with their tree data.  We are removing anything without a species as it was likely a decayed log.
+trees.missing <- trees.missing[!is.na(trees.missing$Species),]
+summary(trees.missing)
+
 summary(trees.missing) 
+summary(trees.missing[trees.missing$Site=="Harvard", ])
 dim(trees.missing) # number pf rows = number of missing trees
 
 # Creating a vector of years and dummy ring widths we're going to want to fill
@@ -289,6 +320,11 @@ for(i in unique(trees.missing$TreeID)){
 	#year.fill = the oldest year to fill based on above step (prediction interval, size-species-Site relationships)
 	#------------------------------
 	yr.fill <- tree.data.model[tree.data.model$TreeID==i,"fill.year"]
+	# If for some reason we're not able to create an estimated range of years we
+	# could potentially have, just use whatever the oldest fill year there is
+	# (this is not a great way to do it, but it keeps things from breaking)
+	if(is.na(yr.fill)) yr.fill <- min(tree.data.model$fill.year, na.rm=T)
+	
 	#------------------------------
 
 	#------------------------------
@@ -308,6 +344,8 @@ summary(trees.missing)
 # putting missing & measured trees together
 data.all <- merge(ring.data, trees.missing, all.x=T, all.y=T)
 summary(data.all)
+# NA's will be here now as we have merged in the missing trees
+
 
 # Do the missing tree gapfilling based off of dated trees only or species that have no dated trees
 species.keep <- unique(data.all$Species)[!(unique(data.all$Species) %in% unique(data.all[!data.all$Dated=="N","Species"]))] # exceptions to the dated only rule
@@ -346,7 +384,7 @@ for(p in plots){
 }
 summary(data.all) # This should introduce a handful of NAs back in 
 
-write.csv(data.all, "processed_data/DOE_Allsites_RingData_All_Gapfilled.csv", row.names=F)
+write.csv(data.all, "processed_data/DOE_AllSites_Gapfilled.csv", row.names=F)
 # ----------------------------------------------------------------
 
 
