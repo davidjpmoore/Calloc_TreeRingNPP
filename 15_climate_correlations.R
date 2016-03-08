@@ -544,12 +544,13 @@ plot(vuf.precip[, "Summer"] ~ vuf.precip[,"Year"], type="l")
 #######################################################
 # loading in BM bootstraps for correlation runs
 #######################################################
-load("processed_data/vuf_bm_boot_tot_inc.Rdata")
-load("processed_data/vlf_bm_boot_tot_inc.Rdata")
-
+vuf.inc.tot <- read.csv("processed_data/vuf_simulated_bm.csv", header=T)
 summary(vuf.inc.tot)
-summary(vlf.inc.tot)
+row.names(vuf.inc.tot) <- c(2011:1904)
 
+vlf.inc.tot <- read.csv("processed_data/vlf_simulated_bm.csv", header=T)
+summary(vlf.bm)
+row.names(vlf.inc.tot) <- c(2011:1904)
 
 # subsetting to the extent of the previous timeseries
 vuf.bm <- vuf.inc.tot[row.names(vuf.inc.tot)>=1980 & row.names(vuf.inc.tot)<=2007,]
