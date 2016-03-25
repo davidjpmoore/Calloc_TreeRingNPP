@@ -12,10 +12,9 @@ base <- allom.uncert$Mean
 
 # allometric uncertainty of BM at the site level
 load("processed_data/valles_allometry_uncertainty.Rdata")
+allom.uncert$range <- allom.uncert$UB - allom.uncert$LB
 allom.uncert$LB.dev <- allom.uncert$Mean - allom.uncert$LB
 allom.uncert$UB.dev <-  allom.uncert$UB - allom.uncert$Mean
-allom.uncert$range.dev <- allom.uncert$UB.dev + allom.uncert$LB.dev
-
 allom.uncert$SiteID <- recode(allom.uncert$SiteID, "'VUF'='1'; 'VLF'='2'")
 
 levels(allom.uncert$SiteID) <- c("VUF", "VLF")
@@ -28,10 +27,10 @@ summary(allom.uncert[allom.uncert$SiteID=="VUF",])
 
 # density BM--uses mean allometric eqtn. and accounts for differences in density with just ROSS plots
 load("processed_data/valles_density_uncertainty.Rdata")
-
+dens.uncert$range <- dens.uncert$UB - dens.uncert$LB
 dens.uncert$LB.dev <- dens.uncert$Mean - dens.uncert$LB
 dens.uncert$UB.dev <-  dens.uncert$UB - dens.uncert$Mean
-dens.uncert$range.dev <- dens.uncert$UB.dev + dens.uncert$LB.dev
+
 dens.uncert$SiteID <- recode(dens.uncert$SiteID, "'VUF'='1'; 'VLF'='2'")
 levels(dens.uncert$SiteID) <- c("VUF", "VLF")
 
@@ -55,10 +54,9 @@ uncert.mort$SiteID <- recode(uncert.mort$SiteID, "'VUF'='1'; 'VLF'='2'")
 levels(uncert.mort$SiteID) <- c("VUF", "VLF")
 uncert.mort <- uncert.mort[order(uncert.mort$SiteID),]
 
-
+uncert.mort$range <- uncert.mort$UB - uncert.mort$LB
 uncert.mort$LB.dev <- uncert.mort$Mean - uncert.mort$LB
 uncert.mort$UB.dev <-  uncert.mort$UB - uncert.mort$Mean
-uncert.mort$range.dev <- uncert.mort$UB.dev + uncert.mort$LB.dev
 
 summary(uncert.mort)
 summary(uncert.mort[uncert.mort$SiteID=="VLF",])
@@ -78,8 +76,6 @@ uncert.increment <- uncert.increment[order(uncert.increment$SiteID),]
 
 uncert.increment$LB.dev <- uncert.increment$Mean - uncert.increment$LB
 uncert.increment$UB.dev <- uncert.increment$UB - uncert.increment$Mean
-uncert.increment$range.dev <- uncert.increment$UB.dev + uncert.increment$LB.dev
-
 
 summary(uncert.increment)
 summary(uncert.increment[uncert.increment$SiteID=="VLF",])
@@ -106,49 +102,7 @@ save(valles.tot.dev, file="processed_data/total_uncert_quad.Rdata")
 
 # -----------------------------------
 # -----------------------------------
-# Making a dataframe of the total range of uncertainty and each constituent range of uncertainty to be used later
 
-summary(allom.uncert)
-allom.uncert.perc <- allom.uncert[,c("Year", "SiteID", "range.dev")]
-allom.uncert.perc$type <- as.factor("allom")
-summary(allom.uncert.perc)
-
-# dens.uncert
-summary(dens.uncert)
-dens.uncert.perc <- dens.uncert[,c("Year", "SiteID", "range.dev")]
-dens.uncert.perc$type <- as.factor("dens")
-summary(dens.uncert.perc)
-
-
-# uncert.mort
-summary(uncert.mort)
-uncert.mort.perc <- uncert.mort[,c("Year", "SiteID", "range.dev")]
-uncert.mort.perc$type <- as.factor("mort")
-summary(uncert.mort.perc)
-
-
-# uncert.increment
-summary(uncert.increment)
-uncert.increment.perc <- uncert.increment[,c("Year", "SiteID", "range.dev")]
-uncert.increment.perc$type <- as.factor("inc")
-summary(uncert.increment.perc)
-
-# Total uncertainty
-summary(valles.tot.dev)
-valles.tot.dev.perc <- valles.tot.dev[,c("SiteID", "Year")]
-valles.tot.dev.perc$range.dev <- valles.tot.dev$UB.dev + valles.tot.dev$LB.dev
-valles.tot.dev.perc$type <- as.factor("total")
-summary(valles.tot.dev.perc)
-
-
-
-valles.tot.perc <- merge(allom.uncert.perc, dens.uncert.perc, all.x=T, all.y=T)
-valles.tot.perc2 <- merge(valles.tot.perc, uncert.mort.perc, all.x=T, all.y=T)
-valles.tot.perc3 <- merge(valles.tot.perc2, uncert.increment.perc, all.x=T, all.y=T)
-valles.tot.perc4 <- merge(valles.tot.perc3, valles.tot.dev.perc, all.x=T, all.y=T)
-summary(valles.tot.perc4)
-
-write.csv(valles.tot.perc4, file="processed_data/valles_total_uncert_ranges.csv", row.names=F)
 # Plotting up the total uncertainty that was added in quadrature
 
 # -----------------------------------
@@ -257,71 +211,6 @@ ggplot(valles.ind.dev[valles.ind.dev$Year >= 1925 & valles.ind.dev$Year <=2011,]
 
   theme(strip.text=element_text(size=rel(1.5), face="bold"))
 dev.off()
-
-# Calculating the percent contribution of the different uncertainty areas through time
-
-valles.cum.ranges <- read.csv("processed_data/valles_total_uncert_ranges.csv", header=T)
-names(valles.cum.ranges)<- c("Year", "Site", "range", "type")
-summary(valles.cum.ranges)
-
-
-
-
-plot(valles.cum.ranges[valles.cum.ranges$Site=="VUF" & valles.cum.ranges$type=="total", "range"] ~valles.cum.ranges[valles.cum.ranges$Site=="VLF" & valles.cum.ranges$type=="total", "range"])
-
-valles.cum.percents <- data.frame(Year = valles.cum.ranges$Year,
-							  type = valles.cum.ranges$type,
-							  Site = valles.cum.ranges$Site)
-
-for(i in valles.cum.percents$Site){
-	for(j in min(valles.cum.percents$Year):max(valles.cum.percents$Year)){
-		total <- valles.cum.ranges[valles.cum.ranges$Site==i & valles.cum.ranges$Year==j & valles.cum.ranges$type=="total", "range"]
-		total2 <- sum(valles.cum.ranges[valles.cum.ranges$Site==i & valles.cum.ranges$Year==j & !valles.cum.ranges$type=="total", "range"])
-		for(t in unique(valles.cum.percents$type)){
-			valles.cum.percents[valles.cum.percents$Site==i & valles.cum.percents$Year==j & valles.cum.percents$type==t, "perc.uncert"] <- valles.cum.ranges[valles.cum.ranges$Site==i & valles.cum.ranges$Year==j & valles.cum.ranges$type==t, "range"] / total
-			valles.cum.percents[valles.cum.percents$Site==i & valles.cum.percents$Year==j & valles.cum.percents$type==t, "perc.uncert.parts"] <- valles.cum.ranges[valles.cum.ranges$Site==i & valles.cum.ranges$Year==j & valles.cum.ranges$type==t, "range"] / total2
-		}
-	}
-}
-summary(valles.cum.percents)
-write.csv(valles.cum.percents, file="processed_data/valles_cumulative_uncert_percentages.csv", row.names=F)
-
-valles.cum.percents <- read.csv("processed_data/valles_cumulative_uncert_percentages.csv", header=T)
-
-valles.cum.percents$type <- factor(valles.cum.percents$type, levels=c("inc", "allom", "dens", "mort", "total"))
-
-valles.cum.percents$Site <- factor(valles.cum.percents$Site, levels=c("VUF", "VLF"))
-
-cbbPalette <- c("#E69F00", "#0072B2", "#009E73", "#CC79A7")
-pdf("figures/perc_contrib_cumulative_BM.pdf", width=13, height=8.5)
-
-ggplot(data=valles.cum.percents[!valles.cum.percents$type=="total",])+ facet_grid(Site~.) +
-	geom_line(aes(x=as.numeric(Year), y=perc.uncert.parts, color=type), size=1.5)+
-	
-	  
-  labs(title= "Fractional Contributions Cumulative Biomass", x="Year", y=expression(bold(paste("Fraction of Total Uncertinaty")))) +
-  scale_color_manual(name="Uncertainty", values=cbbPalette, labels=c("TR Increment", "Allometry", "Plot Density", "Mortality")) +
-  guides(fill=guide_legend(override.aes=list(alpha=0.15))) +
-  # theme(legend.position=c(1,1), legend.text=element_text(size=rel(1.25)), legend.title=element_text(size=rel(1.25)))  + 
-  theme(legend.position=c(0.09, 0.95)) +  
-
-theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=rel(1.5)), axis.text.y=element_text(color="black", size=rel(1.5)), axis.title.x=element_text(face="bold", size=rel(1.5), vjust=-0.5),  axis.title.y=element_text(face="bold", size=rel(1.5), vjust=1), plot.margin=unit(c(0.1,0.5,0.5,0.1), "lines")) +
-	poster.theme2 +
-  theme(strip.text=element_text(size=rel(1.5), face="bold"))
-
-	
-dev.off()
-
-
-
-
-
-
-
-
-
-
-
 
 # # -----------------------------------
 # # This is left here as it is the old way that we calculated things.  It does not add the different areas of uncertainty in quadrature, but simply stacks them on top of one another through simple addition.

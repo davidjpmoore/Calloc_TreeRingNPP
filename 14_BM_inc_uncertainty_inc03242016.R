@@ -608,7 +608,7 @@ summary(valles.uncert.graph)
 
 cbbPalette <- c("#E69F00", "#0072B2", "#009E73", "#CC79A7")
 
-pdf("figures/stacked_inc_uncertainties.pdf", width=13, height=8.5)
+pdf("figures/uncertainty_figures/stacked_inc_uncertainties.pdf", width=13, height=8.5)
 ggplot(valles.uncert.graph) + facet_grid(Site ~ .) +
   geom_line(aes(x=Year, y=base), size=1.5, color="black") +
   
@@ -643,7 +643,7 @@ ggplot(valles.uncert.graph) + facet_grid(Site ~ .) +
   
   # General Plot formatting
   theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=rel(1.5)), axis.text.y=element_text(color="black", size=rel(1.5)), axis.title.x=element_text(face="bold", size=rel(1.5), vjust=-0.5),  axis.title.y=element_text(face="bold", size=rel(1.5), vjust=1), plot.margin=unit(c(0.1,0.5,0.5,0.1), "lines")) +
-  
+  poster.theme2+
   theme(strip.text=element_text(size=rel(1.5), face="bold"))
 
 dev.off()
@@ -671,32 +671,20 @@ for(i in valles.percents$Site){
 	}
 }
 summary(valles.percents)
+save(valles.percents, file="processed_data/valles_percent_uncertainty_increment.R")
 
-write.csv(valles.percents, file="processed_data/valles_percent_contrib_BMI.csv", row.names=F)
-
-valles.percents <- read.csv("processed_data/valles_percent_contrib_BMI.csv", header=T)
-
-valles.percents$type <- factor(valles.percents$type, levels=c("inc", "allom", "dens", "mort", "total"))
+load("processed_data/valles_percent_uncertainty_increment.R")
 
 valles.percents$Site <- factor(valles.percents$Site, levels=c("VUF", "VLF"))
 
-pdf("figures/perc_contrib_BMI.pdf", width=13, height=8.5)
-
+pdf("figures/uncertainty_figures/perc_increment_uncert.pdf", width=13, height=8.5)
 ggplot(data=valles.percents[!valles.percents$type=="total",])+ facet_grid(Site~.) +
-	geom_line(aes(x=as.numeric(Year), y=perc.uncert.parts, color=type), size=1.5)+
-	
-	# Legend Formatting
-  labs(title= "Fraction of Total Uncertainty BMI", x="Year", y=expression(bold(paste("Fraction of Total Uncertainty")))) +
-  scale_color_manual(name="Uncertainty", values=cbbPalette, labels=c("TR Increment", "Allometry", "Plot Density", "Mortality")) +
-  guides(fill=guide_legend(override.aes=list(alpha=0.15))) +
-  #  theme(legend.position=c(0.2,0.85), legend.text=element_text(size=rel(1.25)), legend.title=element_text(size=rel(1.25)))  + 
-  theme(legend.position=c(0.1,0.9)) + 
-  
-  # General Plot formatting
-  theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=rel(1.5)), axis.text.y=element_text(color="black", size=rel(1.5)), axis.title.x=element_text(face="bold", size=rel(1.5), vjust=-0.5),  axis.title.y=element_text(face="bold", size=rel(1.5), vjust=1), plot.margin=unit(c(0.1,0.5,0.5,0.1), "lines")) +
-  poster.theme2 + 
-  theme(strip.text=element_text(size=rel(1.5), face="bold"))
+	geom_line(aes(x=as.numeric(Year), y=perc.uncert.parts, color=type), size=2)+
+	poster.theme2
 dev.off()
+
+ggplot(data=valles.range[valles.range$type %in% c("total", "inc"),])+ facet_grid(site~.) +
+	geom_line(aes(x=as.numeric(Year), y=range, color=type))
 
 
 
