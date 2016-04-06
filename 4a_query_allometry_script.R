@@ -272,20 +272,20 @@ AllomAve(pfts,c(1,2,6,18,27,28,29),outdir=outdir,parm=parm.path,ngibbs=10000, dm
 #--------------------------------------
 
 # Broadleaf deciduous
-broad_decid <- pft.db[pft.db$CLM=="BLD", c("acronym", "spcd")]
+broad_decid <- pft.db[pft.db$CLM=="broad_decid", c("acronym", "spcd")]
 
 pfts = list(broad_decid = data.frame(spcd=broad_decid$spcd, acronym = broad_decid$acronym))
 AllomAve(pfts,c(1,2,6,18,27,28,29),outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
 
 # Coniferous Evergreen
-con_eg <- pft.db[pft.db$CLM=="CEG", c("acronym", "spcd")]
+con_eg <- pft.db[pft.db$CLM=="con_eg", c("acronym", "spcd")]
 
 pfts = list(con_eg = data.frame(spcd = con_eg$spcd, acronym = con_eg$acronym))
 AllomAve(pfts,c(1,2,6,18,27,28,29),outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
 
 
 # Broadleaf Evergreen
-broad_eg <- pft.db[pft.db$CLM=="BLE", c("acronym", "spcd")]
+broad_eg <- pft.db[pft.db$CLM=="broad_eg", c("acronym", "spcd")]
 
 pfts = list(broad_eg = data.frame(spcd = broad_eg$spcd, acronym = broad_eg$acronym))
 AllomAve(pfts,c(1,2,6,18,27,28,29),outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)

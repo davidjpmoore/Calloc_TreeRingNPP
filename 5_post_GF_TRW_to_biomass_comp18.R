@@ -5,12 +5,12 @@ library(ggplot2)
 se <- function(x){
   sd(x, na.rm=TRUE) / sqrt((length(!is.na(x))))}
 
-# Load in simon's crosswalk
-pft.db <- read.csv("raw_input_files/FIA_conversion_v0.2.csv", header=T)
-summary(pft.db)
+
 # Load in diameter reconstrcutions generated from step 3.
 
 g.filled.diam <- read.csv("processed_data/DOE_Allsites_GapFilling_DBHrecon_ALL.csv", header=T, row.names=1)
+
+
 # summary(g.filled.diam)
 
 # read in tree data
@@ -22,9 +22,6 @@ summary(tree.data)
 trees.use <- tree.data[tree.data$TreeID %in% names(g.filled.diam),] # If you want to do this later, it'll be a special case
 # trees.use <- tree.data
 summary(trees.use)
-
-# Changing PCRU to PIRU as this is the correct terminology
-trees.use$Species <- recode(trees.use$Species, "'PCRU' = 'PIRU'")
 
 plot.data <- read.csv("raw_input_files/DOE_plus_Valles.csv")
 plot.data$Year.Sample <- as.numeric(substr(plot.data$date.sample,7,10))
@@ -39,39 +36,20 @@ summary(plot.data)
 #Convert to biomass with the allometric equation
 #using the PECAN generated bayesian equations
 library(car)
-load("processed_data/allometries/allometries_1.Rdata")
-allom.1 <- allom.temp
-allometries <- allom.1
+load("processed_data/allometries/allometries_2.Rdata")
+allom.2 <- allom.temp
+allometries <- allom.2
 
-summary(allom.1)
-
-#pft.vector <- as.factor(ifelse(trees.use$Species2=="PICO", "YAY", "BOO!"))
-pft.vector <- vector(length=nrow(trees.use))
-summary(pft.vector)
-
-for(i in unique(trees.use$Species)[!is.na(unique(trees.use$Species))]){
-  cols.now <- which(trees.use$Species==i)
-  if(!(i %in% unique(pft.db$acronym))) {
-    pft.vector[cols.now] <- NA
-  } else {
-    pft.now <- paste(unique(pft.db[pft.db$acronym==i,"CLM"])[1]) # take only the first if we have multiple entries                            
-    pft.vector[cols.now] <- pft.now
-  }
-}
-pft.vector <- as.factor(pft.vector)
-summary(pft.vector)
-trees.use$pft <- pft.vector
-summary(trees.use)
-
+summary(allom.temp)
+# Find out what species we don't have allometries for that need to be renames
+unique(trees.use$Species)[!(unique(trees.use$Species) %in% names(allometries))]
 
 # Need to recode the missing species to relate to genus level equations.
 
-# Find out what species we don't have allometries for that need to be renames
-trees.use <- trees.use[!is.na(trees.use$TreeID),]
-summary(trees.use[is.na(trees.use$TreeID),])
-summary(trees.use)
-
-trees.use$spp.allom <- recode(trees.use$Species, "  'FRAX'='FRAM'; 'ASTR'='e.hard'; 'PRSE'='e.hard'; 'ULRU'='e.hard'")
+trees.use$spp.allom <- recode(trees.use$Species, "'ABLA' = 'ABIES'; 'PIAB' = 'PINUS';'PIPA' = 'PINUS'; 'QUBI' = 'QUERC'; 'LIST' = 'broad_decid';   
+                              'QUPH' = 'QUERC'; 'OAK' = 'QUERC'; 'ULAL' = 'ULMUS'; 'FRAX'='FRAM'; 'CAOV' = 'CARYA'; 'CATO' = 'CARYA'; 'CAGL' = 'CARYA';
+                              'RED OAK' = 'QUERC'; 'ASTR'='broad_decid'; 'CACO' = 'CARYA'; 'CATE' = 'CARYA'; 'CALA' = 'CARYA'; 'QUMU' = 'QUERC';
+                              'ACSAC' = 'ACSA2'; 'QUIN' = 'QUERC'")
 summary(trees.use)
 plots <- unique(trees.use$PlotID) # find out what plots we need
 
@@ -109,20 +87,13 @@ for(i in 1:nrow(allometries[[1]])){
   allom.temp[,] <- NA
   
 # Species loop for calculating tree biomass
-for(j in unique(trees.use$pft)){
-  cols <- which(names(g.filled.diam) %in% trees.use[trees.use$pft==j, "TreeID"])
+for(j in unique(trees.use$spp.allom)){
+  cols <- which(names(g.filled.diam) %in% trees.use[trees.use$spp.allom==j, "TreeID"])
 
   # Pulling coefficients from the randomly pulled estimates from Pecan; 
   # Need to use Bg0 because the heierarchical means were being weird
-  pft.use <- paste(unique(trees.use[trees.use$spp.allom==j, "pft"])[1]) # If we don't have species-level, use a broad PFT
-  allom.use <- ifelse(j %in% names(allometries), j, pft.use)
-  
-  # just for now until we adjust our PFT labels
-  allom.use <- ifelse(allom.use=="BLD", "broad_decid", "con_eg")
-  
-  
-  mu0=allometries[[allom.use]][i,"Bg0"]
-  mu1=allometries[[allom.use]][i,"Bg1"]
+  mu0=allometries[[j]][i,"Bg0"]
+  mu1=allometries[[j]][i,"Bg1"]
   allom.temp[,cols] <- allom.eq(mu0=mu0, mu1 = mu1, DBH = g.filled.diam[,cols])
 }
 # summing to the plot level
@@ -157,7 +128,7 @@ summary(bm.array[,,1])
 
 #bm.array[,,1]
 summary(bm.array[,1:10,1])
-save(bm.array, file="processed_data/Biomass_Array_Tree_kgm-2.RData")
+save(bm.array, file="processed_data/Biomass_Array_Tree_kgm-2_component2.RData")
 
 # ---------------------------------
 # Create a data frame with biomass by tree
@@ -176,10 +147,10 @@ bm.tree$BM.CI.hi <- stack(bm.hi)[,1]
 summary(bm.tree)
 
 # Merge in a lot of useful data about each tree
-bm.tree <- merge(bm.tree, tree.data[,c("TreeID","Site","PlotID", "plot", "Species", "Canopy.Class", "DBH..cm.", "Live.Dead", "Distance", "Azimuth","Dated")], all.x=T, all.y=F)
+bm.tree <- merge(bm.tree, trees.use[,c("TreeID","Site","PlotID", "plot", "spp.allom", "Canopy.Class", "DBH..cm.", "Live.Dead", "Distance", "Azimuth","Dated")], all.x=T, all.y=F)
 summary(bm.tree)
 
-write.csv(bm.tree, "processed_data/Biomass_Tree_kgm-2.csv", row.names=F)
+write.csv(bm.tree, "processed_data/Biomass_Tree_kgm-2_component2.csv", row.names=F)
 # ---------------------------------
 
 
@@ -222,9 +193,9 @@ summary(bm.plot2)
 
 # Visualizing everything to make our lives easier
 pdf("figures/Biomass_Plot_Total_kgm-2.pdf")
-ggplot(bm.plot2[,]) + facet_wrap(~Site..Tower., scales="fixed") +
-  geom_ribbon(aes(x=Year, ymin= BM.CI.lo, ymax=BM.CI.hi, fill=Plot), alpha=0.5) +
-  geom_line(aes(x=Year, y=BM.Mean, color=Plot)) +
+ggplot(bm.plot2[,]) + facet_wrap(~Site..Tower., scales="free") +
+  geom_ribbon(aes(x=Year, ymin= BM.CI.lo, ymax=BM.CI.hi, fill=PlotID), alpha=0.5) +
+  geom_line(aes(x=Year, y=BM.Mean, color=PlotID)) +
   labs(x="Year", y="Biomass (kg m-2)") +
   theme_bw()
 dev.off()

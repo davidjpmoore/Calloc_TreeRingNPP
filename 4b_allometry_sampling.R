@@ -34,7 +34,7 @@ for(c in components){
 		allom.temp[[spp]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=n.samp, replace=T),]
 	}
 	assign(paste0("allom.",c), allom.temp) # puts allom.temp into a new object that has the component ID attached
-	save(allom.temp, file= paste0("processed_data/allometries_",c,".Rdata"))
+	save(allom.temp, file= paste0("processed_data/allometries/allometries_",c,".Rdata"))
 }
 
 
