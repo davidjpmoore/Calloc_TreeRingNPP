@@ -283,6 +283,36 @@ con_eg <- pft.db[pft.db$CLM=="con_eg", c("acronym", "spcd")]
 pfts = list(con_eg = data.frame(spcd = con_eg$spcd, acronym = con_eg$acronym))
 AllomAve(pfts,c(1,2,6,18,27,28,29),outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
 
+# Coniferous Evergreen
+con_eg <- pft.db[pft.db$CLM=="con_eg", c("acronym", "spcd")]
+
+pfts = list(con_eg = data.frame(spcd = con_eg$spcd, acronym = con_eg$acronym))
+AllomAve(pfts, 6,outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+con_eg <- pft.db[pft.db$CLM=="con_eg", c("acronym", "spcd")]
+
+pfts = list(con_eg = data.frame(spcd = con_eg$spcd, acronym = con_eg$acronym))
+AllomAve(pfts, 18 ,outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+con_eg <- pft.db[pft.db$CLM=="con_eg", c("acronym", "spcd")]
+
+pfts = list(con_eg = data.frame(spcd = con_eg$spcd, acronym = con_eg$acronym))
+AllomAve(pfts, 27 ,outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+con_eg <- pft.db[pft.db$CLM=="con_eg", c("acronym", "spcd")]
+
+pfts = list(con_eg = data.frame(spcd = con_eg$spcd, acronym = con_eg$acronym))
+AllomAve(pfts, 28 ,outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+con_eg <- pft.db[pft.db$CLM=="con_eg", c("acronym", "spcd")]
+
+pfts = list(con_eg = data.frame(spcd = con_eg$spcd, acronym = con_eg$acronym))
+AllomAve(pfts, 29 ,outdir=outdir,parm=parm.path,ngibbs=10000, dmin=6, dmax=500)
+
+
+# 18,27,28,29
+
+
 
 # Broadleaf Evergreen
 broad_eg <- pft.db[pft.db$CLM=="broad_eg", c("acronym", "spcd")]

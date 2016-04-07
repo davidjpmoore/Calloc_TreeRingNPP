@@ -5,6 +5,9 @@ library(ggplot2)
 se <- function(x){
   sd(x, na.rm=TRUE) / sqrt((length(!is.na(x))))}
 
+# Load in simon's crosswalk
+pft.db <- read.csv("raw_input_files/FIA_conversion_v0.2.csv", header=T)
+summary(pft.db)
 
 # Load in diameter reconstrcutions generated from step 3.
 
@@ -218,13 +221,13 @@ bm.plot2 <- merge(bm.plot2, plot.data[,c("PlotID", "Site..Tower.", "latitude", "
 summary(bm.plot2)
 
 # Visualizing everything to make our lives easier
-pdf("figures/Biomass_Plot_Total_kgm-2.pdf")
+# pdf("figures/Biomass_Plot_Total_kgm-2.pdf")
 ggplot(bm.plot2[,]) + facet_wrap(~Site..Tower., scales="free") +
   geom_ribbon(aes(x=Year, ymin= BM.CI.lo, ymax=BM.CI.hi, fill=PlotID), alpha=0.5) +
   geom_line(aes(x=Year, y=BM.Mean, color=PlotID)) +
   labs(x="Year", y="Biomass (kg m-2)") +
   theme_bw()
-dev.off()
+# dev.off()
 
 write.csv(bm.plot2, "processed_data/Biomass_Plot_Total_kgm-2_comp2_pft.csv", row.names=F)
 # ---------------------------------
@@ -297,13 +300,13 @@ summary(bm.pft2)
 bm.pft2 <- merge(bm.pft2, plot.data[,c("PlotID", "Site..Tower.", "latitude", "longitude", "elevation", "Year.Sample")])
 summary(bm.pft2)
 
-pdf("figures/Biomass_Plot_Species_kgm-2.pdf") # NOTE: This will probably stop worrking well very quickly
+# pdf("figures/Biomass_Plot_Species_kgm-2.pdf") # NOTE: This will probably stop worrking well very quickly
 ggplot(bm.pft2[,]) + facet_wrap(Site..Tower. ~ PlotID, scales="free") +
   geom_ribbon(aes(x=Year, ymin= BM.CI.lo, ymax=BM.CI.hi, fill=PFT), alpha=0.5) +
   geom_line(aes(x=Year, y=BM.Mean, color=PFT)) +
   labs(x="Year", y="Biomass (kg m-2)") +
   theme_bw()
-dev.off()
+# dev.off()
 
 write.csv(bm.pft2, "processed_data/Biomass_Plot_Species_kgm-2_comp1.csv", row.names=F)
 # ---------------------------------
@@ -382,24 +385,24 @@ for(p in 1:length(sites)){
 }
 summary(bm.site.pft2)
 
-pdf("figures/Biomass_Site_Species_kgm-2_SE.pdf") # NOTE: This will probably stop worrking well very quickly
+# pdf("figures/Biomass_Site_Species_kgm-2_SE.pdf") # NOTE: This will probably stop worrking well very quickly
 ggplot(bm.site.pft2) + facet_wrap(~Site, scales="free") +
   # geom_ribbon(aes(x=Year, ymin=BM.CI.lo, ymax=BM.CI.hi, fill=Species), alpha=0.5) +
   geom_ribbon(aes(x=Year, ymin=BM.Mean - BM.SD/sqrt(n.plots), ymax=BM.Mean + BM.SD/sqrt(n.plots), fill=PFT), alpha=0.5) +
   geom_line(aes(x=Year, y=BM.Mean, color=PFT)) +
   labs(x="Year", y="Biomass (kg m-2)") +
   theme_bw()
-dev.off()
+# dev.off()
 
 
-pdf("figures/Biomass_Site_Species_kgm-2_Allom_CI.pdf") # NOTE: This will probably stop worrking well very quickly
+# pdf("figures/Biomass_Site_Species_kgm-2_Allom_CI.pdf") # NOTE: This will probably stop worrking well very quickly
 ggplot(bm.site.pft2) + facet_wrap(~Site, scales="free") +
   geom_ribbon(aes(x=Year, ymin=BM.CI.lo, ymax=BM.CI.hi, fill=PFT), alpha=0.5) +
   # geom_ribbon(aes(x=Year, ymin=BM.Mean - BM.SD/sqrt(n.plots), ymax=BM.Mean + BM.SD/sqrt(n.plots), fill=Species), alpha=0.5) +
   geom_line(aes(x=Year, y=BM.Mean, color=PFT)) +
   labs(x="Year", y="Biomass (kg m-2)") +
   theme_bw()
-dev.off()
+# dev.off()
 
 write.csv(bm.site.pft2, "processed_data/Biomass_Site_Species_kgm-2_comp2_pft.csv", row.names=F)
 
@@ -474,14 +477,14 @@ summary(bm.site4)
 bm.site2 <- merge(bm.site2, bm.site4, all.x=T, all.y=T)
 summary(bm.site2)
 
-pdf("figures/Biomass_Site_Total_kgm-2_SD.pdf") # NOTE: This will probably stop worrking well very quickly
+# pdf("figures/Biomass_Site_Total_kgm-2_SD.pdf") # NOTE: This will probably stop worrking well very quickly
 ggplot(bm.site2) + facet_wrap(~Site) + 
   # geom_ribbon(aes(x=Year, ymin=BM.CI.lo, ymax=BM.CI.hi, fill=Site), alpha=0.5) +
   geom_ribbon(aes(x=Year, ymin=BM.Mean - BM.SD, ymax=BM.Mean + BM.SD, fill=Site), alpha=0.5) +
   geom_line(aes(x=Year, y=BM.Mean, color=Site), size=1.5) +
   labs(x="Year", y="Biomass (kg m-2)") +
   theme_bw()
-dev.off()
+# dev.off()
 
 write.csv(bm.site2, "processed_data/Biomass_Site_Total_kgm-2_comp2_pft.csv", row.names=F)
 

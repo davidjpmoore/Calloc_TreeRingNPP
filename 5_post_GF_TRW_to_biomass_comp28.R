@@ -5,12 +5,12 @@ library(ggplot2)
 se <- function(x){
   sd(x, na.rm=TRUE) / sqrt((length(!is.na(x))))}
 
-
+# Load in simon's crosswalk
+pft.db <- read.csv("raw_input_files/FIA_conversion_v0.2.csv", header=T)
+summary(pft.db)
 # Load in diameter reconstrcutions generated from step 3.
 
 g.filled.diam <- read.csv("processed_data/DOE_Allsites_GapFilling_DBHrecon_ALL.csv", header=T, row.names=1)
-
-
 # summary(g.filled.diam)
 
 # read in tree data
@@ -22,6 +22,10 @@ summary(tree.data)
 trees.use <- tree.data[tree.data$TreeID %in% names(g.filled.diam),] # If you want to do this later, it'll be a special case
 # trees.use <- tree.data
 summary(trees.use)
+
+
+# Changing PCRU to PIRU as this is the correct terminology
+trees.use$Species <- recode(trees.use$Species, "'PCRU' = 'PIRU'")
 
 plot.data <- read.csv("raw_input_files/DOE_plus_Valles.csv")
 plot.data$Year.Sample <- as.numeric(substr(plot.data$date.sample,7,10))
@@ -36,20 +40,39 @@ summary(plot.data)
 #Convert to biomass with the allometric equation
 #using the PECAN generated bayesian equations
 library(car)
-load("processed_data/allometries/allometries_2.Rdata")
-allom.2 <- allom.temp
-allometries <- allom.2
+load("processed_data/allometries/allometries_28.Rdata")
+allom.28 <- allom.temp
+allometries <- allom.28
 
-summary(allom.temp)
-# Find out what species we don't have allometries for that need to be renames
-unique(trees.use$Species)[!(unique(trees.use$Species) %in% names(allometries))]
+summary(allometries)
+
+#pft.vector <- as.factor(ifelse(trees.use$Species2=="PICO", "YAY", "BOO!"))
+pft.vector <- vector(length=nrow(trees.use))
+summary(pft.vector)
+
+for(i in unique(trees.use$Species)[!is.na(unique(trees.use$Species))]){
+  cols.now <- which(trees.use$Species==i)
+  if(!(i %in% unique(pft.db$acronym))) {
+    pft.vector[cols.now] <- NA
+  } else {
+    pft.now <- paste(unique(pft.db[pft.db$acronym==i,"CLM"])[1]) # take only the first if we have multiple entries                            
+    pft.vector[cols.now] <- pft.now
+  }
+}
+pft.vector <- as.factor(pft.vector)
+summary(pft.vector)
+trees.use$pft <- pft.vector
+summary(trees.use)
+
 
 # Need to recode the missing species to relate to genus level equations.
 
-trees.use$spp.allom <- recode(trees.use$Species, "'ABLA' = 'ABIES'; 'PIAB' = 'PINUS';'PIPA' = 'PINUS'; 'QUBI' = 'QUERC'; 'LIST' = 'broad_decid';   
-                              'QUPH' = 'QUERC'; 'OAK' = 'QUERC'; 'ULAL' = 'ULMUS'; 'FRAX'='FRAM'; 'CAOV' = 'CARYA'; 'CATO' = 'CARYA'; 'CAGL' = 'CARYA';
-                              'RED OAK' = 'QUERC'; 'ASTR'='broad_decid'; 'CACO' = 'CARYA'; 'CATE' = 'CARYA'; 'CALA' = 'CARYA'; 'QUMU' = 'QUERC';
-                              'ACSAC' = 'ACSA2'; 'QUIN' = 'QUERC'")
+# Find out what species we don't have allometries for that need to be renames
+trees.use <- trees.use[!is.na(trees.use$TreeID),]
+summary(trees.use[is.na(trees.use$TreeID),])
+summary(trees.use)
+
+trees.use$spp.allom <- recode(trees.use$Species, "  'FRAX'='FRAM'; 'ASTR'='e.hard'; 'PRSE'='e.hard'; 'ULRU'='e.hard'")
 summary(trees.use)
 plots <- unique(trees.use$PlotID) # find out what plots we need
 
@@ -87,8 +110,8 @@ for(i in 1:nrow(allometries[[1]])){
   allom.temp[,] <- NA
   
 # Species loop for calculating tree biomass
-for(j in unique(trees.use$spp.allom)){
-  cols <- which(names(g.filled.diam) %in% trees.use[trees.use$spp.allom==j, "TreeID"])
+for(j in unique(trees.use$pft)){
+  cols <- which(names(g.filled.diam) %in% trees.use[trees.use$pft==j, "TreeID"])
 
   # Pulling coefficients from the randomly pulled estimates from Pecan; 
   # Need to use Bg0 because the heierarchical means were being weird

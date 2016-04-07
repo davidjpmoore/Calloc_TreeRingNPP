@@ -5,12 +5,12 @@ library(ggplot2)
 se <- function(x){
   sd(x, na.rm=TRUE) / sqrt((length(!is.na(x))))}
 
-
+# Load in simon's crosswalk
+pft.db <- read.csv("raw_input_files/FIA_conversion_v0.2.csv", header=T)
+summary(pft.db)
 # Load in diameter reconstrcutions generated from step 3.
 
 g.filled.diam <- read.csv("processed_data/DOE_Allsites_GapFilling_DBHrecon_ALL.csv", header=T, row.names=1)
-
-
 # summary(g.filled.diam)
 
 # read in tree data
@@ -22,6 +22,10 @@ summary(tree.data)
 trees.use <- tree.data[tree.data$TreeID %in% names(g.filled.diam),] # If you want to do this later, it'll be a special case
 # trees.use <- tree.data
 summary(trees.use)
+
+
+# Changing PCRU to PIRU as this is the correct terminology
+trees.use$Species <- recode(trees.use$Species, "'PCRU' = 'PIRU'")
 
 plot.data <- read.csv("raw_input_files/DOE_plus_Valles.csv")
 plot.data$Year.Sample <- as.numeric(substr(plot.data$date.sample,7,10))
@@ -36,20 +40,39 @@ summary(plot.data)
 #Convert to biomass with the allometric equation
 #using the PECAN generated bayesian equations
 library(car)
-load("processed_data/allometries/allometries_2.Rdata")
-allom.2 <- allom.temp
-allometries <- allom.2
+load("processed_data/allometries/allometries_18.Rdata")
+allom.18 <- allom.temp
+allometries <- allom.18
 
-summary(allom.temp)
-# Find out what species we don't have allometries for that need to be renames
-unique(trees.use$Species)[!(unique(trees.use$Species) %in% names(allometries))]
+summary(allometries)
+
+#pft.vector <- as.factor(ifelse(trees.use$Species2=="PICO", "YAY", "BOO!"))
+pft.vector <- vector(length=nrow(trees.use))
+summary(pft.vector)
+
+for(i in unique(trees.use$Species)[!is.na(unique(trees.use$Species))]){
+  cols.now <- which(trees.use$Species==i)
+  if(!(i %in% unique(pft.db$acronym))) {
+    pft.vector[cols.now] <- NA
+  } else {
+    pft.now <- paste(unique(pft.db[pft.db$acronym==i,"CLM"])[1]) # take only the first if we have multiple entries                            
+    pft.vector[cols.now] <- pft.now
+  }
+}
+pft.vector <- as.factor(pft.vector)
+summary(pft.vector)
+trees.use$pft <- pft.vector
+summary(trees.use)
+
 
 # Need to recode the missing species to relate to genus level equations.
 
-trees.use$spp.allom <- recode(trees.use$Species, "'ABLA' = 'ABIES'; 'PIAB' = 'PINUS';'PIPA' = 'PINUS'; 'QUBI' = 'QUERC'; 'LIST' = 'broad_decid';   
-                              'QUPH' = 'QUERC'; 'OAK' = 'QUERC'; 'ULAL' = 'ULMUS'; 'FRAX'='FRAM'; 'CAOV' = 'CARYA'; 'CATO' = 'CARYA'; 'CAGL' = 'CARYA';
-                              'RED OAK' = 'QUERC'; 'ASTR'='broad_decid'; 'CACO' = 'CARYA'; 'CATE' = 'CARYA'; 'CALA' = 'CARYA'; 'QUMU' = 'QUERC';
-                              'ACSAC' = 'ACSA2'; 'QUIN' = 'QUERC'")
+# Find out what species we don't have allometries for that need to be renames
+trees.use <- trees.use[!is.na(trees.use$TreeID),]
+summary(trees.use[is.na(trees.use$TreeID),])
+summary(trees.use)
+
+trees.use$spp.allom <- recode(trees.use$Species, "  'FRAX'='FRAM'; 'ASTR'='e.hard'; 'PRSE'='e.hard'; 'ULRU'='e.hard'")
 summary(trees.use)
 plots <- unique(trees.use$PlotID) # find out what plots we need
 
@@ -87,13 +110,20 @@ for(i in 1:nrow(allometries[[1]])){
   allom.temp[,] <- NA
   
 # Species loop for calculating tree biomass
-for(j in unique(trees.use$spp.allom)){
-  cols <- which(names(g.filled.diam) %in% trees.use[trees.use$spp.allom==j, "TreeID"])
+for(j in unique(trees.use$pft)){
+  cols <- which(names(g.filled.diam) %in% trees.use[trees.use$pft==j, "TreeID"])
 
   # Pulling coefficients from the randomly pulled estimates from Pecan; 
   # Need to use Bg0 because the heierarchical means were being weird
-  mu0=allometries[[j]][i,"Bg0"]
-  mu1=allometries[[j]][i,"Bg1"]
+  pft.use <- paste(unique(trees.use[trees.use$spp.allom==j, "pft"])[1]) # If we don't have species-level, use a broad PFT
+  allom.use <- ifelse(j %in% names(allometries), j, pft.use)
+  
+  # just for now until we adjust our PFT labels
+  allom.use <- ifelse(allom.use=="BLD", "broad_decid", "con_eg")
+  
+  
+  mu0=allometries[[allom.use]][i,"Bg0"]
+  mu1=allometries[[allom.use]][i,"Bg1"]
   allom.temp[,cols] <- allom.eq(mu0=mu0, mu1 = mu1, DBH = g.filled.diam[,cols])
 }
 # summing to the plot level
@@ -128,7 +158,9 @@ summary(bm.array[,,1])
 
 #bm.array[,,1]
 summary(bm.array[,1:10,1])
-save(bm.array, file="processed_data/Biomass_Array_Tree_kgm-2_component2.RData")
+save(bm.array, file="processed_data/Biomass_Array_Tree_kgm-2_component1.RData")
+load("processed_data/Biomass_Array_Tree_kgm-2_component18.RData")
+
 
 # ---------------------------------
 # Create a data frame with biomass by tree
@@ -147,10 +179,10 @@ bm.tree$BM.CI.hi <- stack(bm.hi)[,1]
 summary(bm.tree)
 
 # Merge in a lot of useful data about each tree
-bm.tree <- merge(bm.tree, trees.use[,c("TreeID","Site","PlotID", "plot", "spp.allom", "Canopy.Class", "DBH..cm.", "Live.Dead", "Distance", "Azimuth","Dated")], all.x=T, all.y=F)
+bm.tree <- merge(bm.tree, trees.use[,c("TreeID","Site","PlotID", "plot", "Species", "Canopy.Class", "DBH..cm.", "Live.Dead", "Distance", "Azimuth","Dated", "pft")], all.x=T, all.y=F)
 summary(bm.tree)
 
-write.csv(bm.tree, "processed_data/Biomass_Tree_kgm-2_component2.csv", row.names=F)
+write.csv(bm.tree, "processed_data/Biomass_Tree_kgm-2_component18.csv", row.names=F)
 # ---------------------------------
 
 
@@ -192,90 +224,90 @@ bm.plot2 <- merge(bm.plot2, plot.data[,c("PlotID", "Site..Tower.", "latitude", "
 summary(bm.plot2)
 
 # Visualizing everything to make our lives easier
-pdf("figures/Biomass_Plot_Total_kgm-2.pdf")
-ggplot(bm.plot2[,]) + facet_wrap(~Site..Tower., scales="free") +
+
+ggplot(bm.plot2[,]) + facet_wrap(~Site..Tower., scales="fixed") +
   geom_ribbon(aes(x=Year, ymin= BM.CI.lo, ymax=BM.CI.hi, fill=PlotID), alpha=0.5) +
   geom_line(aes(x=Year, y=BM.Mean, color=PlotID)) +
   labs(x="Year", y="Biomass (kg m-2)") +
   theme_bw()
-dev.off()
 
-write.csv(bm.plot2, "processed_data/Biomass_Plot_Total_kgm-2.csv", row.names=F)
+
+write.csv(bm.plot2, "processed_data/Biomass_Plot_Total_kgm-2_component18.csv", row.names=F)
 # ---------------------------------
 
 
 # ---------------------------------
-# Aggregating to the species plot-level biomass
+# Aggregating to the pft plot-level biomass
 # ---------------------------------
 # doing bm.plot wide first and then we'll stack it
 plots <- unique(bm.tree$PlotID)
-spp <- unique(bm.tree$Species)
+pft <- unique(bm.tree$pft)
 
-bm.spp <- list()
-bm.spp[["mean"]] <- array(dim=c(nrow(g.filled.diam), length(spp), length(plots))) # years x species x plot
-  dimnames(bm.spp[["mean"]])[[1]] <- row.names(g.filled.diam); 
-  dimnames(bm.spp[["mean"]])[[2]] <- spp 
-  dimnames(bm.spp[["mean"]])[[3]] <- plots
-bm.spp[["ci.lo"]] <- array(dim=c(nrow(g.filled.diam), length(spp), length(plots))) # years x species x plot
-bm.spp[["ci.hi"]] <- array(dim=c(nrow(g.filled.diam), length(spp), length(plots))) # years x species x plot
+bm.pft <- list()
+bm.pft[["mean"]] <- array(dim=c(nrow(g.filled.diam), length(pft), length(plots))) # years x species x plot
+  dimnames(bm.pft[["mean"]])[[1]] <- row.names(g.filled.diam); 
+  dimnames(bm.pft[["mean"]])[[2]] <- pft 
+  dimnames(bm.pft[["mean"]])[[3]] <- plots
+bm.pft[["ci.lo"]] <- array(dim=c(nrow(g.filled.diam), length(pft), length(plots))) # years x species x plot
+bm.pft[["ci.hi"]] <- array(dim=c(nrow(g.filled.diam), length(pft), length(plots))) # years x species x plot
 
-for(s in 1:length(spp)){
+for(s in 1:length(pft)){
   for(p in 1:length(plots)){ # will go by plot
-    cols <- which(dimnames(bm.mean)[[2]] %in% tree.data[tree.data$PlotID==plots[p] & tree.data$Species==spp[s], "TreeID"])
+    cols <- which(dimnames(bm.mean)[[2]] %in% trees.use[trees.use$PlotID==plots[p] & trees.use$pft==pft[s], "TreeID"])
 	if(length(cols) > 0){
       if(substr(plots[p],1,1)=="V" | substr(plots[p],1,1)=="N"){ 
 	    if(length(cols) > 1) {
-  	      bm.spp[["mean"]][,s,p] <- apply(bm.mean[,cols], 1, mean)
-	      bm.spp[["ci.lo"]][,s,p] <- apply(bm.lo[,cols], 1, mean)
-	      bm.spp[["ci.hi"]][,s,p] <- apply(bm.hi[,cols], 1, mean)
+  	      bm.pft[["mean"]][,s,p] <- apply(bm.mean[,cols], 1, mean)
+	      bm.pft[["ci.lo"]][,s,p] <- apply(bm.lo[,cols], 1, mean)
+	      bm.pft[["ci.hi"]][,s,p] <- apply(bm.hi[,cols], 1, mean)
 	    } else {
-  	      bm.spp[["mean"]][,s,p] <- bm.mean[,cols]
-	      bm.spp[["ci.lo"]][,s,p] <- bm.lo[,cols]
-	      bm.spp[["ci.hi"]][,s,p] <- bm.hi[,cols]
+  	      bm.pft[["mean"]][,s,p] <- bm.mean[,cols]
+	      bm.pft[["ci.lo"]][,s,p] <- bm.lo[,cols]
+	      bm.pft[["ci.hi"]][,s,p] <- bm.hi[,cols]
 	    }	  
       } else {  
 	    if(length(cols) > 1) {
-  	      bm.spp[["mean"]][,s,p] <- apply(bm.mean[,cols], 1, sum)
-	      bm.spp[["ci.lo"]][,s,p] <- apply(bm.lo[,cols], 1, sum)
-	      bm.spp[["ci.hi"]][,s,p] <- apply(bm.hi[,cols], 1, sum)
+  	      bm.pft[["mean"]][,s,p] <- apply(bm.mean[,cols], 1, sum)
+	      bm.pft[["ci.lo"]][,s,p] <- apply(bm.lo[,cols], 1, sum)
+	      bm.pft[["ci.hi"]][,s,p] <- apply(bm.hi[,cols], 1, sum)
   	    } else {
-  	      bm.spp[["mean"]][,s,p] <- bm.mean[,cols]
-	      bm.spp[["ci.lo"]][,s,p] <- bm.lo[,cols]
-	      bm.spp[["ci.hi"]][,s,p] <- bm.hi[,cols]
+  	      bm.pft[["mean"]][,s,p] <- bm.mean[,cols]
+	      bm.pft[["ci.lo"]][,s,p] <- bm.lo[,cols]
+	      bm.pft[["ci.hi"]][,s,p] <- bm.hi[,cols]
 	    }
       }
     }
   }
 }
 
-summary(bm.spp[["mean"]][,,1])
+summary(bm.pft[["ci.hi"]][,,1])
 
 # Getting the bm.spp into a friendly format
 for(p in 1:length(plots)){
-  temp <- stack(data.frame(bm.spp[["mean"]][,,p]))[,c(2,1)]
-  names(temp) <- c("Species", "BM.Mean")
-  temp$PlotID <- as.factor(dimnames(bm.spp[["mean"]])[[3]][p])
+  temp <- stack(data.frame(bm.pft[["mean"]][,,p]))[,c(2,1)]
+  names(temp) <- c("PFT", "BM.Mean")
+  temp$PlotID <- as.factor(dimnames(bm.pft[["mean"]])[[3]][p])
   temp$Plot <- as.factor(substr(temp$PlotID, 3,3))
-  temp$Year <- as.numeric(dimnames(bm.spp[["mean"]])[[1]])
-  temp$BM.CI.lo <- stack(data.frame(bm.spp[["ci.lo"]][,,p]))[,1]
-  temp$BM.CI.hi <- stack(data.frame(bm.spp[["ci.hi"]][,,p]))[,1]
+  temp$Year <- as.numeric(dimnames(bm.pft[["mean"]])[[1]])
+  temp$BM.CI.lo <- stack(data.frame(bm.pft[["ci.lo"]][,,p]))[,1]
+  temp$BM.CI.hi <- stack(data.frame(bm.pft[["ci.hi"]][,,p]))[,1]
 
-  if(p == 1) bm.spp2 <- temp else bm.spp2 <- rbind(bm.spp2, temp)
+  if(p == 1) bm.pft2 <- temp else bm.pft2 <- rbind(bm.pft2, temp)
 }
-summary(bm.spp2)
+summary(bm.pft2)
 
-bm.spp2 <- merge(bm.spp2, plot.data[,c("PlotID", "Site..Tower.", "latitude", "longitude", "elevation", "Year.Sample")])
-summary(bm.spp2)
+bm.pft2 <- merge(bm.pft2, plot.data[,c("PlotID", "Site..Tower.", "latitude", "longitude", "elevation", "Year.Sample")])
+summary(bm.pft2)
 
-pdf("figures/Biomass_Plot_Species_kgm-2.pdf") # NOTE: This will probably stop worrking well very quickly
-ggplot(bm.spp2[,]) + facet_grid(Site..Tower. ~ Plot, scales="free") +
-  geom_ribbon(aes(x=Year, ymin= BM.CI.lo, ymax=BM.CI.hi, fill=Species), alpha=0.5) +
-  geom_line(aes(x=Year, y=BM.Mean, color=Species)) +
+
+ggplot(bm.pft2[,]) + facet_wrap(Site..Tower. ~ PlotID, scales="free") +
+  geom_ribbon(aes(x=Year, ymin= BM.CI.lo, ymax=BM.CI.hi, fill=PFT), alpha=0.5) +
+  geom_line(aes(x=Year, y=BM.Mean, color=PFT)) +
   labs(x="Year", y="Biomass (kg m-2)") +
   theme_bw()
-dev.off()
 
-write.csv(bm.spp2, "processed_data/Biomass_Plot_Species_kgm-2.csv", row.names=F)
+
+write.csv(bm.pft2, "processed_data/Biomass_Plot_Species_kgm-2_comp18.csv", row.names=F)
 # ---------------------------------
 
 
@@ -283,22 +315,22 @@ write.csv(bm.spp2, "processed_data/Biomass_Plot_Species_kgm-2.csv", row.names=F)
 # Aggregating to the species SITE-level biomass
 # ---------------------------------
 # doing bm.plot wide first and then we'll stack it
-sites <- unique(substr(bm.spp2$PlotID, 1, 2))
-spp <- unique(bm.spp2$Species)
+sites <- unique(substr(bm.pft2$PlotID, 1, 2))
+pft <- unique(bm.pft2$PFT)
 
-bm.site.spp <- list()
-bm.site.spp[["mean"]] <- array(dim=c(nrow(g.filled.diam), length(spp), length(sites))) # years x species x plot
-  dimnames(bm.site.spp[["mean"]])[[1]] <- row.names(g.filled.diam); 
-  dimnames(bm.site.spp[["mean"]])[[2]] <- spp 
-  dimnames(bm.site.spp[["mean"]])[[3]] <- sites
-bm.site.spp[["sd"]] <- array(dim=c(nrow(g.filled.diam), length(spp), length(sites))) # years x species x plot
-bm.site.spp[["ci.lo.mean"]] <- array(dim=c(nrow(g.filled.diam), length(spp), length(sites))) # years x species x plot
-bm.site.spp[["ci.hi.mean"]] <- array(dim=c(nrow(g.filled.diam), length(spp), length(sites))) # years x species x plot
+bm.site.pft <- list()
+bm.site.pft[["mean"]] <- array(dim=c(nrow(g.filled.diam), length(pft), length(sites))) # years x species x plot
+  dimnames(bm.site.pft[["mean"]])[[1]] <- row.names(g.filled.diam); 
+  dimnames(bm.site.pft[["mean"]])[[2]] <- pft 
+  dimnames(bm.site.pft[["mean"]])[[3]] <- sites
+bm.site.pft[["sd"]] <- array(dim=c(nrow(g.filled.diam), length(pft), length(sites))) # years x species x plot
+bm.site.pft[["ci.lo.mean"]] <- array(dim=c(nrow(g.filled.diam), length(pft), length(sites))) # years x species x plot
+bm.site.pft[["ci.hi.mean"]] <- array(dim=c(nrow(g.filled.diam), length(pft), length(sites))) # years x species x plot
 
 # Need to make NA 0 because that species doesn't exist in the record
-bm.spp$mean[is.na(bm.spp$mean)] <- 0
-bm.spp$ci.lo[is.na(bm.spp$ci.lo)] <- 0
-bm.spp$ci.hi[is.na(bm.spp$ci.hi)] <- 0
+bm.pft$mean[is.na(bm.pft$mean)] <- 0
+bm.pft$ci.lo[is.na(bm.pft$ci.lo)] <- 0
+bm.pft$ci.hi[is.na(bm.pft$ci.hi)] <- 0
 
 # Altering our 0s to be NA for years more recent than the year the plot was sampled
 plots <- paste(unique(tree.data[tree.data$TreeID %in% names(g.filled.diam),"PlotID"]))
@@ -308,39 +340,39 @@ for(p in 1:length(plots)){ # will go by plot
 	if(max(years) > yr.sample){ # if tree wasn't cored in the last year of sampling, make it's outer years NA
 	  rows.na <- which(years > yr.sample-1)
 
-	  bm.spp$mean[rows.na,,p] <- NA
-      bm.spp$ci.lo[rows.na,,p] <- NA
-      bm.spp$ci.hi[rows.na,,p] <- NA
+	  bm.pft$mean[rows.na,,p] <- NA
+      bm.pft$ci.lo[rows.na,,p] <- NA
+      bm.pft$ci.hi[rows.na,,p] <- NA
 
 	}
 }
-summary(bm.spp$mean[,,6])
+summary(bm.pft$mean[,,6])
 
-for(s in 1:length(spp)){
+for(s in 1:length(pft)){
   for(p in 1:length(sites)){ # will go by plot
-    cols <- which(substr(dimnames(bm.spp$mean)[[3]],1,2) == sites[p])
+    cols <- which(substr(dimnames(bm.pft$mean)[[3]],1,2) == sites[p])
 
-  	bm.site.spp[["mean"]][,s,p] <- apply(bm.spp$mean[,s,cols], 1, mean)
-  	bm.site.spp[["sd"]][,s,p]   <- apply(bm.spp$mean[,s,cols], 1, sd)
-	bm.site.spp[["ci.lo.mean"]][,s,p] <- apply(bm.spp$ci.lo[,s,cols], 1, mean)
-	bm.site.spp[["ci.hi.mean"]][,s,p] <- apply(bm.spp$ci.hi[,s,cols], 1, mean)
+  	bm.site.pft[["mean"]][,s,p] <- apply(bm.pft$mean[,s,cols], 1, mean)
+  	bm.site.pft[["sd"]][,s,p]   <- apply(bm.pft$mean[,s,cols], 1, sd)
+	bm.site.pft[["ci.lo.mean"]][,s,p] <- apply(bm.pft$ci.lo[,s,cols], 1, mean)
+	bm.site.pft[["ci.hi.mean"]][,s,p] <- apply(bm.pft$ci.hi[,s,cols], 1, mean)
   }
 }
 
 
-summary(bm.site.spp[["mean"]][,,1])
+summary(bm.site.pft[["mean"]][,,1])
 
 
-# Getting the bm.site.spp into a friendly format
+# Getting the bm.site.pft into a friendly format
 for(p in 1:length(sites)){
-  temp <- stack(data.frame(bm.site.spp[["mean"]][,,p]))[,c(2,1)]
-  names(temp) <- c("Species", "BM.Mean")
-  temp$SiteID <- as.factor(dimnames(bm.site.spp[["mean"]])[[3]][p])
+  temp <- stack(data.frame(bm.site.pft[["mean"]][,,p]))[,c(2,1)]
+  names(temp) <- c("PFT", "BM.Mean")
+  temp$SiteID <- as.factor(dimnames(bm.site.pft[["mean"]])[[3]][p])
   # temp$Plot <- as.factor(substr(temp$PlotID, 3,3))
-  temp$Year <- as.numeric(dimnames(bm.site.spp[["mean"]])[[1]])
-  temp$BM.SD <- stack(data.frame(bm.site.spp[["sd"]][,,p]))[,1]
-  temp$BM.CI.lo <- stack(data.frame(bm.site.spp[["ci.lo.mean"]][,,p]))[,1]
-  temp$BM.CI.hi <- stack(data.frame(bm.site.spp[["ci.hi.mean"]][,,p]))[,1]
+  temp$Year <- as.numeric(dimnames(bm.site.pft[["mean"]])[[1]])
+  temp$BM.SD <- stack(data.frame(bm.site.pft[["sd"]][,,p]))[,1]
+  temp$BM.CI.lo <- stack(data.frame(bm.site.pft[["ci.lo.mean"]][,,p]))[,1]
+  temp$BM.CI.hi <- stack(data.frame(bm.site.pft[["ci.hi.mean"]][,,p]))[,1]
 
   temp$Site <- unique(plot.data[substr(plot.data$PlotID,1,2)==sites[p],"Site..Tower."])
   temp$latitude <- mean(plot.data[substr(plot.data$PlotID,1,2)==sites[p],"latitude"], na.rm=T)
@@ -348,43 +380,43 @@ for(p in 1:length(sites)){
   temp$elevation <- mean(plot.data[substr(plot.data$PlotID,1,2)==sites[p],"elevation"], na.rm=T)
   temp$n.plots <- length(plot.data[substr(plot.data$PlotID,1,2)==sites[p],"PlotID"])
 
-  if(p == 1) bm.site.spp2 <- temp else bm.site.spp2 <- rbind(bm.site.spp2, temp)
+  if(p == 1) bm.site.pft2 <- temp else bm.site.pft2 <- rbind(bm.site.pft2, temp)
 }
-summary(bm.site.spp2)
+summary(bm.site.pft2)
 
-pdf("figures/Biomass_Site_Species_kgm-2_SE.pdf") # NOTE: This will probably stop worrking well very quickly
-ggplot(bm.site.spp2) + facet_wrap(~Site, scales="free") +
+
+ggplot(bm.site.pft2) + facet_wrap(~Site, scales="free") +
   # geom_ribbon(aes(x=Year, ymin=BM.CI.lo, ymax=BM.CI.hi, fill=Species), alpha=0.5) +
-  geom_ribbon(aes(x=Year, ymin=BM.Mean - BM.SD/sqrt(n.plots), ymax=BM.Mean + BM.SD/sqrt(n.plots), fill=Species), alpha=0.5) +
-  geom_line(aes(x=Year, y=BM.Mean, color=Species)) +
+  geom_ribbon(aes(x=Year, ymin=BM.Mean - BM.SD/sqrt(n.plots), ymax=BM.Mean + BM.SD/sqrt(n.plots), fill=PFT), alpha=0.5) +
+  geom_line(aes(x=Year, y=BM.Mean, color=PFT)) +
   labs(x="Year", y="Biomass (kg m-2)") +
   theme_bw()
-dev.off()
 
 
-pdf("figures/Biomass_Site_Species_kgm-2_Allom_CI.pdf") # NOTE: This will probably stop worrking well very quickly
-ggplot(bm.site.spp2) + facet_wrap(~Site, scales="free") +
-  geom_ribbon(aes(x=Year, ymin=BM.CI.lo, ymax=BM.CI.hi, fill=Species), alpha=0.5) +
+
+
+ggplot(bm.site.pft2) + facet_wrap(~Site, scales="free") +
+  geom_ribbon(aes(x=Year, ymin=BM.CI.lo, ymax=BM.CI.hi, fill=PFT), alpha=0.5) +
   # geom_ribbon(aes(x=Year, ymin=BM.Mean - BM.SD/sqrt(n.plots), ymax=BM.Mean + BM.SD/sqrt(n.plots), fill=Species), alpha=0.5) +
-  geom_line(aes(x=Year, y=BM.Mean, color=Species)) +
+  geom_line(aes(x=Year, y=BM.Mean, color=PFT)) +
   labs(x="Year", y="Biomass (kg m-2)") +
   theme_bw()
-dev.off()
 
-write.csv(bm.site.spp2, "processed_data/Biomass_Site_Species_kgm-2.csv", row.names=F)
+
+write.csv(bm.site.pft2, "processed_data/Biomass_Site_Species_kgm-2_comp18.csv", row.names=F)
 
 # ---------------------------------
 # Aggregating to the TOTAL SITE-level biomass
 # ---------------------------------
-bm.site.spp2$n.species <- ifelse(bm.site.spp2$BM.Mean>0,1,0)
-summary(bm.site.spp2)
+bm.site.pft2$n.pft <- ifelse(bm.site.pft2$BM.Mean>0,1,0)
+summary(bm.site.pft2)
 
 
 # # If not already done above to do the species-level BM, do this here
 # # Need to make NA 0 because that species doesn't exist in the record
-# bm.spp$mean[is.na(bm.spp$mean)] <- 0
-# bm.spp$ci.lo[is.na(bm.spp$ci.lo)] <- 0
-# bm.spp$ci.hi[is.na(bm.spp$ci.hi)] <- 0
+# bm.pft$mean[is.na(bm.pft$mean)] <- 0
+# bm.pft$ci.lo[is.na(bm.pft$ci.lo)] <- 0
+# bm.pft$ci.hi[is.na(bm.pft$ci.hi)] <- 0
 
 # # Altering our 0s to be NA for years more recent than the year the plot was sampled
 # plots <- paste(unique(tree.data[tree.data$TreeID %in% names(g.filled.diam),"PlotID"]))
@@ -394,9 +426,9 @@ summary(bm.site.spp2)
 	# if(max(years) > yr.sample){ # if tree wasn't cored in the last year of sampling, make it's outer years NA
 	  # rows.na <- which(years > yr.sample-1)
 
-	  # bm.spp$mean[rows.na,,p] <- NA
-      # bm.spp$ci.lo[rows.na,,p] <- NA
-      # bm.spp$ci.hi[rows.na,,p] <- NA
+	  # bm.pft$mean[rows.na,,p] <- NA
+      # bm.pft$ci.lo[rows.na,,p] <- NA
+      # bm.pft$ci.hi[rows.na,,p] <- NA
 
 	# }
 # }
@@ -430,29 +462,28 @@ summary(bm.site2)
 
 
 # Getting some other site-level characteristics to tag along
-bm.site3 <- aggregate(bm.site.spp2[,"n.species"], by=list(bm.site.spp2$SiteID, bm.site.spp2$Site, bm.site.spp2$Year), FUN=sum)
-names(bm.site3)[1:4] <- c("SiteID", "Site", "Year", "n.species" )
+bm.site3 <- aggregate(bm.site.pft2[,"n.pft"], by=list(bm.site.pft2$SiteID, bm.site.pft2$Site, bm.site.pft2$Year), FUN=sum)
+names(bm.site3)[1:4] <- c("SiteID", "Site", "Year", "n.pft" )
 summary(bm.site3)
 
 bm.site2 <- merge(bm.site2, bm.site3)
 summary(bm.site2)
 
-bm.site4 <- aggregate(bm.site.spp2[,c("latitude", "longitude", "elevation", "n.plots")], by=list(bm.site.spp2$SiteID, bm.site.spp2$Site, bm.site.spp2$Year), FUN=mean) 
+bm.site4 <- aggregate(bm.site.pft2[,c("latitude", "longitude", "elevation", "n.plots")], by=list(bm.site.pft2$SiteID, bm.site.pft2$Site, bm.site.pft2$Year), FUN=mean) 
 names(bm.site4)[1:3] <- c("SiteID", "Site", "Year")
 summary(bm.site4)
 
 bm.site2 <- merge(bm.site2, bm.site4, all.x=T, all.y=T)
 summary(bm.site2)
 
-pdf("figures/Biomass_Site_Total_kgm-2_SD.pdf") # NOTE: This will probably stop worrking well very quickly
-ggplot(bm.site2) +
+ggplot(bm.site2) + facet_wrap(~Site) + 
   # geom_ribbon(aes(x=Year, ymin=BM.CI.lo, ymax=BM.CI.hi, fill=Site), alpha=0.5) +
   geom_ribbon(aes(x=Year, ymin=BM.Mean - BM.SD, ymax=BM.Mean + BM.SD, fill=Site), alpha=0.5) +
   geom_line(aes(x=Year, y=BM.Mean, color=Site), size=1.5) +
   labs(x="Year", y="Biomass (kg m-2)") +
   theme_bw()
-dev.off()
 
-write.csv(bm.site2, "processed_data/Biomass_Site_Total_kgm-2.csv", row.names=F)
+
+write.csv(bm.site2, "processed_data/Biomass_Site_Total_kgm-2_comp18.csv", row.names=F)
 
 # ---------------------------------

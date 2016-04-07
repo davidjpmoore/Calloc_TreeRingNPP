@@ -1,5 +1,5 @@
 # Transforming DBH reconstructions from Tree-ring Widths into biomass (kg/m2)
-
+library(car)
 library(dplR)
 library(ggplot2)
 se <- function(x){
@@ -9,9 +9,13 @@ se <- function(x){
 # Load in diameter reconstrcutions generated from step 3.
 
 g.filled.diam <- read.csv("processed_data/DOE_Allsites_GapFilling_DBHrecon_ALL.csv", header=T, row.names=1)
-
+summary(g.filled.diam)
+# g.filled.diam <- g.filled.diam[,substr(names(g.filled.diam),1,2)=="TP"]
 
 # summary(g.filled.diam)
+
+# Changing PCRU to PIRU as this is the correct terminology
+trees.use$Species <- recode(trees.use$Species, "'PCRU' = 'PIRU'")
 
 # read in tree data
 tree.data <- read.csv("processed_data/DOE_AllsitesTreeData.csv", header=T)
@@ -40,16 +44,34 @@ load("processed_data/allometries/allometries_2.Rdata")
 allom.2 <- allom.temp
 allometries <- allom.2
 
-summary(allom.temp)
+summary(allometries)
+summary(allometries[["ABIES"]])
+
+# sd(allometries[["PINUS"]][,"tau11"])
+# sd(allometries[["QUERC"]][,"tau11"])
+# sd(allometries[["ABIES"]][,"tau11"])
+# sd(allometries[["PICEA"]][,"tau11"])
+# sd(allometries[["QURU"]][,"tau11"])
+
+# Figuring out which equations are causing problems because they do odd things
+allom.bad <- vector()
+for(i in names(allometries)){
+	if(min(allometries[[i]][,"Bg0"])< -10) allom.bad <- c(allom.bad, i)
+}
+allom.bad
+
 # Find out what species we don't have allometries for that need to be renames
 unique(trees.use$Species)[!(unique(trees.use$Species) %in% names(allometries))]
 
 # Need to recode the missing species to relate to genus level equations.
+# Some allometric equations were producing very odd Bg0 and Bg1 values
+# PRSE, PICO, QUVE have been changed to comparable species where possible.
+# Minor species such as LIST, PRSE, ASTR have been changed to PFT level equations as other equations were not suitable for use.
 
 trees.use$spp.allom <- recode(trees.use$Species, "'ABLA' = 'ABIES'; 'PIAB' = 'PINUS';'PIPA' = 'PINUS'; 'QUBI' = 'QUERC'; 'LIST' = 'broad_decid';   
-                              'QUPH' = 'QUERC'; 'OAK' = 'QUERC'; 'ULAL' = 'ULMUS'; 'FRAX'='FRAM'; 'CAOV' = 'CARYA'; 'CATO' = 'CARYA'; 'CAGL' = 'CARYA';
-                              'RED OAK' = 'QUERC'; 'ASTR'='broad_decid'; 'CACO' = 'CARYA'; 'CATE' = 'CARYA'; 'CALA' = 'CARYA'; 'QUMU' = 'QUERC';
-                              'ACSAC' = 'ACSA2'; 'QUIN' = 'QUERC'")
+                              'QUPH' = 'QUERC'; 'OAK' = 'QUERC'; 'ULAL' = 'ULMUS';'FRAX'='FRAM'; 'CAOV' = 'CARYA'; 'CATO' = 'CARYA'; 'CAGL' = 'CARYA'; 'RED OAK' = 'QUERC'; 'ASTR'='broad_decid'; 'CACO' = 'CARYA'; 'CATE' = 'CARYA'; 'CALA' = 'CARYA'; 'QUMU' = 'QUERC';
+                              'ACSAC' = 'ACSA2'; 'QUIN' = 'QUERC'; 'PICO'='PINUS'; 'PRSE'='broad_decid';'QUVE'='QURU'")
+                              
 summary(trees.use)
 plots <- unique(trees.use$PlotID) # find out what plots we need
 
@@ -150,6 +172,8 @@ summary(bm.tree)
 bm.tree <- merge(bm.tree, trees.use[,c("TreeID","Site","PlotID", "plot", "spp.allom", "Canopy.Class", "DBH..cm.", "Live.Dead", "Distance", "Azimuth","Dated")], all.x=T, all.y=F)
 summary(bm.tree)
 
+# Diagnosing problems; using DLA as an example
+
 write.csv(bm.tree, "processed_data/Biomass_Tree_kgm-2_component2.csv", row.names=F)
 # ---------------------------------
 
@@ -177,6 +201,7 @@ for(p in 1:length(plots)){ # will go by plot
 }
 
 summary(bm.plot[,,1])
+#DLA
 
 
 # Stacking it to be a more user-friendly data frame
@@ -191,14 +216,16 @@ summary(bm.plot2)
 bm.plot2 <- merge(bm.plot2, plot.data[,c("PlotID", "Site..Tower.", "latitude", "longitude", "elevation", "Year.Sample")])
 summary(bm.plot2)
 
+# summary(bm.plot2[bm.plot2$BM.Mean > 1e30,])
+
 # Visualizing everything to make our lives easier
-pdf("figures/Biomass_Plot_Total_kgm-2.pdf")
-ggplot(bm.plot2[,]) + facet_wrap(~Site..Tower., scales="free") +
+# pdf("figures/Biomass_Plot_Total_kgm-2.pdf")
+ggplot(bm.plot2[,]) + facet_wrap(~Site..Tower., scales="fixed") +
   geom_ribbon(aes(x=Year, ymin= BM.CI.lo, ymax=BM.CI.hi, fill=PlotID), alpha=0.5) +
   geom_line(aes(x=Year, y=BM.Mean, color=PlotID)) +
   labs(x="Year", y="Biomass (kg m-2)") +
   theme_bw()
-dev.off()
+# dev.off()
 
 write.csv(bm.plot2, "processed_data/Biomass_Plot_Total_kgm-2_comp2_spp.csv", row.names=F)
 # ---------------------------------
@@ -267,13 +294,13 @@ summary(bm.spp2)
 bm.spp2 <- merge(bm.spp2, plot.data[,c("PlotID", "Site..Tower.", "latitude", "longitude", "elevation", "Year.Sample")])
 summary(bm.spp2)
 
-pdf("figures/Biomass_Plot_Species_kgm-2.pdf") # NOTE: This will probably stop worrking well very quickly
+# pdf("figures/Biomass_Plot_Species_kgm-2.pdf") # NOTE: This will probably stop worrking well very quickly
 ggplot(bm.spp2[,]) + facet_grid(Site..Tower. ~ Plot, scales="free") +
   geom_ribbon(aes(x=Year, ymin= BM.CI.lo, ymax=BM.CI.hi, fill=Species), alpha=0.5) +
   geom_line(aes(x=Year, y=BM.Mean, color=Species)) +
   labs(x="Year", y="Biomass (kg m-2)") +
   theme_bw()
-dev.off()
+# dev.off()
 
 write.csv(bm.spp2, "processed_data/Biomass_Plot_Species_kgm-2_comp2_spp.csv", row.names=F)
 # ---------------------------------
@@ -352,24 +379,24 @@ for(p in 1:length(sites)){
 }
 summary(bm.site.spp2)
 
-pdf("figures/Biomass_Site_Species_kgm-2_SE.pdf") # NOTE: This will probably stop worrking well very quickly
-ggplot(bm.site.spp2) + facet_wrap(~Site, scales="free") +
+# pdf("figures/Biomass_Site_Species_kgm-2_SE.pdf") # NOTE: This will probably stop worrking well very quickly
+ggplot(bm.site.spp2) + facet_wrap(~Site, scales="fixed") +
   # geom_ribbon(aes(x=Year, ymin=BM.CI.lo, ymax=BM.CI.hi, fill=Species), alpha=0.5) +
   geom_ribbon(aes(x=Year, ymin=BM.Mean - BM.SD/sqrt(n.plots), ymax=BM.Mean + BM.SD/sqrt(n.plots), fill=Species), alpha=0.5) +
   geom_line(aes(x=Year, y=BM.Mean, color=Species)) +
   labs(x="Year", y="Biomass (kg m-2)") +
   theme_bw()
-dev.off()
+# dev.off()
 
 
-pdf("figures/Biomass_Site_Species_kgm-2_Allom_CI.pdf") # NOTE: This will probably stop worrking well very quickly
-ggplot(bm.site.spp2) + facet_wrap(~Site, scales="free") +
+# pdf("figures/Biomass_Site_Species_kgm-2_Allom_CI.pdf") # NOTE: This will probably stop worrking well very quickly
+ggplot(bm.site.spp2) + facet_wrap(~Site, scales=fixed") +
   geom_ribbon(aes(x=Year, ymin=BM.CI.lo, ymax=BM.CI.hi, fill=Species), alpha=0.5) +
   # geom_ribbon(aes(x=Year, ymin=BM.Mean - BM.SD/sqrt(n.plots), ymax=BM.Mean + BM.SD/sqrt(n.plots), fill=Species), alpha=0.5) +
   geom_line(aes(x=Year, y=BM.Mean, color=Species)) +
   labs(x="Year", y="Biomass (kg m-2)") +
   theme_bw()
-dev.off()
+# dev.off()
 
 write.csv(bm.site.spp2, "processed_data/Biomass_Site_Species_kgm-2_comp2_spp.csv", row.names=F)
 
@@ -444,14 +471,14 @@ summary(bm.site4)
 bm.site2 <- merge(bm.site2, bm.site4, all.x=T, all.y=T)
 summary(bm.site2)
 
-pdf("figures/Biomass_Site_Total_kgm-2_SD.pdf") # NOTE: This will probably stop worrking well very quickly
+# pdf("figures/Biomass_Site_Total_kgm-2_SD.pdf") # NOTE: This will probably stop worrking well very quickly
 ggplot(bm.site2) + facet_wrap(~Site) +
   # geom_ribbon(aes(x=Year, ymin=BM.CI.lo, ymax=BM.CI.hi, fill=Site), alpha=0.5) +
   geom_ribbon(aes(x=Year, ymin=BM.Mean - BM.SD, ymax=BM.Mean + BM.SD, fill=Site), alpha=0.5) +
   geom_line(aes(x=Year, y=BM.Mean, color=Site), size=1.5) +
   labs(x="Year", y="Biomass (kg m-2)") +
   theme_bw()
-dev.off()
+# dev.off()
 
 write.csv(bm.site2, "processed_data/Biomass_Site_Total_kgm-2_comp2_spp.csv", row.names=F)
 

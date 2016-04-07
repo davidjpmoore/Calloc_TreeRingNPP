@@ -1,5 +1,5 @@
 # Transforming DBH reconstructions from Tree-ring Widths into biomass (kg/m2)
-
+library(car)
 library(dplR)
 library(ggplot2)
 se <- function(x){

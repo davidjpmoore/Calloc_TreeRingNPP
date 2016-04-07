@@ -31,7 +31,7 @@ for(c in components){
 		# # NOTE: right now we're only pulling fromt he 3rd chain.  
 		# #       Assuming things worked and the chains are well mixed, this 
 		# #       shouldn't be a problem, but it's something to be aware of
-		allom.temp[[spp]] <- mc[[3]][sample(which(mc[[3]][,"mu1"]>=0), size=n.samp, replace=T),]
+		allom.temp[[spp]] <- mc[[3]][sample(which(mc[[3]][,"Bg1"]>=0), size=n.samp, replace=T),]
 	}
 	assign(paste0("allom.",c), allom.temp) # puts allom.temp into a new object that has the component ID attached
 	save(allom.temp, file= paste0("processed_data/allometries/allometries_",c,".Rdata"))
