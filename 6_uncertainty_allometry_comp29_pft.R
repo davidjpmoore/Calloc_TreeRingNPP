@@ -76,7 +76,7 @@ biom.Site <- list()
 
 
 for(s in Site){
-  cols.site <- which(substr(dimnames(biom.plot)[[2]],1,2)==Site[s])
+  cols.site <- which(substr(dimnames(biom.plot)[[2]],1,2)== s)
   biom.Site[[s]] <- apply(biom.plot[,cols.site,], c(1,3), FUN=mean)
 }
 
@@ -93,12 +93,12 @@ sites <- c("Austin-Cary", "Duke_HW", "Duke_ll", "Howland", "UMBS", "Morgan-Monro
 biom.ci <- list()
 
 for(s in sites){
-  biom.ci[[s]] <- data.frame(Year=as.numeric(dimnames(biom.doe)[[1]]), SiteID=sites[s], Mean=rowMeans(biom.Site[[s]], na.rm=T), 
+  biom.ci[[s]] <- data.frame(Year=as.numeric(dimnames(biom.doe)[[1]]), SiteID= s , Mean=rowMeans(biom.Site[[s]], na.rm=T), 
                              LB=apply(biom.Site[[s]],1,quantile, 0.025, na.rm=T), 
                              UB=apply(biom.Site[[s]],1,quantile, 0.975, na.rm=T))
 }
 biom.ci[[1]][1:10,]
-
+summary(biom.ci)
 # ------------------------
 
 # ------------------------
