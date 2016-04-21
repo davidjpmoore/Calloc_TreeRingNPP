@@ -221,7 +221,7 @@ save(valles.ind.dev, file="processed_data/ind_uncert_areas_quad.Rdata")
 cbbPalette <- c("#E69F00", "#0072B2", "#009E73", "#CC79A7")
 
 pdf("figures/indiv_uncert_areas_quad.pdf", width=13, height=8.5)
-ggplot(valles.ind.dev[valles.ind.dev$Year >= 1925 & valles.ind.dev$Year <=2011,]) + facet_grid(SiteID ~ .) +
+ggplot(valles.ind.dev[valles.ind.dev$Year >= 1980 & valles.ind.dev$Year <=2011,]) + facet_grid(SiteID ~ .) +
   geom_line(aes(x=Year, y=Base), size=1.5, color="black") +
 
   #1) Increment Uncertainty

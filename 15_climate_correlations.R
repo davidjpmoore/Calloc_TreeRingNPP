@@ -399,6 +399,7 @@ summary(all.valles.climate.stack$month)
 
 all.valles.climate.stack$chron <- recode(all.valles.climate.stack$chron, "'vuf.res' = 'Upper Ecology'; 'vlf.res' = 'Lower Ecology'; 'vuf.mean.res' = 'Upper Ecology Mean'; 'vlf.mean.res' = 'Lower Ecology Mean'; 'vuf.base'= 'Upper BM'; 'vlf.base' = 'Lower BM'; 'bcw.res' = 'Upper Climate'; 'cat.res' = 'Lower Climate1'; 'chg.res' = 'Lower Climate2'; 'VUB.res' = 'Upper Big'; 'VUS.res' = 'Upper Small'; 'VLB.res' = 'Lower Big'; 'VLS.res' = 'Lower Small'   
 ")
+summary(all.valles.climate.stack)
 
 all.valles.climate.stack$chron <- factor(all.valles.climate.stack$chron, levels = c("Upper Ecology", "Upper Big", "Upper Small", "Upper Ecology Mean", "Upper BM", "Upper Climate", "Lower Ecology", "Lower Big", "Lower Small","Lower Ecology Mean", "Lower BM", "Lower Climate1", "Lower Climate2"))
 
@@ -413,13 +414,16 @@ all.valles.climate.stack$chron.type <- ifelse(all.valles.climate.stack$chron =="
 											ifelse(all.valles.climate.stack$chron== "Lower Small", "Small",
 											ifelse(all.valles.climate.stack$chron== "Lower Ecology Mean", "Mean",
 											ifelse(all.valles.climate.stack$chron== "Lower BM", "BM",
-											ifelse(all.valles.climate.stack$chron== "Lower Climate1", "Climate",  												
-											all.valles.climate.stack$chron)))))))))))) 
+											ifelse(all.valles.climate.stack$chron== "Lower Climate1", "Climate",  												ifelse(all.valles.climate.stack$chron== "Lower Climate2", "Climate",  	
+											NA))))))))))))) 
+
 
 all.valles.climate.stack$chron.type <- as.factor(all.valles.climate.stack$chron.type)
 summary(all.valles.climate.stack$chron.type)
+summary(all.valles.climate.stack)
 
-all.valles.climate.stack$chron.type <- factor(all.valles.climate.stack$chron.type, levels = c("Ecology", "Big", "Small", "BM", "Climate"))
+all.valles.climate.stack <- all.valles.climate.stack[! all.valles.climate.stack$chron=="Lower Climate2",]
+all.valles.climate.stack$chron.type <- factor(all.valles.climate.stack$chron.type, levels = c("BM", "Big", "Small", "Ecology", "Climate"))
 
 all.valles.climate.stack$elevation <- factor(all.valles.climate.stack$elevation, levels = c("Upper", "Lower"))
 
@@ -479,13 +483,13 @@ ggplot(data=all.valles.climate.stack.short[all.valles.climate.stack.short$month 
 	scale_fill_manual(values= c("green", "grey50")) +
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	
-	labs(title= "Tree Ring : Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)"))))
+	labs(title= "Tree Ring : Climate Correlations", x="Seasons", y=expression(bold(paste("Correlation Value (r)"))))
 dev.off()
 
 
 
 pdf("figures/climate_chron_seasons_together.pdf", width=13, height=8.5)
-ggplot(data=all.valles.climate.stack.short[all.valles.climate.stack.short$month %in% c("pFall", "Winter", "Spring", "Summer"),]) + 
+ggplot(data=all.valles.climate.stack.short[all.valles.climate.stack.short$month %in% c("pFall", "Winter", "Spring", "Summer") ,]) + 
 	facet_grid(elevation ~ type, scales="free_x")+
 	geom_bar(aes(x=month, y=corr, fill=chron.type), stat="identity", position="dodge", colour="black") + 
 	geom_hline(yintercept=0.374, linetype="dashed") +
@@ -496,6 +500,27 @@ ggplot(data=all.valles.climate.stack.short[all.valles.climate.stack.short$month 
 	
 	labs(title= "Tree Ring : Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)"))))
 dev.off()
+
+# Leaving out Big and Small Chrons
+pdf("figures/climate_chron_seasons_together_no_size.pdf", width=13, height=8.5)
+ggplot(data=all.valles.climate.stack.short[all.valles.climate.stack.short$month %in% c("pFall", "Winter", "Spring", "Summer") & !all.valles.climate.stack.short$chron.type %in% c("Big", "Small"),]) + 
+	facet_grid(elevation ~ type, scales="free_x")+
+    geom_bar(aes(x=month, y=corr, color=chron.type), stat="identity", position="dodge", fill=NA) + 
+	geom_bar(aes(x=month, y=corr, color=chron.type), stat="identity", position="dodge", fill=NA) + 
+	geom_bar(aes(x=month, y=corr, color=chron.type, fill=chron.type, alpha=sig), stat="identity", position="dodge") + 
+	geom_hline(yintercept=0.374, linetype="dashed") +
+	geom_hline(yintercept=-0.374, linetype="dashed") +
+	geom_hline(yintercept=0, linetype="solid") +
+	scale_color_manual(values= c("green", "darkgreen", "dodgerblue")) +
+	scale_fill_manual(values= c("green", "darkgreen", "dodgerblue")) +
+	scale_alpha_manual(values = c(1, 0.4))+
+	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+	
+	labs(title= "Tree Ring : Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)"))))
+dev.off()
+
+
+
 
 
 pdf("figures/climate_chron_all_months.pdf", width=13, height=8.5)

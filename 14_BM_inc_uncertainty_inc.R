@@ -166,8 +166,14 @@ lines(valles.base.inc$vuf.base ~ dimnames(vuf.allom.inc2)[[1]], type="l", col="r
 vuf.allom.inc.dev <- vuf.allom.inc2
 vuf.allom.inc.dev[,] <- NA
 
+# vuf.allom.inc.dev2 <- vuf.allom.inc2 - vuf.mean
 vuf.allom.inc.dev.ci <- data.frame(Year = row.names(vuf.allom.inc.dev))
 
+
+vuf.mean <- apply(vuf.allom.inc2,1,FUN=mean)
+
+# vuf.inc.dev.ci.hi <- apply(vuf.allom.inc.dev2,1,quantile, 0.975)
+# vuf.inc.dev.ci.lo <- apply(vuf.allom.inc.dev2,1,quantile, 0.025)
 for(i in vuf.allom.inc.dev.ci$Year){
 	vuf.allom.inc.dev.ci[vuf.allom.inc.dev.ci$Year==i,"UB.dev"] <- quantile(vuf.allom.inc2[i,], 0.975, na.rm=T)
 	vuf.allom.inc.dev.ci[vuf.allom.inc.dev.ci$Year==i,"LB.dev"] <- quantile(vuf.allom.inc2[i,], 0.025, na.rm=T)
@@ -176,17 +182,17 @@ summary(vuf.allom.inc.dev.ci)
 
 vuf.allom.inc.dev <-  data.frame(Year = vuf.allom.inc.dev.ci$Year,
 								 UB.dev = vuf.allom.inc.dev.ci[,"UB.dev"] - 												apply(vuf.allom.inc2,1,FUN=mean),
-								 LB.dev = apply(vuf.allom.inc2,1,FUN=mean) - 
-								 				vuf.allom.inc.dev.ci[,"LB.dev"])
+								 LB.dev = vuf.allom.inc.dev.ci[,"LB.dev"] - 
+								          apply(vuf.allom.inc2,1,FUN=mean))
 
 summary(vuf.allom.inc.dev)
-vuf.allom.inc.dev$Year <- as.numeric(vuf.allom.inc.dev$Year)
-vuf.allom.inc.dev$Year <- as.numeric(2011:1904)
-vuf.allom.inc.dev$range <- vuf.allom.inc.dev$UB.dev + vuf.allom.inc.dev$LB.dev
+vuf.allom.inc.dev$Year <- as.numeric(paste(vuf.allom.inc.dev$Year))
+# vuf.allom.inc.dev$Year <- as.numeric(2011:1904)
+vuf.allom.inc.dev$range <- vuf.allom.inc.dev$UB.dev - vuf.allom.inc.dev$LB.dev
 vuf.allom.inc.dev$Site <- as.factor("VUF")
 summary(vuf.allom.inc.dev)
 
-plot(vuf.allom.inc.dev$UB.dev ~ vuf.allom.inc.dev$Year, type="l", ylim=range(vuf.allom.inc.dev$UB.dev))
+plot(vuf.allom.inc.dev$UB.dev ~ vuf.allom.inc.dev$Year, type="l", ylim=range(vuf.allom.inc.dev[,c("UB.dev", "LB.dev")]))
 lines(vuf.allom.inc.dev$LB.dev ~ vuf.allom.inc.dev$Year, type="l", col="red", lwd=3)
 
 # VLF
@@ -207,13 +213,13 @@ summary(vlf.allom.inc.dev.ci)
 
 vlf.allom.inc.dev <-  data.frame(Year = vlf.allom.inc.dev.ci$Year,
 								 UB.dev = vlf.allom.inc.dev.ci[,"UB.dev"] - 												apply(vlf.allom.inc2,1,FUN=mean),
-								 LB.dev = apply(vlf.allom.inc2,1,FUN=mean) - 
-								 				vlf.allom.inc.dev.ci[,"LB.dev"])
+								 LB.dev = vlf.allom.inc.dev.ci[,"LB.dev"] - 
+								          apply(vlf.allom.inc2,1,FUN=mean))
 								 				
-vlf.allom.inc.dev$Year <- as.numeric(vlf.allom.inc.dev$Year)
-vlf.allom.inc.dev$Year <- as.numeric(2011:1904)
+vlf.allom.inc.dev$Year <- as.numeric(paste(vlf.allom.inc.dev$Year))
+# vlf.allom.inc.dev$Year <- as.numeric(2011:1904)
 vlf.allom.inc.dev$Site <- as.factor("VLF")
-vlf.allom.inc.dev$range <- vlf.allom.inc.dev$UB.dev + vlf.allom.inc.dev$LB.dev
+vlf.allom.inc.dev$range <- vlf.allom.inc.dev$UB.dev - vlf.allom.inc.dev$LB.dev
 summary(vlf.allom.inc.dev)
 
 valles.allom.inc.dev <- merge(vlf.allom.inc.dev, vuf.allom.inc.dev, all.x=T, all.y=T)
@@ -235,16 +241,15 @@ summary(vuf.dens.dev.ci)
 
 vuf.dens.dev <-  data.frame(Year = vuf.dens.dev.ci$Year,
 								 UB.dev = vuf.dens.dev.ci[,"UB.dev"] - 												apply(vuf.dens,1,FUN=mean),
-								 LB.dev = apply(vuf.dens,1,FUN=mean) - 
-								 				vuf.dens.dev.ci[,"LB.dev"])
+								 LB.dev = vuf.dens.dev.ci[,"LB.dev"] - apply(vuf.dens,1,FUN=mean))
 
 summary(vuf.dens.dev)
-vuf.dens.dev$Year <- as.numeric(vuf.dens.dev$Year)
-vuf.dens.dev$Year <- as.numeric(2011:1904)
+vuf.dens.dev$Year <- as.numeric(paste(vuf.dens.dev$Year))
+# vuf.dens.dev$Year <- as.numeric(2011:1904)
 vuf.dens.dev$Site <- as.factor("VUF")
-vuf.dens.dev$range <- vuf.dens.dev.ci$UB.dev + vuf.dens.dev.ci$LB.dev
+vuf.dens.dev$range <- vuf.dens.dev.ci$UB.dev - vuf.dens.dev.ci$LB.dev
 
-plot(vuf.dens.dev$UB.dev ~ vuf.dens.dev$Year, type="l", ylim=range(vuf.dens.dev$UB.dev, na.rm=T))
+plot(vuf.dens.dev$UB.dev ~ vuf.dens.dev$Year, type="l", ylim=range(vuf.dens.dev[,c("UB.dev", "LB.dev")], na.rm=T))
 lines(vuf.dens.dev$LB.dev ~ vuf.dens.dev$Year, type="l", col="red", lwd=3)
 
 # VLF
@@ -259,15 +264,16 @@ summary(vlf.dens.dev.ci)
 
 vlf.dens.dev <-  data.frame(Year = vlf.dens.dev.ci$Year,
 								 UB.dev = vlf.dens.dev.ci[,"UB.dev"] - 												apply(vlf.dens,1,FUN=mean),
-								 LB.dev = apply(vlf.dens,1,FUN=mean) - 
-								 				vlf.dens.dev.ci[,"LB.dev"])
+								 LB.dev = vlf.dens.dev.ci[,"LB.dev"] - 
+								          apply(vlf.dens,1,FUN=mean)
+								 				)
 								 				
 
 summary(vlf.dens.dev)
-vlf.dens.dev$Year <- as.numeric(vlf.dens.dev$Year)
-vlf.dens.dev$Year <- as.numeric(2011:1904)
+vlf.dens.dev$Year <- as.numeric(paste(vlf.dens.dev$Year))
+# vlf.dens.dev$Year <- as.numeric(2011:1904)
 vlf.dens.dev$Site <- as.factor("VLF")
-vlf.dens.dev$range <- vlf.dens.dev$UB.dev + vlf.dens.dev$LB.dev
+vlf.dens.dev$range <- vlf.dens.dev$UB.dev - vlf.dens.dev$LB.dev
 summary(vlf.dens.dev)
 
 valles.dens.dev <- merge(vlf.dens.dev, vuf.dens.dev, all.x=T, all.y=T)
@@ -281,6 +287,8 @@ summary(vuf.inc)
 
 vuf.inc.dev.ci <- data.frame(Year = row.names(vuf.inc))
 
+apply(vuf.inc, 1, quantile, 0.975)
+
 for(i in vuf.inc.dev.ci$Year){
 	vuf.inc.dev.ci[vuf.inc.dev.ci$Year==i,"UB.dev"] <- quantile(vuf.inc[i,], 0.975, na.rm=T)
 	vuf.inc.dev.ci[vuf.inc.dev.ci$Year==i,"LB.dev"] <- quantile(vuf.inc[i,], 0.025, na.rm=T)
@@ -289,16 +297,16 @@ summary(vuf.inc.dev.ci)
 
 vuf.inc.dev <-  data.frame(Year = vuf.inc.dev.ci$Year,
 								 UB.dev = vuf.inc.dev.ci[,"UB.dev"] - 												apply(vuf.inc,1,FUN=mean),
-								 LB.dev = apply(vuf.inc,1,FUN=mean) - 
-								 				vuf.inc.dev.ci[,"LB.dev"])
+								 LB.dev = vuf.inc.dev.ci[,"LB.dev"] - apply(vuf.inc,1,FUN=mean)
+						 	)
 
 summary(vuf.inc.dev)
-vuf.inc.dev$Year <- as.numeric(vuf.inc.dev$Year)
-vuf.inc.dev$Year <- as.numeric(2011:1904)
+vuf.inc.dev$Year <- as.numeric(paste(vuf.inc.dev$Year))
+# vuf.inc.dev$Year <- as.numeric(2011:1904)
 vuf.inc.dev$Site <- as.factor("VUF")
-vuf.inc.dev$range <- vuf.inc.dev$UB.dev + vuf.inc.dev$LB.dev
+vuf.inc.dev$range <- vuf.inc.dev$UB.dev - vuf.inc.dev$LB.dev
 
-plot(vuf.inc.dev$UB.dev ~ vuf.inc.dev$Year, type="l", ylim=range(vuf.inc.dev$UB.dev, na.rm=T))
+plot(vuf.inc.dev$UB.dev ~ vuf.inc.dev$Year, type="l", ylim=range(vuf.inc.dev[c("UB.dev", "LB.dev")], na.rm=T))
 lines(vuf.inc.dev$LB.dev ~ vuf.inc.dev$Year, type="l", col="red", lwd=3)
 
 # VLF
@@ -313,13 +321,14 @@ summary(vlf.inc.dev.ci)
 
 vlf.inc.dev <-  data.frame(Year = vlf.inc.dev.ci$Year,
 								 UB.dev = vlf.inc.dev.ci[,"UB.dev"] - 												apply(vlf.inc,1,FUN=mean),
-								 LB.dev = apply(vlf.inc,1,FUN=mean) - 
-								 				vlf.inc.dev.ci[,"LB.dev"])
+								 LB.dev = vlf.inc.dev.ci[,"LB.dev"] - 
+								          apply(vlf.inc,1,FUN=mean)
+								 				)
 								 				
-vlf.inc.dev$Year <- as.numeric(vlf.inc.dev$Year)
-vlf.inc.dev$Year <- as.numeric(2011:1904)
+vlf.inc.dev$Year <- as.numeric(paste(vlf.inc.dev$Year))
+# vlf.inc.dev$Year <- as.numeric(2011:1904)
 vlf.inc.dev$Site <- as.factor("VLF")
-vlf.inc.dev$range <- vlf.inc.dev$UB.dev + vlf.inc.dev$LB.dev
+vlf.inc.dev$range <- vlf.inc.dev$UB.dev - vlf.inc.dev$LB.dev
 summary(vlf.inc.dev)
 
 valles.inc.dev <- merge(vlf.inc.dev, vuf.inc.dev, all.x=T, all.y=T)
@@ -350,17 +359,17 @@ summary(vuf.mort.inc.dev.ci)
 
 vuf.mort.inc.dev <-  data.frame(Year = vuf.mort.inc.dev.ci$Year,
 								 UB.dev = vuf.mort.inc.dev.ci[,"UB.dev"] - 												apply(vuf.mort.inc,1,FUN=mean),
-								 LB.dev = apply(vuf.mort.inc,1,FUN=mean) - 
-								 				vuf.mort.inc.dev.ci[,"LB.dev"])
+								 LB.dev = vuf.mort.inc.dev.ci[,"LB.dev"] - apply(vuf.mort.inc,1,FUN=mean) 
+								 )
 
 summary(vuf.mort.inc.dev)
-vuf.mort.inc.dev$Year <- as.numeric(vuf.mort.inc.dev$Year)
-vuf.mort.inc.dev$Year <- as.numeric(2011:1904)
+vuf.mort.inc.dev$Year <- as.numeric(paste(vuf.mort.inc.dev$Year))
+# vuf.mort.inc.dev$Year <- as.numeric(2011:1904)
 vuf.mort.inc.dev$Site <- as.factor("VUF")
-vuf.mort.inc.dev$range <- vuf.mort.inc.dev$UB.dev + vuf.mort.inc.dev$LB.dev
+vuf.mort.inc.dev$range <- vuf.mort.inc.dev$UB.dev - vuf.mort.inc.dev$LB.dev
 
 
-plot(vuf.mort.inc.dev$UB.dev ~ vuf.mort.inc.dev$Year, type="l", ylim=range(vuf.mort.inc.dev$UB.dev, na.rm=T))
+plot(vuf.mort.inc.dev$UB.dev ~ vuf.mort.inc.dev$Year, type="l", ylim=range(vuf.mort.inc.dev[c("UB.dev", "LB.dev")], na.rm=T))
 lines(vuf.mort.inc.dev$LB.dev ~ vuf.mort.inc.dev$Year, type="l", col="red", lwd=3)
 
 # VLF
@@ -375,13 +384,13 @@ summary(vlf.mort.inc.dev.ci)
 
 vlf.mort.inc.dev <-  data.frame(Year = vlf.mort.inc.dev.ci$Year,
 								 UB.dev = vlf.mort.inc.dev.ci[,"UB.allom"] - 												apply(vlf.mort.inc,1,FUN=mean),
-								 LB.dev = apply(vlf.mort.inc,1,FUN=mean) - 
-								 				vlf.mort.inc.dev.ci[,"LB.allom"])
+								 LB.dev = vlf.mort.inc.dev.ci[,"LB.allom"] - apply(vlf.mort.inc,1,FUN=mean)
+								 )
 								 				
-vlf.mort.inc.dev$Year <- as.numeric(vlf.mort.inc.dev$Year)
-vlf.mort.inc.dev$Year <- as.numeric(2011:1904)
+vlf.mort.inc.dev$Year <- as.numeric(paste(vlf.mort.inc.dev$Year))
+# vlf.mort.inc.dev$Year <- as.numeric(2011:1904)
 vlf.mort.inc.dev$Site <- as.factor("VLF")
-vlf.mort.inc.dev$range <- vlf.mort.inc.dev$UB.dev + vlf.mort.inc.dev$LB.dev
+vlf.mort.inc.dev$range <- vlf.mort.inc.dev$UB.dev - vlf.mort.inc.dev$LB.dev
 summary(vlf.mort.inc.dev)
 
 valles.mort.inc.dev <- merge(vlf.mort.inc.dev, vuf.mort.inc.dev, all.x=T, all.y=T)
@@ -422,12 +431,12 @@ vuf.uncert <- data.frame(Year = row.names(vuf.allom.inc.dev))
 
 vuf.uncert$UB.dev <- sqrt(vuf.allom.inc.dev$UB.dev^2 + vuf.inc.dev$UB.dev^2 + vuf.dens.dev$UB.dev^2 + vuf.mort.inc.dev$UB.dev^2)
 
-vuf.uncert$LB.dev <- sqrt(vuf.allom.inc.dev$LB.dev^2 + vuf.inc.dev$LB.dev^2 + vuf.dens.dev$LB.dev^2 + vuf.mort.inc.dev$LB.dev^2)
+vuf.uncert$LB.dev <- -sqrt(vuf.allom.inc.dev$LB.dev^2 + vuf.inc.dev$LB.dev^2 + vuf.dens.dev$LB.dev^2 + vuf.mort.inc.dev$LB.dev^2)
 
 vuf.uncert$Site <- as.factor("VUF")
 vuf.uncert$type <- as.factor("total")
 vuf.uncert$Year <- as.numeric(2011:1904)
-vuf.uncert$range <- vuf.uncert$UB.dev + vuf.uncert$LB.dev
+vuf.uncert$range <- vuf.uncert$UB.dev - vuf.uncert$LB.dev
 summary(vuf.uncert)
 
 
@@ -435,12 +444,12 @@ vlf.uncert <- data.frame(Year = row.names(vlf.allom.inc.dev))
 
 vlf.uncert$UB.dev <- sqrt(vlf.allom.inc.dev$UB.dev^2 + vlf.inc.dev$UB.dev^2 + vlf.dens.dev$UB.dev^2 + vlf.mort.inc.dev$UB.dev^2)
 
-vlf.uncert$LB.dev <- sqrt(vlf.allom.inc.dev$LB.dev^2 + vlf.inc.dev$LB.dev^2 + vlf.dens.dev$LB.dev^2 + vlf.mort.inc.dev$LB.dev^2)
+vlf.uncert$LB.dev <- -sqrt(vlf.allom.inc.dev$LB.dev^2 + vlf.inc.dev$LB.dev^2 + vlf.dens.dev$LB.dev^2 + vlf.mort.inc.dev$LB.dev^2)
 
 vlf.uncert$Site <- as.factor("VLF")
 vlf.uncert$type <- as.factor("total")
 vlf.uncert$Year <- as.numeric(2011:1904)
-vlf.uncert$range <- vlf.uncert$UB.dev + vlf.uncert$LB.dev
+vlf.uncert$range <- vlf.uncert$UB.dev - vlf.uncert$LB.dev
 summary(vlf.uncert)
 
 dim(vuf.uncert)
@@ -483,13 +492,13 @@ save(valles.all.uncert, file="processed_data/valles_bm_boot_tot_inc.Rdata")
 
 summary(valles.all.uncert)
 valles.all.uncert$Site <- factor(valles.all.uncert$Site, levels = c("VUF", "VLF"))
-
-pdf("figures/bm_inc_uncert_quad.pdf", width=13, height=8.5)
-ggplot(data=valles.all.uncert[!valles.all.uncert$type=="total",]) + facet_grid(type~Site) +
+# graphing period from 1980-2011 for paper
+pdf("figures/bm_inc_uncert_separate.pdf", width=13, height=8.5)
+ggplot(data=valles.all.uncert[!valles.all.uncert$type=="total" & valles.all.uncert$Year > 1980,]) + facet_grid(type~Site) +
 	
-	geom_ribbon(aes(x=Year, ymin= base - LB.dev, ymax= UB.dev + base), fill="darkgrey", alpha=0.6) +
+	geom_ribbon(aes(x=Year, ymin= base + LB.dev, ymax= UB.dev + base), fill="darkgrey", alpha=0.6) +
 	
-	geom_line(aes(x=Year, y=base), size=1.5, color="black") +
+	geom_line(aes(x=Year, y=base), size=0.5, color="black") +
   #geom_line(aes(x=year, y=mean), size=1.5, color="black") +
 	labs(title= "Biomass Increment Total Uncertainty", x="Year", y=expression(bold(paste("Biomass (kg m" ^ "-2)")))) +
   theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=rel(1.5)), axis.text.y=element_text(color="black", size=rel(1.5)), axis.title.x=element_text(face="bold", size=rel(1.5), vjust=-0.5),  axis.title.y=element_text(face="bold", size=rel(1.5), vjust=1), plot.margin=unit(c(0.1,0.5,0.5,0.1), "lines")) +
@@ -500,7 +509,7 @@ ggplot(data=valles.all.uncert[!valles.all.uncert$type=="total",]) + facet_grid(t
 dev.off()     
 
 ################################################################################################
-# Making a dataframe that has eacha area of uncertainty identified individaully (similar to graph produced in script #10) so that we can see the contribution of individual areas ot the overall uncertainty
+# Making a dataframe that has each area of uncertainty identified individaully (similar to graph produced in script #10) so that we can see the contribution of individual areas ot the overall uncertainty
 ################################################################################################
 
 # Making stacked uncertainties graph
@@ -524,12 +533,12 @@ valles.inc.graph <- merge(vuf.inc.graph, vlf.inc.graph, all.x=T, all.y=T)
 #----------------------------------------------------------------
 # Inc + allom
 # VUF
-vuf.allom.graph <- vuf.inc.dev 
+vuf.allom.graph <- vuf.inc.dev
 names(vuf.allom.graph) <- c("Year", "UB.allom", "LB.allom", "Site","range")
 vuf.allom.graph$UB.allom <- sqrt(vuf.inc.dev$UB.dev^2 + vuf.allom.inc.dev$UB.dev^2)
 
-vuf.allom.graph$LB.allom <- sqrt(vuf.inc.dev$LB.dev^2 + vuf.allom.inc.dev$LB.dev^2)
-
+vuf.allom.graph$LB.allom <- -sqrt(vuf.inc.dev$LB.dev^2 + vuf.allom.inc.dev$LB.dev^2)
+vuf.allom.graph$range <- vuf.allom.graph$UB.allom - vuf.allom.graph$LB.allom
 summary(vuf.allom.graph)
 
 
@@ -538,7 +547,8 @@ vlf.allom.graph <- vlf.inc.dev
 names(vlf.allom.graph) <- c("Year", "UB.allom", "LB.allom", "Site", "range")
 vlf.allom.graph$UB.allom <- sqrt(vlf.inc.dev$UB.dev^2 + vlf.allom.inc.dev$UB.dev^2)
 
-vlf.allom.graph$LB.allom <- sqrt(vlf.inc.dev$LB.dev^2 + vlf.allom.inc.dev$LB.dev^2)
+vlf.allom.graph$LB.allom <- -sqrt(vlf.inc.dev$LB.dev^2 + vlf.allom.inc.dev$LB.dev^2)
+vlf.allom.graph$range <- vlf.allom.graph$UB.allom - vlf.allom.graph$LB.allom
 
 summary(vlf.allom.graph)
 
@@ -552,8 +562,8 @@ vuf.dens.graph <- vuf.inc.dev
 names(vuf.dens.graph) <- c("Year", "UB.dens", "LB.dens", "Site","range")
 vuf.dens.graph$UB.dens <- sqrt(vuf.inc.dev$UB.dev^2 + vuf.allom.inc.dev$UB.dev^2 + vuf.dens.dev$UB.dev^2)
 
-vuf.dens.graph$LB.dens <- sqrt(vuf.inc.dev$LB.dev^2 + vuf.allom.inc.dev$LB.dev^2 + vuf.dens.dev$LB.dev^2)
-
+vuf.dens.graph$LB.dens <- -sqrt(vuf.inc.dev$LB.dev^2 + vuf.allom.inc.dev$LB.dev^2 + vuf.dens.dev$LB.dev^2)
+vuf.dens.graph $range <- vuf.dens.graph $LB.dens - vuf.dens.graph $LB.dens
 summary(vuf.dens.graph)
 
 
@@ -562,8 +572,8 @@ vlf.dens.graph <- vlf.inc.dev
 names(vlf.dens.graph) <- c("Year", "UB.dens", "LB.dens", "Site", "range")
 vlf.dens.graph$UB.dens <- sqrt(vlf.inc.dev$UB.dev^2 + vlf.allom.inc.dev$UB.dev^2 + vlf.dens.dev$UB.dev^2)
 
-vlf.dens.graph$LB.dens <- sqrt(vlf.inc.dev$LB.dev^2 + vlf.allom.inc.dev$LB.dev^2 + vlf.dens.dev$LB.dev^2)
-
+vlf.dens.graph$LB.dens <- -sqrt(vlf.inc.dev$LB.dev^2 + vlf.allom.inc.dev$LB.dev^2 + vlf.dens.dev$LB.dev^2)
+vlf.dens.graph $range <- vlf.dens.graph $UB.dens - vlf.dens.graph $LB.dens
 summary(vlf.dens.graph)
 valles.dens.graph <- merge(vuf.dens.graph, vlf.dens.graph, all.x=T, all.y=T)
 summary(valles.dens.graph)
@@ -575,8 +585,8 @@ vuf.mort.graph <- vuf.inc.dev
 names(vuf.mort.graph) <- c("Year", "UB.mort", "LB.mort", "Site","range")
 vuf.mort.graph$UB.mort <- sqrt(vuf.inc.dev$UB.dev^2 + vuf.allom.inc.dev$UB.dev^2 + vuf.dens.dev$UB.dev^2 + vuf.mort.inc.dev$UB.dev^2)
 
-vuf.mort.graph$LB.mort <- sqrt(vuf.inc.dev$LB.dev^2 + vuf.allom.inc.dev$LB.dev^2 + vuf.dens.dev$LB.dev^2 + vuf.mort.inc.dev$LB.dev^2)
-
+vuf.mort.graph$LB.mort <- -sqrt(vuf.inc.dev$LB.dev^2 + vuf.allom.inc.dev$LB.dev^2 + vuf.dens.dev$LB.dev^2 + vuf.mort.inc.dev$LB.dev^2)
+vuf.mort.graph $range <- vuf.mort.graph $UB.mort - vuf.mort.graph $LB.mort
 summary(vuf.mort.graph)
 
 
@@ -585,20 +595,21 @@ vlf.mort.graph <- vlf.inc.dev
 names(vlf.mort.graph) <- c("Year", "UB.mort", "LB.mort", "Site", "range")
 vlf.mort.graph$UB.mort <- sqrt(vlf.inc.dev$UB.dev^2 + vlf.allom.inc.dev$UB.dev^2 + vlf.dens.dev$UB.dev^2 + vlf.mort.inc.dev$UB.dev^2)
 
-vlf.mort.graph$LB.mort <- sqrt(vlf.inc.dev$LB.dev^2 + vlf.allom.inc.dev$LB.dev^2 + vlf.dens.dev$LB.dev^2 + vlf.mort.inc.dev$LB.dev^2)
-
+vlf.mort.graph$LB.mort <- -sqrt(vlf.inc.dev$LB.dev^2 + vlf.allom.inc.dev$LB.dev^2 + vlf.dens.dev$LB.dev^2 + vlf.mort.inc.dev$LB.dev^2)
+vlf.mort.graph $range <- vlf.mort.graph $UB.mort - vlf.mort.graph $LB.mort
 summary(vlf.mort.graph)
+
 valles.mort.graph <- merge(vuf.mort.graph, vlf.mort.graph, all.x=T, all.y=T)
 summary(valles.mort.graph)
 
 # Merging data frames together to make one valles.uncert.graph dataframe
 
-valles.uncert.graph <- merge(valles.inc.graph, valles.allom.graph, all.x=T, all.y=T)
+valles.uncert.graph <- merge(valles.inc.graph[,1:4], valles.allom.graph[,1:4], all.x=T, all.y=T)
 dim(valles.uncert.graph)
 
-valles.uncert.graph <- merge(valles.uncert.graph, valles.dens.graph, all.x=T, all.y=T)
+valles.uncert.graph <- merge(valles.uncert.graph, valles.dens.graph[,1:4], all.x=T, all.y=T)
 
-valles.uncert.graph <- merge(valles.uncert.graph, valles.mort.graph, all.x=T, all.y=T)
+valles.uncert.graph <- merge(valles.uncert.graph, valles.mort.graph[,1:4], all.x=T, all.y=T)
 summary(valles.uncert.graph)
 
 # Adding in the base increment
@@ -609,22 +620,22 @@ summary(valles.uncert.graph)
 cbbPalette <- c("#E69F00", "#0072B2", "#009E73", "#CC79A7")
 
 pdf("figures/stacked_inc_uncertainties.pdf", width=13, height=8.5)
-ggplot(valles.uncert.graph) + facet_grid(Site ~ .) +
+ggplot(valles.uncert.graph[valles.uncert.graph$Year > 1980,]) + facet_grid(Site ~ .) +
   geom_line(aes(x=Year, y=base), size=1.5, color="black") +
   
   #1) Increment Uncertainty
-  geom_ribbon(aes(x=Year, ymin=base - LB.inc, ymax= base + UB.inc, fill="1"), alpha=0.9) +
+  geom_ribbon(aes(x=Year, ymin=base + LB.inc, ymax= base + UB.inc, fill="1"), alpha=0.9) +
   
   #2) Allometric Uncertainty -- separate for upper & lower to make things clearer
-  geom_ribbon(aes(x=Year, ymin=base - LB.allom, ymax= base - LB.inc, fill="2"), alpha=0.9) +
+  geom_ribbon(aes(x=Year, ymin=base + LB.allom, ymax= base + LB.inc, fill="2"), alpha=0.9) +
   geom_ribbon(aes(x=Year, ymin=base + UB.allom, ymax=base + UB.inc, fill="2"), alpha=0.9) +
   
   #3) Density Uncertainty -- separate for upper & lower to make things clearer
-  geom_ribbon(aes(x=Year, ymin= base - LB.dens, ymax= base - LB.allom, fill="3"), alpha=0.9) +
+  geom_ribbon(aes(x=Year, ymin= base + LB.dens, ymax= base + LB.allom, fill="3"), alpha=0.9) +
   geom_ribbon(aes(x=Year, ymin=base + UB.dens, ymax=base + UB.allom, fill="3"), alpha=0.9) +
   
   #4) Mortality Uncertainty -- separate for upper & lower to make things clearer
-  geom_ribbon(aes(x=Year, ymin= base - LB.mort, ymax= base - LB.dens, fill="4"), alpha=0.9) +
+  geom_ribbon(aes(x=Year, ymin= base + LB.mort, ymax= base + LB.dens, fill="4"), alpha=0.9) +
   geom_ribbon(aes(x=Year, ymin=base + UB.mort, ymax=base + UB.dens, fill="4"), alpha=0.9) +
   
     
@@ -639,7 +650,7 @@ ggplot(valles.uncert.graph) + facet_grid(Site ~ .) +
   scale_fill_manual(name="Uncertainty", values=cbbPalette, labels=c("Increment", "Allometry", "Plot Density", "Mortality")) +
   guides(fill=guide_legend(override.aes=list(alpha=0.15))) +
   #  theme(legend.position=c(0.2,0.85), legend.text=element_text(size=rel(1.25)), legend.title=element_text(size=rel(1.25)))  + 
-  theme(legend.position=c(0.2,0.85)) + 
+  theme(legend.position=c(0.85,0.85)) + 
   
   # General Plot formatting
   theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=rel(1.5)), axis.text.y=element_text(color="black", size=rel(1.5)), axis.title.x=element_text(face="bold", size=rel(1.5), vjust=-0.5),  axis.title.y=element_text(face="bold", size=rel(1.5), vjust=1), plot.margin=unit(c(0.1,0.5,0.5,0.1), "lines")) +
