@@ -471,6 +471,9 @@ levels(all.valles.climate.stack$sig)
 
 chron.col <- read.csv("chron_colors.csv", header=T)
 summary(chron.col)
+
+save(all.valles.climate.stack, file="processed_data/valles_climate_corr_data.Rdata")
+
 # Critical Value for 28 years (n-2 = 26) 0.330
 
 pdf("figures/climate_chron_seasons_separate.pdf", width=13, height=8.5)
@@ -1152,6 +1155,7 @@ all.valles.bm.stack$elevation <- (ifelse(all.valles.bm.stack$site=="VUF" , "Uppe
 
 all.valles.bm.stack$elevation <- factor(all.valles.bm.stack$elevation, levels = c("Upper elevation", "Lower elevation"))
 
+save(all.valles.bm.stack, file="processed_data/valles_BM_distrib_corr_data.Rdata")
 
 #######################################################
 # Plotting BM correlations
@@ -1216,15 +1220,8 @@ ggplot(data=all.valles.bm.stack[all.valles.bm.stack$month %in% c("pFall", "Winte
 	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
 	
 	
-	 labs(title= "Biomass Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)")))) #+
-     #guides(fill=guide_legend(override.aes=list(alpha=0.15))) +
-# #  theme(legend.position=c(0.2,0.85), legend.text=element_text(size=rel(1.25)), legend.title=element_text(size=rel(1.25)))  + 
-  # theme(legend.position=c(0.2,0.85)) + 
+	 labs(title= "Biomass Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)"))))#+
 
-  # General Plot formatting
-  # theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=45, color="black", size=rel(1.5), hjust= 1), axis.text.y=element_text(color="black", size=rel(1.5)), axis.title.x=element_text(face="bold", size=rel(1.5), vjust=-0.5, angle = 45),  axis.title.y=element_text(face="bold", size=rel(1.5), vjust=1), plot.margin=unit(c(0.1,0.5,0.5,0.1), "lines")) +
-
-  # theme(strip.text=element_text(size=rel(1.5), face="bold"))
 
 dev.off()
 
