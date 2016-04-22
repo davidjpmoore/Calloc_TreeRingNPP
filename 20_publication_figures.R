@@ -98,10 +98,11 @@ dev.off()
 #save(all.valles.climate.stack, file="processed_data/valles_climate_corr_data.Rdata")
 load("processed_data/valles_climate_corr_data.Rdata")
 summary(all.valles.climate.stack)
+all.valles.climate.stack$chron.type <- factor(all.valles.climate.stack$chron.type, levels = c("Ecology", "BM", "Climate", "Big", "Small"))
 
 # Leaving out Big and Small Chrons, but they could be recalled if necessary
 pdf("figures/climate_chron_seasons_together_no_size.pdf", width=13, height=8.5)
-ggplot(data=all.valles.climate.stack.short[all.valles.climate.stack.short$month %in% c("pFall", "Winter", "Spring", "Summer") & !all.valles.climate.stack.short$chron.type %in% c("Big", "Small"),]) + 
+ggplot(data=all.valles.climate.stack[all.valles.climate.stack$month %in% c("pFall", "Winter", "Spring", "Summer") & !all.valles.climate.stack$chron.type %in% c("Big", "Small"),]) + 
 	facet_grid(elevation ~ type, scales="free_x")+
     geom_bar(aes(x=month, y=corr, color=chron.type), stat="identity", position="dodge", fill=NA) + 
 	geom_bar(aes(x=month, y=corr, color=chron.type), stat="identity", position="dodge", fill=NA) + 
