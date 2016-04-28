@@ -1,3 +1,5 @@
+library(ggplot2)
+
 # Scripts for figures to be generated for the uncertainty publication
 
 # Figure 1
@@ -17,7 +19,7 @@ summary(valles.ind.dev)
 # -----------------------------------
 cbbPalette <- c("#E69F00", "#0072B2", "#009E73", "#CC79A7")
 
-pdf("figures/indiv_uncert_areas_quad.pdf", width=13, height=8.5)
+pdf("figures/uncertainty_figures/indiv_uncert_areas_quad.pdf", width=13, height=8.5)
 ggplot(valles.ind.dev[valles.ind.dev$Year >= 1980 & valles.ind.dev$Year <=2011,]) + facet_grid(SiteID ~ .) +
   geom_line(aes(x=Year, y=Base), size=1.5, color="black") +
 
@@ -70,7 +72,7 @@ load("processed_data/valles_bm_boot_tot_inc.Rdata")
 summary(valles.all.uncert)
 valles.all.uncert$Site <- factor(valles.all.uncert$Site, levels = c("VUF", "VLF"))
 # graphing period from 1980-2011 for paper
-pdf("figures/bm_inc_uncert_separate.pdf", width=13, height=8.5)
+pdf("figures/uncertainty_figures/bm_inc_uncert_separate.pdf", width=13, height=8.5)
 ggplot(data=valles.all.uncert[!valles.all.uncert$type=="total" & valles.all.uncert$Year > 1980,]) + facet_grid(type~Site) +
 	
 	geom_ribbon(aes(x=Year, ymin= base + LB.dev, ymax= UB.dev + base), fill="darkgrey", alpha=0.6) +
@@ -98,11 +100,11 @@ dev.off()
 #save(all.valles.climate.stack, file="processed_data/valles_climate_corr_data.Rdata")
 load("processed_data/valles_climate_corr_data.Rdata")
 summary(all.valles.climate.stack)
-all.valles.climate.stack$chron.type <- factor(all.valles.climate.stack$chron.type, levels = c("Ecology", "BM", "Climate", "Big", "Small"))
+all.valles.climate.stack$chron.type <- factor(all.valles.climate.stack$chron.type, levels = c("Big", "Small", "Ecology", "BM", "Climate", "Big", "Small"))
 
 # Leaving out Big and Small Chrons, but they could be recalled if necessary
-pdf("figures/climate_chron_seasons_together_no_size.pdf", width=13, height=8.5)
-ggplot(data=all.valles.climate.stack[all.valles.climate.stack$month %in% c("pFall", "Winter", "Spring", "Summer") & !all.valles.climate.stack$chron.type %in% c("Big", "Small"),]) + 
+pdf("figures/uncertainty_figures/climate_chron_seasons_together_yes_size.pdf", width=13, height=8.5)
+ggplot(data=all.valles.climate.stack[all.valles.climate.stack$month %in% c("pFall", "Winter", "Spring", "Summer") & all.valles.climate.stack$type %in% c("tmean", "precip"),]) + 
 	facet_grid(elevation ~ type, scales="free_x")+
     geom_bar(aes(x=month, y=corr, color=chron.type), stat="identity", position="dodge", fill=NA) + 
 	geom_bar(aes(x=month, y=corr, color=chron.type), stat="identity", position="dodge", fill=NA) + 
@@ -110,8 +112,8 @@ ggplot(data=all.valles.climate.stack[all.valles.climate.stack$month %in% c("pFal
 	geom_hline(yintercept=0.374, linetype="dashed") +
 	geom_hline(yintercept=-0.374, linetype="dashed") +
 	geom_hline(yintercept=0, linetype="solid") +
-	scale_color_manual(values= c("green", "darkgreen", "dodgerblue")) +
-	scale_fill_manual(values= c("green", "darkgreen", "dodgerblue")) +
+	scale_color_manual(values= c("blue", "red","green", "darkgreen", "dodgerblue")) +
+	scale_fill_manual(values= c("blue", "red", "green", "darkgreen", "dodgerblue")) +
 	scale_alpha_manual(values = c(1, 0.4))+
 	theme(axis.text.x = element_text(angle = 45, hjust = 1),panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank()) +
 	
@@ -130,20 +132,31 @@ dev.off()
 load("processed_data/valles_BM_distrib_corr_data.Rdata")
 summary(all.valles.bm.stack)
 
-pdf("figures/BMI_violin_seasons.pdf", width=13, height=8.5)
-ggplot(data=all.valles.bm.stack[all.valles.bm.stack$month %in% c("pFall", "Winter","Spring", "Summer"),]) + facet_grid(site*elevation ~ type , scales="free_x")+
-	geom_violin(aes(x=month, y=corr, fill=sig), adjust=2.5) +
-	stat_summary(aes(x=month, y=corr), fun.y="median", geom="point", shape="-", size=20) +
-	scale_fill_manual(values=c("green","gray50")) +
+pdf("figures/uncertainty_figures/BMI_violin_seasons_big_small.pdf", width=13, height=8.5)
+ggplot(data=all.valles.bm.stack[all.valles.bm.stack$month %in% c("pFall", "Winter","Spring", "Summer") & all.valles.bm.stack$type %in% c("tmean", "precip"),]) + facet_grid(site*elevation ~ type , scales="free_x")+
+	geom_violin(aes(x=month, y=corr, color=size), adjust=2.5) +
+	geom_violin(aes(x=month, y=corr, color=size), adjust=2.5) +
+	geom_violin(aes(x=month, y=corr, fill=size, alpha=sig), adjust=2.5) +
+	
+	
+	stat_summary(aes(x=month, y=corr, mapping = size), fun.y="median", geom="point", shape="-", size=20, position=position_dodge(width = 0.9)) +
+	
+	
+	scale_color_manual(values=c("blue", "red", "darkgreen", "purple")) +
+	scale_fill_manual(values=c("blue", "red", "darkgreen", "purple")) +
+	scale_alpha_manual(values = c(1, 0.4))+
 	geom_hline(yintercept=0, linetype="solid") +
 	geom_hline(yintercept=0.374, linetype="dashed") +
 	geom_hline(yintercept=-0.374, linetype="dashed") +
+	theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+	
 	theme(axis.text.x = element_text(angle = 45, hjust = 1),panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank()) +
 	
 	
-	 labs(title= "Biomass Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)")))) #+
-     
+	 labs(title= "Biomass Climate Correlations", x="Seasons", y=expression(bold(paste("Correlation Value (r)"))))#+
+
 dev.off()
+
 
 
 

@@ -107,10 +107,36 @@ vlf.mort.dev <- apply(vlf.mort.inc, 1, FUN=mean, na.rm=T) - vlf.mort.inc
 head(vlf.mort.dev)
 
 
+# Loading in big tres and small trees to analyze these as well
+
+load("processed_data/vuf_big_trees.Rdata")
+load("processed_data/vuf_small_trees.Rdata")
+load("processed_data/vlf_big_trees.Rdata")
+load("processed_data/vlf_small_trees.Rdata")
+
+load("processed_data/vuf_dated_trees.Rdata")
+load("processed_data/vlf_dated_trees.Rdata")
+
+
+vuf.big.trees <- as.vector(vuf.big.trees)
+vuf.small.trees <- as.vector(vuf.small.trees)
+
+summary(vuf.big.trees)
+
+vlf.big.trees <- as.vector(vlf.big.trees)
+vlf.small.trees <- as.vector(vlf.small.trees)
+
+vuf.dated.trees <- as.vector(vuf.dated.trees)
+vlf.dated.trees <- as.vector(vlf.dated.trees)
+
+#vuf.big.trees; vuf.small.trees; vlf.big.trees; vlf.small.trees
+
+
 # Now takign 100 pulls from each of these dataframes to make simulated realizations of biomass that have been added in quadrature
 
 n.pulls=100
 set.seed(0946)
+
 
 
 cols.inc.dev   <- sample(1:ncol(vlf.inc.dev), n.pulls, replace=T)
@@ -119,16 +145,56 @@ cols.dens.dev  <- sample(1:ncol(vlf.dens.dev), n.pulls, replace=T)
 cols.mort.dev  <- sample(1:ncol(vlf.mort.dev), n.pulls, replace=T)
 
 
+
+vuf.cols.inc.big <- sample(which(names(vuf.inc.dev) %in% vuf.big.trees), n.pulls, replace=T)
+vlf.cols.inc.big <- sample(which(names(vlf.inc.dev) %in% vlf.big.trees), n.pulls, replace=T)
+vuf.cols.inc.small <- sample(which(names(vuf.inc.dev) %in% vuf.small.trees), n.pulls, replace=T)
+vlf.cols.inc.small <- sample(which(names(vlf.inc.dev) %in% vlf.small.trees), n.pulls, replace=T)
+
+vuf.cols.inc.dated <- sample(which(names(vuf.inc.dev) %in% vuf.dated.trees), n.pulls, replace=T) 
+vlf.cols.inc.dated <- sample(which(names(vlf.inc.dev) %in% vlf.dated.trees), n.pulls, replace=T)
+
+
+
+# VUF
+# All trees
 vuf.sim.bm <- sqrt(vuf.inc.dev[,cols.inc.dev]^2 + vuf.allom.inc.dev[,cols.allom.dev]^2 + vuf.dens.dev[,cols.dens.dev]^2 + vuf.mort.dev[,cols.mort.dev]^2)
 
+# Big trees
+vuf.big.bm <- sqrt(vuf.inc.dev[,vuf.cols.inc.big]^2 + vuf.allom.inc.dev[,cols.allom.dev]^2 + vuf.dens.dev[,cols.dens.dev]^2 + vuf.mort.dev[,cols.mort.dev]^2)
+
+# Small trees
+vuf.small.bm <- sqrt(vuf.inc.dev[,vuf.cols.inc.small]^2 + vuf.allom.inc.dev[,cols.allom.dev]^2 + vuf.dens.dev[,cols.dens.dev]^2 + vuf.mort.dev[,cols.mort.dev]^2)
+
+# Dated only
+vuf.dated.bm <- sqrt(vuf.inc.dev[,vuf.cols.inc.dated]^2 + vuf.allom.inc.dev[,cols.allom.dev]^2 + vuf.dens.dev[,cols.dens.dev]^2 + vuf.mort.dev[,cols.mort.dev]^2)
+
+
 write.csv(vuf.sim.bm, file="processed_data/vuf_simulated_bm.csv", row.names=F)
+write.csv(vuf.big.bm, file="processed_data/vuf_simulated_bm_big.csv", row.names=F)
+write.csv(vuf.small.bm, file="processed_data/vuf_simulated_bm_small.csv", row.names=F)
+write.csv(vuf.dated.bm, file="processed_data/vuf_simulated_bm_dated.csv", row.names=F)
 
 
+# VLF
+# All trees
 vlf.sim.bm <- sqrt(vlf.inc.dev[,cols.inc.dev]^2 + vlf.allom.inc.dev[,cols.allom.dev]^2 + vlf.dens.dev[,cols.dens.dev]^2 + vlf.mort.dev[,cols.mort.dev]^2)
 
+# Big trees
+vlf.big.bm <- sqrt(vlf.inc.dev[,vlf.cols.inc.big]^2 + vlf.allom.inc.dev[,cols.allom.dev]^2 + vlf.dens.dev[,cols.dens.dev]^2 + vlf.mort.dev[,cols.mort.dev]^2)
+
+# Small trees
+vlf.small.bm <- sqrt(vlf.inc.dev[,vlf.cols.inc.small]^2 + vlf.allom.inc.dev[,cols.allom.dev]^2 + vlf.dens.dev[,cols.dens.dev]^2 + vlf.mort.dev[,cols.mort.dev]^2)
+
+# Dated only
+vlf.dated.bm <- sqrt(vlf.inc.dev[,vlf.cols.inc.dated]^2 + vlf.allom.inc.dev[,cols.allom.dev]^2 + vlf.dens.dev[,cols.dens.dev]^2 + vlf.mort.dev[,cols.mort.dev]^2)
+
+
+
 write.csv(vlf.sim.bm, file="processed_data/vlf_simulated_bm.csv", row.names=F)
-
-
+write.csv(vlf.big.bm, file="processed_data/vlf_simulated_bm_big.csv", row.names=F)
+write.csv(vlf.small.bm, file="processed_data/vlf_simulated_bm_small.csv", row.names=F)
+write.csv(vlf.dated.bm, file="processed_data/vlf_simulated_bm_dated.csv", row.names=F)
 ################################################################################################
 # Breaking down and looking at each area of uncertainty andn using in correlations in the next script; Still using 100 pulls.
 ################################################################################################

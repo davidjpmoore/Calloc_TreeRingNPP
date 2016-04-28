@@ -44,6 +44,48 @@ tree.data$Canopy.Class <- as.factor(ifelse(tree.data$Live.Dead=="DEAD" & is.na(t
 									paste(tree.data$Canopy.Class)))) # Make a dead canopy class)
 summary(tree.data)
 
+# Getting big and small trees fro the valles
+
+tree.data.valles <- tree.data[substr(tree.data$TreeID,1,1)=="V",]
+summary(tree.data.valles)
+
+vuf.tree.data <- tree.data[tree.data$Site %in% "Valles Caldera Upper",]
+summary(vuf.tree.data)
+
+vlf.tree.data <- tree.data[tree.data$Site %in% "Valles Caldera Lower",]
+summary(vlf.tree.data)
+
+# VUF dated only
+vuf.dated.trees <- core.data[core.data$Site %in% "Valles Caldera Upper" & core.data$dated=="Y","TreeID"]
+vuf.dated.trees <- vuf.dated.trees[complete.cases(vuf.dated.trees)]
+
+save(vuf.dated.trees, file="processed_data/vuf_dated_trees.Rdata")
+
+# VLF dated only
+vlf.dated.trees <- core.data[core.data$Site %in% "Valles Caldera Lower" & core.data$dated=="Y","TreeID"]
+vlf.dated.trees <- vlf.dated.trees[complete.cases(vlf.dated.trees)]
+save(vlf.dated.trees, file="processed_data/vlf_dated_trees.Rdata")
+
+# VUF big trees
+vuf.big.trees<- vuf.tree.data[vuf.tree.data$DBH..cm. >= quantile(vuf.tree.data$DBH..cm., 0.9, na.rm=T),"TreeID"]
+vuf.small.trees<- vuf.tree.data[vuf.tree.data$DBH..cm. <= quantile(vuf.tree.data$DBH..cm., 0.1, na.rm=T), "TreeID"]
+summary(vuf.big.trees)
+summary(vuf.small.trees)
+
+
+save(vuf.big.trees, file="processed_data/vuf_big_trees.Rdata")
+
+save(vuf.small.trees, file="processed_data/vuf_small_trees.Rdata")
+
+# VLF big trees
+vlf.big.trees<- vlf.tree.data[vlf.tree.data$DBH..cm. >= quantile(vlf.tree.data$DBH..cm., 0.9, na.rm=T),"TreeID"]
+vlf.small.trees <- vlf.tree.data[vlf.tree.data$DBH..cm. <= quantile(vlf.tree.data$DBH..cm., 0.1, na.rm=T), "TreeID"]
+
+save(vlf.big.trees, file="processed_data/vlf_big_trees.Rdata")
+save(vlf.small.trees, file="processed_data/vlf_small_trees.Rdata")
+
+
+
 
 #importing ring widths of dated samples as an object and making plot a factor since there were two distinct plots.  We may remove this for the nested design.  
 #Removing NA's from the files
@@ -89,6 +131,7 @@ vuf.dated.small <- vuf.cores[vuf.cores$dbh <= quantile(vuf.cores$dbh, 0.1, na.rm
 
 summary(vuf.dated.big)
 summary(vuf.dated.small)
+
 
 vlf.dated.big <- vlf.cores[vlf.cores$dbh >= quantile(vlf.cores$dbh, 0.9, na.rm=T),]
 vlf.dated.small <- vlf.cores[vlf.cores$dbh <= quantile(vlf.cores$dbh, 0.1, na.rm=T),]
