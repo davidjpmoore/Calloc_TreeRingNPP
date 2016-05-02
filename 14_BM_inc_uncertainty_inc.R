@@ -429,9 +429,9 @@ summary(valles.all.inc)
 
 vuf.uncert <- data.frame(Year = row.names(vuf.allom.inc.dev))
 
-vuf.uncert$UB.dev <- sqrt(vuf.allom.inc.dev$UB.dev^2 + vuf.inc.dev$UB.dev^2 + vuf.dens.dev$UB.dev^2 + vuf.mort.inc.dev$UB.dev^2)
+vuf.uncert$UB.dev <- sqrt(vuf.inc.dev$UB.dev^2+ vuf.allom.inc.dev$UB.dev^2 + vuf.dens.dev$UB.dev^2 + vuf.mort.inc.dev$UB.dev^2)
 
-vuf.uncert$LB.dev <- -sqrt(vuf.allom.inc.dev$LB.dev^2 + vuf.inc.dev$LB.dev^2 + vuf.dens.dev$LB.dev^2 + vuf.mort.inc.dev$LB.dev^2)
+vuf.uncert$LB.dev <- -sqrt(vuf.inc.dev$LB.dev^2 + vuf.allom.inc.dev$LB.dev^2 + vuf.dens.dev$LB.dev^2 + vuf.mort.inc.dev$LB.dev^2)
 
 vuf.uncert$Site <- as.factor("VUF")
 vuf.uncert$type <- as.factor("total")
@@ -442,9 +442,9 @@ summary(vuf.uncert)
 
 vlf.uncert <- data.frame(Year = row.names(vlf.allom.inc.dev))
 
-vlf.uncert$UB.dev <- sqrt(vlf.allom.inc.dev$UB.dev^2 + vlf.inc.dev$UB.dev^2 + vlf.dens.dev$UB.dev^2 + vlf.mort.inc.dev$UB.dev^2)
+vlf.uncert$UB.dev <- sqrt(vlf.inc.dev$UB.dev^2 + vlf.allom.inc.dev$UB.dev^2 + vlf.dens.dev$UB.dev^2 + vlf.mort.inc.dev$UB.dev^2)
 
-vlf.uncert$LB.dev <- -sqrt(vlf.allom.inc.dev$LB.dev^2 + vlf.inc.dev$LB.dev^2 + vlf.dens.dev$LB.dev^2 + vlf.mort.inc.dev$LB.dev^2)
+vlf.uncert$LB.dev <- -sqrt(vlf.inc.dev$LB.dev^2 + vlf.allom.inc.dev$LB.dev^2 + vlf.dens.dev$LB.dev^2 + vlf.mort.inc.dev$LB.dev^2)
 
 vlf.uncert$Site <- as.factor("VLF")
 vlf.uncert$type <- as.factor("total")
@@ -493,7 +493,7 @@ save(valles.all.uncert, file="processed_data/valles_bm_boot_tot_inc.Rdata")
 summary(valles.all.uncert)
 valles.all.uncert$Site <- factor(valles.all.uncert$Site, levels = c("VUF", "VLF"))
 # graphing period from 1980-2011 for paper
-pdf("figures/bm_inc_uncert_separate.pdf", width=13, height=8.5)
+pdf("figures/uncertainty_figures/bm_inc_uncert_separate.pdf", width=13, height=8.5)
 ggplot(data=valles.all.uncert[!valles.all.uncert$type=="total" & valles.all.uncert$Year > 1980,]) + facet_grid(type~Site) +
 	
 	geom_ribbon(aes(x=Year, ymin= base + LB.dev, ymax= UB.dev + base), fill="darkgrey", alpha=0.6) +

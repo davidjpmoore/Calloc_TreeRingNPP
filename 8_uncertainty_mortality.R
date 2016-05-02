@@ -58,7 +58,7 @@ end.yr = 2011      # Last year in our study
 # Define an randomly distributed mortality rate & distribution of the rate of change
 # ---------------
 n.samps <- 500 # number of samples we want to run
-start.m <- rnorm(n.samps, mean=0.4843, sd= 0.2823) # initial mortality rate in 1979
+start.m <- rnorm(n.samps, mean=0.4843, sd= 0.0947*sqrt(9)) # initial mortality rate in 1979
 rate.m  <- rnorm(n.samps, mean= 0.024, sd= 0.009*sqrt(9)) # Paper gives SE = 0.009, n=9
 
 # Getting rid of negative mortality rates because we want to assume we're getting recuitment right

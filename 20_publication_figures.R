@@ -100,7 +100,7 @@ dev.off()
 #save(all.valles.climate.stack, file="processed_data/valles_climate_corr_data.Rdata")
 load("processed_data/valles_climate_corr_data.Rdata")
 summary(all.valles.climate.stack)
-all.valles.climate.stack$chron.type <- factor(all.valles.climate.stack$chron.type, levels = c("Big", "Small", "Ecology", "BM", "Climate", "Big", "Small"))
+all.valles.climate.stack$chron.type <- factor(all.valles.climate.stack$chron.type, levels = c("Big", "Small", "All", "BM", "Climate", "Big", "Small"))
 
 # Leaving out Big and Small Chrons, but they could be recalled if necessary
 pdf("figures/uncertainty_figures/climate_chron_seasons_together_yes_size.pdf", width=13, height=8.5)
@@ -117,7 +117,7 @@ ggplot(data=all.valles.climate.stack[all.valles.climate.stack$month %in% c("pFal
 	scale_alpha_manual(values = c(1, 0.4))+
 	theme(axis.text.x = element_text(angle = 45, hjust = 1),panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank()) +
 	
-	labs(title= "Tree Ring : Climate Correlations", x="Seaons", y=expression(bold(paste("Correlation Value (r)"))))
+	labs(title= "Tree Ring : Climate Correlations", x="Seasons", y=expression(bold(paste("Correlation Value (r)"))))
 dev.off()
 
 ##########################################################################################

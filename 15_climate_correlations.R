@@ -397,19 +397,19 @@ summary(all.valles.climate.stack$month)
 
 # all.valles.climate.stack$chron <- factor(all.valles.climate.stack$chron, levels = c("vuf.res", "vuf.mean.res", "vuf.base", "bcw.res", "vlf.res","vlf.mean.res", "vlf.base", "cm.res", "chg.res"))
 
-all.valles.climate.stack$chron <- recode(all.valles.climate.stack$chron, "'vuf.res' = 'Upper Ecology'; 'vlf.res' = 'Lower Ecology'; 'vuf.mean.res' = 'Upper Ecology Mean'; 'vlf.mean.res' = 'Lower Ecology Mean'; 'vuf.base'= 'Upper BM'; 'vlf.base' = 'Lower BM'; 'bcw.res' = 'Upper Climate'; 'cat.res' = 'Lower Climate1'; 'chg.res' = 'Lower Climate2'; 'VUB.res' = 'Upper Big'; 'VUS.res' = 'Upper Small'; 'VLB.res' = 'Lower Big'; 'VLS.res' = 'Lower Small'   
+all.valles.climate.stack$chron <- recode(all.valles.climate.stack$chron, "'vuf.res' = 'Upper All'; 'vlf.res' = 'Lower All'; 'vuf.mean.res' = 'Upper Ecology Mean'; 'vlf.mean.res' = 'Lower Ecology Mean'; 'vuf.base'= 'Upper BM'; 'vlf.base' = 'Lower BM'; 'bcw.res' = 'Upper Climate'; 'cat.res' = 'Lower Climate1'; 'chg.res' = 'Lower Climate2'; 'VUB.res' = 'Upper Big'; 'VUS.res' = 'Upper Small'; 'VLB.res' = 'Lower Big'; 'VLS.res' = 'Lower Small'   
 ")
 summary(all.valles.climate.stack)
 
-all.valles.climate.stack$chron <- factor(all.valles.climate.stack$chron, levels = c("Upper Ecology", "Upper Big", "Upper Small", "Upper Ecology Mean", "Upper BM", "Upper Climate", "Lower Ecology", "Lower Big", "Lower Small","Lower Ecology Mean", "Lower BM", "Lower Climate1", "Lower Climate2"))
+all.valles.climate.stack$chron <- factor(all.valles.climate.stack$chron, levels = c("Upper All", "Upper Big", "Upper Small", "Upper Ecology Mean", "Upper BM", "Upper Climate", "Lower All", "Lower Big", "Lower Small","Lower Ecology Mean", "Lower BM", "Lower Climate1", "Lower Climate2"))
 
-all.valles.climate.stack$chron.type <- ifelse(all.valles.climate.stack$chron =="Upper Ecology", "Ecology",
+all.valles.climate.stack$chron.type <- ifelse(all.valles.climate.stack$chron =="Upper All", "All",
 											ifelse(all.valles.climate.stack$chron== "Upper Big", "Big",
 											ifelse(all.valles.climate.stack$chron== "Upper Small", "Small",
 											ifelse(all.valles.climate.stack$chron== "Upper Ecology Mean", "Mean",
 											ifelse(all.valles.climate.stack$chron== "Upper BM", "BM",
 											ifelse(all.valles.climate.stack$chron== "Upper Climate", "Climate",
-											ifelse(all.valles.climate.stack$chron =="Lower Ecology", "Ecology",
+											ifelse(all.valles.climate.stack$chron =="Lower All", "All",
 											ifelse(all.valles.climate.stack$chron== "Lower Big", "Big",
 											ifelse(all.valles.climate.stack$chron== "Lower Small", "Small",
 											ifelse(all.valles.climate.stack$chron== "Lower Ecology Mean", "Mean",
@@ -423,7 +423,7 @@ summary(all.valles.climate.stack$chron.type)
 summary(all.valles.climate.stack)
 
 all.valles.climate.stack <- all.valles.climate.stack[! all.valles.climate.stack$chron=="Lower Climate2",]
-all.valles.climate.stack$chron.type <- factor(all.valles.climate.stack$chron.type, levels = c("BM", "Big", "Small", "Ecology", "Climate"))
+all.valles.climate.stack$chron.type <- factor(all.valles.climate.stack$chron.type, levels = c("BM", "Big", "Small", "All", "Climate"))
 
 all.valles.climate.stack$elevation <- factor(all.valles.climate.stack$elevation, levels = c("Upper", "Lower"))
 
@@ -458,7 +458,7 @@ library(ggplot2)
  summary(all.valles.climate.stack)
 
 # Removing arithemetic mean chronology
-all.valles.climate.stack.short <- all.valles.climate.stack[all.valles.climate.stack$chron %in% c("Upper Ecology", "Upper Big", "Upper Small","Upper BM", "Upper Climate", "Lower Ecology","Lower BM", "Lower Climate1", "Lower Big", "Lower Small"),]
+all.valles.climate.stack.short <- all.valles.climate.stack[all.valles.climate.stack$chron %in% c("Upper All", "Upper Big", "Upper Small","Upper BM", "Upper Climate", "Lower All","Lower BM", "Lower Climate1", "Lower Big", "Lower Small"),]
 
 all.valles.climate.stack.short <- all.valles.climate.stack.short[all.valles.climate.stack.short$month %in% c("pOct", "pNov", "pDec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "pFall", "Winter", "Spring", "Summer"),]
  
