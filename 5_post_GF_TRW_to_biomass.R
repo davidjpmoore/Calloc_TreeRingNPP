@@ -180,6 +180,7 @@ summary(bm.plot2)
 
 bm.plot2 <- merge(bm.plot2, plot.data[,c("PlotID", "Site..Tower.", "latitude", "longitude", "elevation", "Year.Sample")])
 summary(bm.plot2)
+save(bm.plot2, file="Valles_plot_BM.Rdata")
 
 # Visualizing everything to make our lives easier
 pdf("figures/Biomass_Plot_Total_kgm-2.pdf")

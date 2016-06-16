@@ -51,9 +51,12 @@ summary(tree.data.valles)
 
 vuf.tree.data <- tree.data[tree.data$Site %in% "Valles Caldera Upper",]
 summary(vuf.tree.data)
+save(vuf.tree.data, file="processed_data/vuf_tree_data.Rdata")
+
 
 vlf.tree.data <- tree.data[tree.data$Site %in% "Valles Caldera Lower",]
 summary(vlf.tree.data)
+save(vuf.tree.data, file="processed_data/vlf_tree_data.Rdata")
 
 # VUF dated only
 vuf.dated.trees <- core.data[core.data$Site %in% "Valles Caldera Upper" & core.data$dated=="Y","TreeID"]

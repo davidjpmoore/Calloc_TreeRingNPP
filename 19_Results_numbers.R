@@ -1,5 +1,40 @@
 # Getting numbers for the different components for the results
+load("processed_data/vuf_tree_data.Rdata")
+load("processed_data/vlf_tree_data.Rdata")
 
+load("processed_data/vuf_big_trees.Rdata")
+load("processed_data/vuf_small_trees.Rdata")
+
+load("processed_data/vlf_big_trees.Rdata")
+load("processed_data/vlf_small_trees.Rdata")
+
+# DBH ranges
+
+# VUF all trees
+summary(vuf.tree.data)
+	# DBH range: 6.8 - 53.6 cm; n = 101
+
+# VUF big trees
+summary(vuf.tree.data[vuf.tree.data$TreeID %in% vuf.big.trees,])
+	# DBH range: 34.8 - 53.6 cm; n=11 
+
+# VUF small trees
+summary(vuf.tree.data[vuf.tree.data$TreeID %in% vuf.small.trees,])	
+	# DBH range: 6.8 - 10cm n = 11
+
+# VLF all trees
+summary(vlf.tree.data)
+	# DBH range: 10.2 - 40.5 cm; n = 100
+# VLF big trees
+summary(vlf.tree.data[vlf.tree.data$TreeID %in% vlf.big.trees,])
+	# DBH range: 34.5 - 40.5 cm; n = 10
+
+# VLF small trees
+summary(vlf.tree.data[vlf.tree.data$TreeID %in% vlf.small.trees,])
+	# DBH range: 10.2 - 13.1; n = 10
+
+#----------------------------------------------------
+#----------------------------------------------------
 
 # Increment uncertainty percentages for 1980-2011
 valles.percents <- read.csv("processed_data/valles_percent_contrib_BMI.csv", header=T)
@@ -46,7 +81,7 @@ sd(valles.percents[valles.percents$type=="mort" & valles.percents$Site=="VLF" & 
 ############################################################
 
 # Cumulative percentages
-# Period 1980-2007
+# Period 1980-2011
 
 ###########################################################
 ###########################################################
@@ -105,9 +140,10 @@ load("processed_data/valles_climate_plus_chron_stack.rdata")
 
 summary(all.valles.climate.stack)
 
+
 # Upper Site
-	# Ecology
-all.valles.climate.stack[all.valles.climate.stack$elevation=="Upper" & all.valles.climate.stack$chron.type=="Ecology" & !is.na(all.valles.climate.stack$chron.type),]
+	# All
+all.valles.climate.stack[all.valles.climate.stack$elevation=="Upper" & all.valles.climate.stack$chron.type=="All" & !is.na(all.valles.climate.stack$chron.type),]
 	# BM
 all.valles.climate.stack[all.valles.climate.stack$elevation=="Upper" & all.valles.climate.stack$chron.type=="BM" & !is.na(all.valles.climate.stack$chron.type),]
 
@@ -124,8 +160,8 @@ all.valles.climate.stack[all.valles.climate.stack$elevation=="Upper" & all.valle
 #--------------------------------------------------------------------------------
 
 # Lower Site
-	# Ecology
-all.valles.climate.stack[all.valles.climate.stack$elevation=="Lower" & all.valles.climate.stack$chron.type=="Ecology" & !is.na(all.valles.climate.stack$chron.type),]
+	# All
+all.valles.climate.stack[all.valles.climate.stack$elevation=="Lower" & all.valles.climate.stack$chron.type=="All" & !is.na(all.valles.climate.stack$chron.type),]
 
 	# BM
 all.valles.climate.stack[all.valles.climate.stack$elevation=="Lower" & all.valles.climate.stack$chron.type=="BM" & !is.na(all.valles.climate.stack$chron.type),]
@@ -139,6 +175,25 @@ all.valles.climate.stack[all.valles.climate.stack$elevation=="Lower" & all.valle
 	# Small
 	all.valles.climate.stack[all.valles.climate.stack$elevation=="Lower" & all.valles.climate.stack$chron.type=="Small" & !is.na(all.valles.climate.stack$chron.type),]
 
+
+#--------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------
+# Getting numbers for the detrended biomass time series
+
+load("processed_data/valles_climate_corr_data_supp3b.Rdata") 
+# same file as in the #20 script, but had to rename "...supp3b" due to naming issues with all.valles.climate.stack
+
+summary(all.valles.climate.stack2)
+# VUF
+all.valles.climate.stack2[all.valles.climate.stack2$elevation=="Upper" & all.valles.climate.stack2$chron.type=="BM.detrend" & !is.na(all.valles.climate.stack2$chron.type),]
+# Biggest diff in Summer Precip: BM.detrend=0.236 vs BM=0.405
+
+
+# VLF
+# BM.detrend
+all.valles.climate.stack2[all.valles.climate.stack2$elevation=="Lower" & all.valles.climate.stack2$chron.type=="BM.detrend" & !is.na(all.valles.climate.stack2$chron.type),]
+
+# Spring is biggest diff BM.detrend = -0.48 vs BM=-0.33
 
 ###########################################################
 ############################################################
@@ -220,6 +275,32 @@ mean(valles.tot.dev[valles.tot.dev$SiteID=="VLF" & valles.tot.dev$Year>1980 , "L
 
 mean(valles.ranges[valles.ranges$type=="total" & valles.ranges$SiteID=="VLF" & valles.ranges$Year> 1980, "range.dev" ], na.rm=T); sd(valles.ranges[valles.ranges$type=="total" & valles.ranges$SiteID=="VLF" & valles.ranges$Year> 1980, "range.dev" ], na.rm=T)
 
+#--------------------------------------------------------------------
+# Mean and SD of ranges of diff. sources of uncertainty from 1980-2011
+
+# Allometry
+
+mean(valles.ranges[valles.ranges$SiteID=="VUF" & valles.ranges$Year>1980 & valles.ranges$type %in% "allom", "range.dev"], na.rm=T); sd(valles.ranges[valles.ranges$SiteID=="VUF" & valles.ranges$Year>1980 & valles.ranges$type %in% "allom", "range.dev"], na.rm=T)
+
+mean(valles.ranges[valles.ranges$SiteID=="VLF" & valles.ranges$Year>1980 & valles.ranges$type %in% "allom", "range.dev"], na.rm=T); sd(valles.ranges[valles.ranges$SiteID=="VLF" & valles.ranges$Year>1980 & valles.ranges$type %in% "allom", "range.dev"], na.rm=T)
+
+# TR increment
+mean(valles.ranges[valles.ranges$SiteID=="VUF" & valles.ranges$Year>1980 & valles.ranges$type %in% "inc", "range.dev"], na.rm=T); sd(valles.ranges[valles.ranges$SiteID=="VUF" & valles.ranges$Year>1980 & valles.ranges$type %in% "inc", "range.dev"], na.rm=T)
+
+mean(valles.ranges[valles.ranges$SiteID=="VLF" & valles.ranges$Year>1980 & valles.ranges$type %in% "inc", "range.dev"], na.rm=T); sd(valles.ranges[valles.ranges$SiteID=="VLF" & valles.ranges$Year>1980 & valles.ranges$type %in% "inc", "range.dev"], na.rm=T)
+
+
+# Stem Density
+
+mean(valles.ranges[valles.ranges$SiteID=="VUF" & valles.ranges$Year>1980 & valles.ranges$type %in% "dens", "range.dev"], na.rm=T); sd(valles.ranges[valles.ranges$SiteID=="VUF" & valles.ranges$Year>1980 & valles.ranges$type %in% "dens", "range.dev"], na.rm=T)
+
+mean(valles.ranges[valles.ranges$SiteID=="VLF" & valles.ranges$Year>1980 & valles.ranges$type %in% "dens", "range.dev"], na.rm=T); sd(valles.ranges[valles.ranges$SiteID=="VLF" & valles.ranges$Year>1980 & valles.ranges$type %in% "dens", "range.dev"], na.rm=T)
+
+# Mortaltiy
+
+mean(valles.ranges[valles.ranges$SiteID=="VUF" & valles.ranges$Year>1980 & valles.ranges$type %in% "mort", "range.dev"], na.rm=T); sd(valles.ranges[valles.ranges$SiteID=="VUF" & valles.ranges$Year>1980 & valles.ranges$type %in% "mort", "range.dev"], na.rm=T)
+
+mean(valles.ranges[valles.ranges$SiteID=="VLF" & valles.ranges$Year>1980 & valles.ranges$type %in% "mort", "range.dev"], na.rm=T); sd(valles.ranges[valles.ranges$SiteID=="VLF" & valles.ranges$Year>1980 & valles.ranges$type %in% "mort", "range.dev"], na.rm=T)
 
 ###########################################################
 ############################################################
@@ -286,21 +367,57 @@ valles.all.uncert[valles.all.uncert$type=="total" & valles.all.uncert$Site=="VLF
 # Mean and SD of the base, CI, and ranges from 1980-2011
 
 # VUF
+# Mean
 mean(valles.all.uncert[valles.all.uncert$Site=="VUF" & valles.all.uncert$Year>1980 & valles.all.uncert$type=="total", "base"], na.rm=T); sd(valles.all.uncert[valles.all.uncert$Site=="VUF" & valles.all.uncert$Year>1980 & valles.all.uncert$type=="total", "base"], na.rm=T)
 
+# UB
 mean(valles.all.uncert[valles.all.uncert$Site=="VUF" & valles.all.uncert$Year>1980 & valles.all.uncert$type=="total", "UB"], na.rm=T); sd(valles.all.uncert[valles.all.uncert$Site=="VUF" & valles.all.uncert$Year>1980 & valles.all.uncert$type=="total", "UB"], na.rm=T)
 
+# LB
 mean(valles.all.uncert[valles.all.uncert$Site=="VUF" & valles.all.uncert$Year>1980 & valles.all.uncert$type=="total", "LB"], na.rm=T); sd(valles.all.uncert[valles.all.uncert$Site=="VUF" & valles.all.uncert$Year>1980 & valles.all.uncert$type=="total", "LB"], na.rm=T)
 
+# Range
 mean(valles.all.uncert[valles.all.uncert$type=="total" & valles.all.uncert$Site=="VUF" & valles.all.uncert$Year> 1980 & valles.all.uncert$type=="total", "range" ], na.rm=T); sd(valles.all.uncert[valles.all.uncert$type=="total" & valles.all.uncert$Site=="VUF" & valles.all.uncert$Year> 1980 & valles.all.uncert$type=="total", "range" ], na.rm=T)
 
 
 # VLF
 
+# Mean
 mean(valles.all.uncert[valles.all.uncert$Site=="VLF" & valles.all.uncert$Year>1980 & valles.all.uncert$type=="total", "base"], na.rm=T); sd(valles.all.uncert[valles.all.uncert$Site=="VLF" & valles.all.uncert$Year>1980 & valles.all.uncert$type=="total", "base"], na.rm=T)
 
+# UB
 mean(valles.all.uncert[valles.all.uncert$Site=="VLF" & valles.all.uncert$Year>1980 & valles.all.uncert$type=="total", "UB"], na.rm=T); sd(valles.all.uncert[valles.all.uncert$Site=="VLF" & valles.all.uncert$Year>1980 & valles.all.uncert$type=="total", "UB"], na.rm=T)
 
+# LB
 mean(valles.all.uncert[valles.all.uncert$Site=="VLF" & valles.all.uncert$Year>1980 & valles.all.uncert$type=="total", "LB"], na.rm=T); sd(valles.all.uncert[valles.all.uncert$Site=="VLF" & valles.all.uncert$Year>1980 & valles.all.uncert$type=="total", "LB"], na.rm=T)
 
-mean(valles.all.uncert[valles.all.uncert$type=="total" & valles.all.uncert$Site=="VLF" & valles.all.uncert$Year> 1980 & valles.all.uncert$type=="total", "range" ], na.rm=T); sd(valles.all.uncert[valles.all.uncert$type=="total" & valles.all.uncert$Site=="VLF" & valles.all.uncert$Year> 1980 & valles.all.uncert$type=="total", "range" ], na.rm=T)
+# Range
+mean(valles.all.uncert[valles.all.uncert$type=="total" & valles.all.uncert$Site=="VLF" & valles.all.uncert$Year> 1980 , "range" ], na.rm=T); sd(valles.all.uncert[valles.all.uncert$type=="total" & valles.all.uncert$Site=="VLF" & valles.all.uncert$Year> 1980, "range" ], na.rm=T)
+
+
+# Mean and SD for different sources of uncertainty
+
+# Allometry
+
+mean(valles.all.uncert[valles.all.uncert$type=="allom" & valles.all.uncert$Site=="VUF" & valles.all.uncert$Year> 1980, "range" ], na.rm=T); sd(valles.all.uncert[valles.all.uncert$type=="allom" & valles.all.uncert$Site=="VUF" & valles.all.uncert$Year> 1980, "range" ], na.rm=T)
+
+mean(valles.all.uncert[valles.all.uncert$type=="allom" & valles.all.uncert$Site=="VLF" & valles.all.uncert$Year> 1980, "range" ], na.rm=T); sd(valles.all.uncert[valles.all.uncert$type=="allom" & valles.all.uncert$Site=="VLF" & valles.all.uncert$Year> 1980, "range" ], na.rm=T)
+
+
+# TR Increment
+
+mean(valles.all.uncert[valles.all.uncert$type=="inc" & valles.all.uncert$Site=="VUF" & valles.all.uncert$Year> 1980, "range" ], na.rm=T); sd(valles.all.uncert[valles.all.uncert$type=="inc" & valles.all.uncert$Site=="VUF" & valles.all.uncert$Year> 1980, "range" ], na.rm=T)
+
+mean(valles.all.uncert[valles.all.uncert$type=="inc" & valles.all.uncert$Site=="VLF" & valles.all.uncert$Year> 1980, "range" ], na.rm=T); sd(valles.all.uncert[valles.all.uncert$type=="inc" & valles.all.uncert$Site=="VLF" & valles.all.uncert$Year> 1980, "range" ], na.rm=T)
+
+# Stem Density
+
+mean(valles.all.uncert[valles.all.uncert$type=="dens" & valles.all.uncert$Site=="VUF" & valles.all.uncert$Year> 1980, "range" ], na.rm=T); sd(valles.all.uncert[valles.all.uncert$type=="dens" & valles.all.uncert$Site=="VUF" & valles.all.uncert$Year> 1980, "range" ], na.rm=T)
+
+mean(valles.all.uncert[valles.all.uncert$type=="dens" & valles.all.uncert$Site=="VLF" & valles.all.uncert$Year> 1980, "range" ], na.rm=T); sd(valles.all.uncert[valles.all.uncert$type=="dens" & valles.all.uncert$Site=="VLF" & valles.all.uncert$Year> 1980, "range" ], na.rm=T)
+
+# Mortality
+
+mean(valles.all.uncert[valles.all.uncert$type=="mort" & valles.all.uncert$Site=="VUF" & valles.all.uncert$Year> 1980, "range" ], na.rm=T); sd(valles.all.uncert[valles.all.uncert$type=="mort" & valles.all.uncert$Site=="VUF" & valles.all.uncert$Year> 1980, "range" ], na.rm=T)
+
+mean(valles.all.uncert[valles.all.uncert$type=="mort" & valles.all.uncert$Site=="VLF" & valles.all.uncert$Year> 1980, "range" ], na.rm=T); sd(valles.all.uncert[valles.all.uncert$type=="mort" & valles.all.uncert$Site=="VLF" & valles.all.uncert$Year> 1980, "range" ], na.rm=T)

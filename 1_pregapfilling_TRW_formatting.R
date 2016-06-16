@@ -214,6 +214,140 @@ perc.missing <- length(tree.missing)/length(tot.trees)
 
 perc.dated; perc.undated; perc.missing
 
+#-----------------------------------
+# VUF dated percentages
+
+vuf.tree.dated    <- unique(tree.data[substr(tree.data$PlotID,1,2)=="VU" & tree.data$Dated == "Y", "TreeID"])
+vuf.tree.undated  <- unique(tree.data[substr(tree.data$PlotID,1,2)=="VU" & tree.data$Dated == "N", "TreeID"])
+vuf.tree.missing  <- unique(tree.data[substr(tree.data$PlotID,1,2)=="VU" & is.na(tree.data$Dated), "TreeID"])
+
+vuf.tree.dated   <- vuf.tree.dated[!is.na(vuf.tree.dated)]
+vuf.tree.undated <- vuf.tree.undated[!is.na(vuf.tree.undated)]
+length(trees[substr(trees, 1, 2)=="VU"]); length(vuf.tree.dated); length(vuf.tree.undated);  length(vuf.tree.missing)
+
+# Percentages of trees dated, trees undated, and trees missing
+
+vuf.tot.trees <- tree.data[substr(tree.data$PlotID,1,2)=="VU", "TreeID"]
+length(vuf.tot.trees)
+
+vuf.perc.dated <- length(vuf.tree.dated) / length(vuf.tot.trees)
+vuf.perc.undated <- length(vuf.tree.undated)/length(vuf.tot.trees)
+vuf.perc.missing <- length(vuf.tree.missing)/length(vuf.tot.trees)
+
+vuf.perc.dated; vuf.perc.undated; vuf.perc.missing
+
+# VUA
+
+vua.tree.dated    <- unique(tree.data[tree.data$PlotID %in% "VUA" & tree.data$Dated == "Y", "TreeID"])
+vua.tree.undated  <- unique(tree.data[tree.data$PlotID %in% "VUA" & tree.data$Dated == "N", "TreeID"])
+vua.tree.missing  <- unique(tree.data[tree.data$PlotID %in% "VUA" & is.na(tree.data$Dated), "TreeID"])
+
+vua.tree.dated   <- vua.tree.dated[!is.na(vua.tree.dated)]
+vua.tree.undated <- vua.tree.undated[!is.na(vua.tree.undated)]
+length(trees[tree.data$PlotID %in% "VUA"]); length(vua.tree.dated); length(vua.tree.undated);  length(vua.tree.missing)
+
+# Percentages of trees dated, trees undated, and trees missing
+
+vua.tot.trees <- tree.data[tree.data$PlotID %in% "VUA", "TreeID"]
+length(vua.tot.trees)
+
+vua.perc.dated <- length(vua.tree.dated) / length(vua.tot.trees)
+vua.perc.undated <- length(vua.tree.undated)/length(vua.tot.trees)
+vua.perc.missing <- length(vua.tree.missing)/length(vua.tot.trees)
+
+vua.perc.dated; vua.perc.undated; vua.perc.missing
+
+
+
+# VUB
+
+vub.tree.dated    <- unique(tree.data[tree.data$PlotID %in% "VUB" & tree.data$Dated == "Y", "TreeID"])
+vub.tree.undated  <- unique(tree.data[tree.data$PlotID %in% "VUB" & tree.data$Dated == "N", "TreeID"])
+vub.tree.missing  <- unique(tree.data[tree.data$PlotID %in% "VUB" & is.na(tree.data$Dated), "TreeID"])
+
+vub.tree.dated   <- vub.tree.dated[!is.na(vub.tree.dated)]
+vub.tree.undated <- vub.tree.undated[!is.na(vub.tree.undated)]
+length(trees[tree.data$PlotID %in% "VUB"]); length(vub.tree.dated); length(vub.tree.undated);  length(vub.tree.missing)
+
+# Percentages of trees dated, trees undated, and trees missing
+
+vub.tot.trees <- tree.data[tree.data$PlotID %in% "VUB", "TreeID"]
+length(vub.tot.trees)
+
+vub.perc.dated <- length(vub.tree.dated) / length(vub.tot.trees)
+vub.perc.undated <- length(vub.tree.undated)/length(vub.tot.trees)
+vub.perc.missing <- length(vub.tree.missing)/length(vub.tot.trees)
+
+vub.perc.dated; vub.perc.undated; vub.perc.missing
+
+
+
+# -----------------------------
+# VLF dated percentages
+
+vlf.tree.dated    <- unique(tree.data[substr(tree.data$PlotID,1,2)=="VL" & tree.data$Dated == "Y", "TreeID"])
+vlf.tree.undated  <- unique(tree.data[substr(tree.data$PlotID,1,2)=="VL" & tree.data$Dated == "N", "TreeID"])
+vlf.tree.missing  <- unique(tree.data[substr(tree.data$PlotID,1,2)=="VL" & is.na(tree.data$Dated), "TreeID"])
+
+vlf.tree.dated   <- vlf.tree.dated[!is.na(vlf.tree.dated)]
+vlf.tree.undated <- vlf.tree.undated[!is.na(vlf.tree.undated)]
+length(trees[substr(trees, 1, 2)=="VL"]); length(vlf.tree.dated); length(vlf.tree.undated);  length(vlf.tree.missing)
+
+# Percentages of trees dated, trees undated, and trees missing
+
+vlf.tot.trees <- tree.data[substr(tree.data$PlotID,1,2)=="VL", "TreeID"]
+length(vlf.tot.trees)
+
+vlf.perc.dated <- length(vlf.tree.dated) / length(vlf.tot.trees)
+vlf.perc.undated <- length(vlf.tree.undated)/length(vlf.tot.trees)
+vlf.perc.missing <- length(vlf.tree.missing)/length(vlf.tot.trees)
+
+vlf.perc.dated; vlf.perc.undated; vlf.perc.missing
+
+# VLA
+vla.tree.dated    <- unique(tree.data[tree.data$PlotID %in% "VLA" & tree.data$Dated == "Y", "TreeID"])
+vla.tree.undated  <- unique(tree.data[tree.data$PlotID %in% "VLA" & tree.data$Dated == "N", "TreeID"])
+vla.tree.missing  <- unique(tree.data[tree.data$PlotID %in% "VLA" & is.na(tree.data$Dated), "TreeID"])
+
+vla.tree.dated   <- vla.tree.dated[!is.na(vla.tree.dated)]
+vla.tree.undated <- vla.tree.undated[!is.na(vla.tree.undated)]
+length(trees[tree.data$PlotID %in% "VLA"]); length(vla.tree.dated); length(vla.tree.undated);  length(vla.tree.missing)
+
+# Percentages of trees dated, trees undated, and trees missing
+
+vla.tot.trees <- tree.data[tree.data$PlotID %in% "VLA", "TreeID"]
+length(vla.tot.trees)
+
+vla.perc.dated <- length(vla.tree.dated) / length(vla.tot.trees)
+vla.perc.undated <- length(vla.tree.undated)/length(vla.tot.trees)
+vla.perc.missing <- length(vla.tree.missing)/length(vla.tot.trees)
+
+vla.perc.dated; vla.perc.undated; vla.perc.missing
+
+
+
+# VLB
+
+vlb.tree.dated  <- unique(tree.data[tree.data$PlotID %in% "VLB" & tree.data$Dated == "Y", "TreeID"])
+vlb.tree.undated  <- unique(tree.data[tree.data$PlotID %in% "VLB" & tree.data$Dated == "N", "TreeID"])
+vlb.tree.missing  <- unique(tree.data[tree.data$PlotID %in% "VLB" & is.na(tree.data$Dated), "TreeID"])
+
+vlb.tree.dated   <- vlb.tree.dated[!is.na(vlb.tree.dated)]
+vlb.tree.undated <- vlb.tree.undated[!is.na(vlb.tree.undated)]
+length(trees[tree.data$PlotID %in% "VLB"]); length(vlb.tree.dated); length(vlb.tree.undated);  length(vlb.tree.missing)
+
+# Percentages of trees dated, trees undated, and trees missing
+
+vlb.tot.trees <- tree.data[tree.data$PlotID %in% "VLB", "TreeID"]
+length(vlb.tot.trees)
+
+vlb.perc.dated <- length(vlb.tree.dated) / length(vlb.tot.trees)
+vlb.perc.undated <- length(vlb.tree.undated)/length(vlb.tot.trees)
+vlb.perc.missing <- length(vlb.tree.missing)/length(vlb.tot.trees)
+
+vlb.perc.dated; vlb.perc.undated; vlb.perc.missing
+
+
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
 # CRR: writing our tree RWL to a csv formatted for gap filling before we calculate BAI (bc some have missing outsides and that's bad if we're working outside-in in out calculations)
