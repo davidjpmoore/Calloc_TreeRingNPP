@@ -51,7 +51,9 @@ summary(tree.data)
 #importing ring widths of dated samples as an object and making plot a factor since there were two distinct plots.  We may remove this for the nested design.  
 #Removing NA's from the files
 # NOTE: reading in a single rwl with all measured trees otherwise you're going to need to make sure to change the file paths for EVERYTHING otherwise you overwrite important files and make a lot more work for yourself
-core.rw <- read.rwl("RWL/harv_how_all_trees.rwl")
+
+# Using updated Alex data (note. harv_how_all_trees2.rwl used for Francesc data)
+core.rw <- read.rwl("RWL/harv_how_all_trees2.rwl")
 summary(core.rw)
 
 #removing the extra character that tellervo adds
@@ -198,14 +200,14 @@ for(i in unique(trees)){
 min(tree.rw, na.rm=T); max(tree.rw, na.rm=T)
 dim(tree.rw)
 tree.rw[(nrow(tree.rw)-20):nrow(tree.rw),1:10]
-write.csv(tree.rw, "processed_data/HAR_HOW_tree_rw.csv")
+write.csv(tree.rw, "processed_data/HAR_HOW_tree_rw2.csv")
 
 # We've updated the tree.data file, so lets save our changes before we move any further
 # We only added a new column and didn't change anything that was original, so it should be okay, but lets just double check before moving forward
 tree.data$Dated <- as.factor(tree.data$Dated)
 summary(tree.data)
 # NOTE: right now you have a ridculously long name for your tree data spreadsheet, so I'm going to call it something different for my own sanity right now :-P
-write.csv(tree.data, "processed_data/HAR_HOW_TreeData.csv", row.names=F)
+write.csv(tree.data, "processed_data/HAR_HOW_TreeData2.csv", row.names=F)
 
 # ----------------------------------------------------------------------------
 
@@ -244,7 +246,7 @@ tree.stack <- merge(tree.stack, tree.data, all.x=T, all.y=F)
 summary(tree.stack)
 dim(tree.stack)
 
-write.csv(tree.stack, "processed_data/HAR_HOW_TreeRWL_AllSites_stacked.csv", row.names=F)
+write.csv(tree.stack, "processed_data/HAR_HOW_TreeRWL_AllSites_stacked2.csv", row.names=F)
 
 # Merge with the Doe Sites
 doe.trees <- read.csv("processed_data/DOE_Allsites_TreeRWL_AllSites_stacked.csv", header=T)
@@ -255,7 +257,7 @@ doe.har.combo <- rbind(doe.trees, tree.stack)
 summary(doe.har.combo)
 dim(doe.har.combo)
 
-write.csv(doe.har.combo, "processed_data/DOE_Harvard_combo_TreeRWL_AllSites_stacked.csv", row.names=F)
+write.csv(doe.har.combo, "processed_data/DOE_Harvard_combo_TreeRWL_AllSites_stacked2.csv", row.names=F)
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
 # GO TO GAPFILLING SCRIPT NOW!!:-)

@@ -104,9 +104,9 @@ summary(niwot.all.happy)
 library(dplR)
 # Plot B Ring widths
 
-nwb.rw <- read.csv("~/PhD/Carbon Research/Niwot/Flurin_Niwot/ringwidth_niwot_plotB.csv", header=T)
+nwb.rw <- read.csv("~/PhD/Carbon Research/Niwot/Flurin_Niwot/ringwidth_niwot_plotB_na_removed.csv", header=T)
 names(nwb.rw)
-nwc.rw <- read.csv("~/PhD/Carbon Research/Niwot/Flurin_Niwot/ringwidth_niwot_plotC.csv", header=T)
+nwc.rw <- read.csv("~/PhD/Carbon Research/Niwot/Flurin_Niwot/ringwidth_niwot_plotC_na_removed.csv", header=T)
 names(nwc.rw)
 
 niwot.rw <- merge(nwb.rw, nwc.rw, all.x=T, all.y=T)

@@ -11,7 +11,7 @@ se <- function(x){
 
 #load in core details data sheet.  Has living/dead, pith info, measurement info.
 #loading the dplR to use the basal area reconstruction functions.
-core.data <- read.csv("raw_input_files/niwot_core_metadata.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
+core.data <- read.csv("raw_input_files/harvard_how.and_core_data2.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
 #adding a column include which plot at the site the trees belong to
 names(core.data)
 head(core.data)
@@ -29,13 +29,13 @@ summary(core.data)
 summary(core.data)
 
 core.data$Site <- recode(core.data$Site, "'HOW'= 'Howland'; 'TP'='Harvard'")
-write.csv(core.data, file="processed_data/Niwot_core_data.csv", row.names=F)
+write.csv(core.data, file="processed_data/HARV_core_data.csv", row.names=F)
 
 #importing the diameter files of all trees sampled: includes tree id, spp, plot assignment, and DBH 
-tree.data <- read.csv("raw_input_files/niwot_tree_metadata.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
+tree.data <- read.csv("raw_input_files/harvard_howland_tree_metadata.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
 #adding a column include which plot at the site the trees belong to
 names(tree.data)
-tree.data$plot <- substr(tree.data$PlotID, 3, 3)
+# tree.data$plot <- substr(tree.data$PlotID, 3, 3)
 tree.data$plot <- as.factor(tree.data$plot)
 summary(tree.data)
 
@@ -51,12 +51,8 @@ summary(tree.data)
 #importing ring widths of dated samples as an object and making plot a factor since there were two distinct plots.  We may remove this for the nested design.  
 #Removing NA's from the files
 # NOTE: reading in a single rwl with all measured trees otherwise you're going to need to make sure to change the file paths for EVERYTHING otherwise you overwrite important files and make a lot more work for yourself
-core.rw <- read.csv("RWL/niwot_rw.csv")
+core.rw <- read.rwl("RWL/harv_how_all_trees.rwl")
 summary(core.rw)
-row.names(core.rw) <- core.rw$Year
-core.rw <- core.rw[,2:ncol(core.rw)]
-names(core.rw)
-row.names(core.rw)
 
 #removing the extra character that tellervo adds
 # names(core.rw)<-substr(names(core.rw), 1, 7)
@@ -202,28 +198,28 @@ summary(tree.rw)
 min(tree.rw, na.rm=T); max(tree.rw, na.rm=T)
 dim(tree.rw)
 tree.rw[(nrow(tree.rw)-20):nrow(tree.rw),1:10]
-write.csv(tree.rw, "processed_data/niwot_tree_rw.csv")
+write.csv(tree.rw, "processed_data/HAR_HOW_tree_rw.csv")
 
 # We've updated the tree.data file, so lets save our changes before we move any further
 # We only added a new column and didn't change anything that was original, so it should be okay, but lets just double check before moving forward
 tree.data$Dated <- as.factor(tree.data$Dated)
 summary(tree.data)
 # NOTE: right now you have a ridculously long name for your tree data spreadsheet, so I'm going to call it something different for my own sanity right now :-P
-write.csv(tree.data, "processed_data/niwot_TreeData.csv", row.names=F)
+write.csv(tree.data, "processed_data/HAR_HOW_TreeData.csv", row.names=F)
 
 # ----------------------------------------------------------------------------
 
-tree.dated    <- unique(tree.data[substr(tree.data$PlotID,1,1)=="N" & tree.data$Dated == "Y", "TreeID"])
-tree.undated  <- unique(tree.data[substr(tree.data$PlotID,1,1)=="N" & tree.data$Dated == "N", "TreeID"])
-tree.missing  <- unique(tree.data[substr(tree.data$PlotID,1,1)=="N" & is.na(tree.data$Dated), "TreeID"])
+tree.dated    <- unique(tree.data[substr(tree.data$PlotID,1,1)=="V" & tree.data$Dated == "Y", "TreeID"])
+tree.undated  <- unique(tree.data[substr(tree.data$PlotID,1,1)=="V" & tree.data$Dated == "N", "TreeID"])
+tree.missing  <- unique(tree.data[substr(tree.data$PlotID,1,1)=="V" & is.na(tree.data$Dated), "TreeID"])
 
 tree.dated   <- tree.dated[!is.na(tree.dated)]
 tree.undated <- tree.undated[!is.na(tree.undated)]
-length(trees[substr(trees, 1, 1)=="N"]); length(tree.dated); length(tree.undated);  length(tree.missing)
+length(trees[substr(trees, 1, 1)=="V"]); length(tree.dated); length(tree.undated);  length(tree.missing)
 
 # Percentages of trees dated, trees undated, and trees missing
 
-tot.trees <- tree.data[substr(tree.data$PlotID,1,1)=="N", "TreeID"]
+tot.trees <- tree.data[substr(tree.data$PlotID,1,1)=="V", "TreeID"]
 length(tot.trees)
 
 perc.dated <- length(tree.dated) / length(tot.trees)
@@ -248,18 +244,18 @@ tree.stack <- merge(tree.stack, tree.data, all.x=T, all.y=F)
 summary(tree.stack)
 dim(tree.stack)
 
-write.csv(tree.stack, "processed_data/niwot_TreeRWL_AllSites_stacked.csv", row.names=F)
+write.csv(tree.stack, "processed_data/HAR_HOW_TreeRWL_AllSites_stacked.csv", row.names=F)
 
-# # Merge with the Doe Sites
-# doe.trees <- read.csv("processed_data/DOE_Harvard_combo_TreeRWL_AllSites_stacked.csv", header=T)
-# summary(doe.trees)
-# dim(doe.trees)
+# Merge with the Doe Sites
+doe.trees <- read.csv("processed_data/DOE_Allsites_TreeRWL_AllSites_stacked.csv", header=T)
+summary(doe.trees)
+dim(doe.trees)
 
-# all.sites.trees <- merge(doe.trees, tree.stack, all.x=T, all.y=T)
-# summary(all.sites.trees)
-# dim(all.sites.trees)
+doe.har.combo <- rbind(doe.trees, tree.stack)
+summary(doe.har.combo)
+dim(doe.har.combo)
 
-# write.csv(all.sites.trees, "processed_data/DOE_AllSites_TreeRWL_AllSites_stacked.csv", row.names=F)
+write.csv(doe.har.combo, "processed_data/DOE_Harvard_combo_TreeRWL_AllSites_stacked.csv", row.names=F)
 # ----------------------------------------------------------------------------
 # ----------------------------------------------------------------------------
 # GO TO GAPFILLING SCRIPT NOW!!:-)
