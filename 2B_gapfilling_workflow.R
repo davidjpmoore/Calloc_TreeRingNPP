@@ -44,7 +44,7 @@ q.blank <- theme(axis.line=element_line(color="black", size=0.5), panel.grid.maj
 
 # Ring.data format: stack all of the core BAI, so that data frame with a SIGNLE BAI column, and then all of the factors in other columns
 # NOTE: as you go along, this may have
-ring.data <- read.csv("processed_data/DOE_Allsites_TreeRWL_AllSites_stacked.csv")
+ring.data <- read.csv("processed_data/DOE_Har_how_combo_may2016_TreeRWL_AllSites_stacked.csv", header=T)
 ring.data$Tree     <- as.factor(ring.data$Tree) 
 ring.data$Measured <- as.factor("YES") # Adding a flag that will help us keep things straight down the line
 summary(ring.data)
@@ -59,7 +59,7 @@ summary(rings.filled)
 
 
 # Tree Data
-tree.data <- read.csv("processed_data/DOE_AllsitesTreeData.csv")
+tree.data <- read.csv("raw_input_files/harvard_howland_may2016_tree_metadata.csv")
 summary(tree.data)
 
 # Site Data (for year cored) 
@@ -185,6 +185,9 @@ summary(tree.data.model)
 summary(ring.data)
 dim(ring.data)
 
+# get rid of ring data for trees missing metadata
+ring.data <- ring.data[ring.data$TreeID %in% unique(tree.data.model$TreeID),]
+
 for(i in unique(ring.data$TreeID)){
 	#------------------------------
 	#year.fill = the oldest year to fill based on above step (prediction interval, size-species-Site relationships)
@@ -281,6 +284,9 @@ for(s in site.codes){
 # NOTE: at the end of this step, there should be no NAs in ring.data$RW.modeled
 summary(ring.data)
 
+save(ring.data, file="processed_data/may2016_ring_data_gapfill.Rdata")
+load("processed_data/may2016_ring_data_gapfill.Rdata")
+
 # ----------------------------------------------------------------
 # Gapfilling trees that we have no measurements for (punky, dead...)
 # ----------------------------------------------------------------
@@ -342,8 +348,15 @@ summary(trees.missing)
 # ----------------------------------------------------------------
 
 # putting missing & measured trees together
-data.all <- merge(ring.data, trees.missing, all.x=T, all.y=T)
+summary(tree.data)
+summary(trees.missing)
+dim(ring.data)
+dim(trees.missing)
+
+data.all <- merge(ring.data, trees.missing[,c("Species", "Site", "PlotID", "TreeID", "DBH..cm.", "Canopy.Class", "Live.Dead", "Year", "RW", "Measured")], all.x=T, all.y=T )
 summary(data.all)
+dim(data.all)
+
 # NA's will be here now as we have merged in the missing trees
 
 
@@ -359,32 +372,61 @@ summary(fill.missing)
 out.path <- paste0("processed_data/GapFill_Metadata/", "MissingTrees")
 
 # Run the GAMM for the missing trees; right now we're smoothing by individual plot
-gamm.missing <- gapfill.gamm(data=fill.missing, DBH="DBH..cm.", Species.Use="Species.Model", Canopy.Class="Canopy.Class", smooth.by="PlotID", canopy=T, out.prefix=out.path)
+# gamm.missing <- gapfill.gamm(data=fill.missing, DBH="DBH..cm.", Species.Use="Species.Model", Canopy.Class="Canopy.Class", smooth.by="PlotID", canopy=T, out.prefix=out.path)
 
-data.all[data.all$Measured=="NO", "RW.modeled"] <- gamm.missing$data[gamm.missing$data$Measured=="NO", "RW.modeled"] # Note: this will rewrite the modeled values in data.all even if we had previously gap-filled them (this is a good thing)
+# Running site by site, because something isn't right
+for(s in site.codes){
+	rows.site <- which(substr(fill.missing$PlotID,1,2)==s) # figuring out which rows belong to a given site
 
-summary(data.all) # Sanity Check: make sure there are no NAs in RW.modeled
+	data.use <- fill.missing[rows.site,] # subset the data for each plot
+	data.use <- droplevels(data.use) # git rid of levels for factors like Species that no longer exist
 
+	out.path <- paste0("processed_data/GapFill_Metadata/", "MissingTrees")
+
+	# The ifelse is no longer necessary for our data, but an example of how to select special options  based on certain sites
+	# if(substr(s,1,1)=="V" | substr(s,1,1)=="N"){ # This is no longer necessary, but an example of how to select special options  based on certain sites
+		# gamm.out <- gapfill.gamm(data= data.use, DBH="DBH..cm.", Species.Use="Species", Canopy.Class="Canopy.Class", canopy=F, out.prefix=out.path)
+	# } else {
+#		gamm.out <- gapfill.gamm(data= data.use, smooth.by="spp.plot", DBH="DBH..cm.", Species.Use="Species", Canopy.Class="Canopy.Class", canopy=T, out.prefix=out.path)
+		gamm.out <- gapfill.gamm(data= data.use, DBH="DBH..cm.", Species.Use="Species.Model", smooth.by="PlotID", Canopy.Class="Canopy.Class", canopy=T, out.prefix=out.path)
+
+	# }
+	fill.missing[rows.site, "RW.modeled"] <- gamm.out$data$RW.modeled
+}
+
+
+summary(fill.missing)
+
+# Merge
+dim(data.all)
+summary(data.all[is.na(data.all$Dated),])
+dim(fill.missing)
+
+vars.merge <- c("TreeID", "Year", "PlotID", "RW.modeled")
+
+data.all2 <- merge(data.all[!is.na(data.all $RW.modeled),], fill.missing[fill.missing$Measured=="NO",vars.merge], all.x=T, all.y=T)
+summary(data.all2) # Sanity Check: make sure there are no NAs in RW.modeled
+dim(data.all2); dim(data.all)
 
 ##################################################################################
 # Create a gapfilled data set
 # Now we have a lot of different piece meal data sets that we need to put back together to have estimated or measured ring widths for everything
 ##################################################################################
-data.all$RW.gapfilled <- ifelse(is.na(data.all$RW), data.all$RW.modeled, data.all$RW)
-summary(data.all)
+data.all2$RW.gapfilled <- ifelse(is.na(data.all2$RW), data.all2$RW.modeled, data.all2$RW)
+summary(data.all2)
 
-plots <- unique(data.all$PlotID)
-
+plots <- unique(data.all2$PlotID)
+plots <- plots[!is.na(plots)]
 #summary(Site.data)
 
 # Get rid of estimated ring widths for years beyond when the tree was cored (i.e. trees cored in 2011 should not have estimates for 2014)
 for(p in plots){
-	yrs.na <- which(data.all$PlotID==p & data.all$Year>Site.data[Site.data$PlotID==p, "Year.sample"])
-	data.all[yrs.na,"RW.gapfilled"] <- NA
+	yrs.na <- which(data.all2$PlotID==p & data.all2$Year>Site.data[Site.data$PlotID==p, "Year.sample"])
+	data.all2[yrs.na,"RW.gapfilled"] <- NA
 }
-summary(data.all) # This should introduce a handful of NAs back in 
+summary(data.all2) # This should introduce a handful of NAs back in 
 
-write.csv(data.all, "processed_data/DOE_AllSites_Gapfilled.csv", row.names=F)
+write.csv(data.all2, "processed_data/DOE_AllSites_may2016_Gapfilled.csv", row.names=F)
 # ----------------------------------------------------------------
 
 

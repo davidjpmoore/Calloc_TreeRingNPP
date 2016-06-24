@@ -7,6 +7,17 @@ library(reshape)
 # ---------------------------------------
 # Tree Data
 tree.data <- read.csv("processed_data/DOE_AllsitesTreeData.csv")
+tree.data <- tree.data[!tree.data$Site=="Howland",]
+summary(tree.data)
+
+har.how.tree.data <- read.csv("raw_input_files/harvard_howland_may2016_tree_metadata.csv", header=T) 
+
+dim(tree.data)
+dim(har.how.tree.data[har.how.tree.data$Site=="Howland",])
+tree.data2 <- merge(tree.data, har.how.tree.data[har.how.tree.data$Site=="Howland",], all.x=T, all.y=T)
+dim(tree.data2)
+
+tree.data <- tree.data2
 summary(tree.data)
 
 # Site Data (for year cored) 
@@ -19,13 +30,37 @@ tree.data <- merge(tree.data, Site.data[,c("PlotID", "Year.sample")], all.x=T, a
 tree.data$Age <- tree.data$Year.sample - tree.data$Pith
 summary(tree.data)
 
-core.data <- read.csv("processed_data/core_data.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
+write.csv(tree.data, file="processed_data/DOE_tree_data_may2016_update.csv", row.names=F)
+
+
+core.data <- read.csv("processed_data/DOE_core_data_may2016_update.csv", na.strings=c("", "NA", "#VALUE!", "*"), header=T)
+summary(core.data)
+
+names(core.data) <- c("CoreID", "TreeID", "plot.id", "Site", "tree.number", "Species", "Canopy.Class", "Live.Dead", "DBH..cm.", "stems", "total.cores", "core.id", "pith.preset", "pith.yr", "inner.present", "inner.measured", "outer.measured", "bark.present", "inner.dated", "outer.dated", "dated", "Notes", "zombie", "plot")
+
+core.data <- core.data[!core.data$Site=="Howland",]
 #adding a column include which plot at the Site the trees belong to
+
+har.how.core.data <- read.csv("processed_data/HARV_how_may2016_core_data.csv", header=T)
+summary(har.how.core.data)
+
+names(har.how.core.data)
+
+core.data2 <- merge(core.data, har.how.core.data[har.how.core.data$Site=="Howland",], all.x=T, all.y=T)
+summary(core.data2)
+dim(core.data)
+dim(har.how.core.data[har.how.core.data$Site=="Howland",])
+dim(core.data2)
+
+cores.data <- core.data2
+write.csv(core.data, file="processed_data/DOE_core_data_may2016_update.csv", row.names=F)
+
+
 names(core.data)
 summary(core.data)
 
 #Load in the gap-filled data
-ring.data <- read.csv("processed_data/DOE_AllSites_Gapfilled.csv", header=T)
+ring.data <- read.csv("processed_data/DOE_AllSites_may2016_Gapfilled.csv", header=T)
 summary(ring.data)
 
 # making a data frame with trees as columns and years as ros
@@ -43,8 +78,20 @@ trees.gapfilled <- trees.gapfilled[order(row.names(trees.gapfilled), decreasing=
 trees.gapfilled[1:10, 1:10]
 trees.gapfilled[1:10, (ncol(trees.gapfilled)-10):ncol(trees.gapfilled)]
 
+dim(trees.gapfilled)
+
+# Removing trees that don't exist
 dbh.recon <- trees.gapfilled
+dbh.recon <- dbh.recon[,names(dbh.recon) %in% tree.data$TreeID]
+
+
 trees.check <- vector() # trees with negative DBH..cm.
+
+head(trees.gapfilled)
+head(dbh.recon)
+
+
+
 for(j in names(dbh.recon)){
 
 	# Step 1: Replace filled years beyond the year in which a tree was sampled with NA (both trees.gapfilled & DBH..cm. recon); 
@@ -56,6 +103,9 @@ for(j in names(dbh.recon)){
 	dbh.recon[as.numeric(row.names(dbh.recon))>tree.data[tree.data$TreeID==j, "Year.sample"],j] <- NA
 	dbh.recon[as.numeric(row.names(dbh.recon))==tree.data[tree.data$TreeID==j, "Year.sample"],j] <- tree.data[tree.data$TreeID==j, "DBH..cm."]
 	
+	# As a temporary stopgap, if the year sampled doesn't have any RW, just call it 0
+	if(is.na(trees.gapfilled[as.numeric(row.names(trees.gapfilled))==tree.data[tree.data$TreeID==j, "Year.sample"],j])) trees.gapfilled[as.numeric(row.names(trees.gapfilled))==tree.data[tree.data$TreeID==j, "Year.sample"],j] <- 0
+	
 	# Doing the DBH..cm. reconstruction	
 	for(i in 2:(length(dbh.recon[,j]))){
 		dbh.recon[i,j] <- ifelse(!is.na(trees.gapfilled[i-1,j]), dbh.recon[i-1,j] - trees.gapfilled[i-1,j]*2, dbh.recon[i,j]) # subtracting the previous year's growth from DBH..cm. to get that year's DBH..cm.
@@ -65,8 +115,7 @@ for(j in names(dbh.recon)){
 	if(!is.na(tree.data[tree.data$TreeID==j, "Pith"])){
 		dbh.recon[as.numeric(row.names(dbh.recon))<tree.data[tree.data$TreeID==j, "Pith"],j] <- NA
 		trees.gapfilled[as.numeric(row.names(trees.gapfilled))<tree.data[tree.data$TreeID==j, "Pith"],j] <- NA
-	} else 
-	if(is.na(tree.data[tree.data$TreeID==j, "Pith"])){ # Get rid of negative modeled DBH..cm.
+	} else if(is.na(tree.data[tree.data$TreeID==j, "Pith"])){ # Get rid of negative modeled DBH..cm.
 		dbh.recon[,j] <- ifelse(dbh.recon[,j]<0, NA, dbh.recon[,j]) 
 		trees.gapfilled[,j] <- ifelse(dbh.recon[,j]<0, NA, trees.gapfilled[,j]) 		
 	}
@@ -98,8 +147,8 @@ summary(dbh.recon[, trees.check])
 #trees.gapfilled[, trees.check]
 tree.data[tree.data$TreeID %in% trees.check,]
 # ---------------------------------------
-write.csv(dbh.recon, "processed_data/DOE_Allsites_GapFilling_DBHrecon_ALL.csv", row.names=T)
-write.csv(trees.gapfilled, "processed_data/DOE_Allsites_GapFilling_RingWidths_ALL.csv", row.names=T)
+write.csv(dbh.recon, "processed_data/DOE_Allsites_may2016_updateGapFilling_DBHrecon_ALL.csv", row.names=T)
+write.csv(trees.gapfilled, "processed_data/DOE_Allsites_may2016_update_GapFilling_RingWidths_ALL.csv", row.names=T)
 
 ##################################################################################
 # see next script for reconstructing basal area of trees with no samples 

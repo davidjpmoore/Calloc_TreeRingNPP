@@ -36,6 +36,7 @@ data$smooth.by    <- data[,smooth.by]
 # Note: the log link with the gaussian family to prevent fitting negative values requires that you can't actually have 0 growth so we're going to make it really really small instead
 data$RW <- ifelse(data$RW==0, 1e-6, data$RW)
 
+	if(length(unique(data$Canopy))==1) canopy=F
 # if(year.effect==T){
 	# if(canopy==T){
 		# gamm.fill <- gamm(log(RW) ~ s(Year, bs="cs", k=3, by=smooth.by) + as.factor(Year) + DBH, random=list(Species.Use=~1, Site=~1, PlotID=~1, Canopy=~1), data= data, na.action=na.omit,  control=list(niterEM=0, sing.tol=1e-20, opt="optim"))
@@ -46,7 +47,11 @@ data$RW <- ifelse(data$RW==0, 1e-6, data$RW)
 	if(canopy==T){
 		gamm.fill <- gamm(log(RW) ~ s(Year, bs="cs", k=3, by=smooth.by) + DBH, random=list(Species.Use=~1, Site=~1, PlotID=~1, Canopy=~1), data= data, na.action=na.omit,  control=list(niterEM=0, sing.tol=1e-20, opt="optim"))
 	} else {
+		if(unique(data$Site)=="Niwot") { # Niwot's being a pain, so giving it special conditions
+			gamm.fill <- gamm(log(RW) ~ s(Year, bs="cs", k=3, by=smooth.by) + DBH, random=list(Species.Use=~1, Site=~1, PlotID=~1), data= data, na.action=na.omit)	
+		} else {
 		gamm.fill <- gamm(log(RW) ~ s(Year, bs="cs", k=3, by=smooth.by) + DBH, random=list(Species.Use=~1, Site=~1, PlotID=~1), data= data, na.action=na.omit,  control=list(niterEM=0, sing.tol=1e-20, opt="optim"))
+		}
 	}
 # }
 # Making Predicted ring widths
