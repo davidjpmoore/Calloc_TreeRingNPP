@@ -14,8 +14,6 @@ summary(g.filled.diam)
 
 # summary(g.filled.diam)
 
-# Changing PCRU to PIRU as this is the correct terminology
-trees.use$Species <- recode(trees.use$Species, "'PCRU' = 'PIRU'")
 
 # read in tree data
 tree.data <- read.csv("processed_data/DOE_AllsitesTreeData.csv", header=T)
@@ -26,6 +24,9 @@ summary(tree.data)
 trees.use <- tree.data[tree.data$TreeID %in% names(g.filled.diam),] # If you want to do this later, it'll be a special case
 # trees.use <- tree.data
 summary(trees.use)
+
+# Changing PCRU to PIRU as this is the correct terminology
+trees.use$Species <- recode(trees.use$Species, "'PCRU' = 'PIRU'")
 
 plot.data <- read.csv("raw_input_files/DOE_plus_Valles.csv")
 plot.data$Year.Sample <- as.numeric(substr(plot.data$date.sample,7,10))

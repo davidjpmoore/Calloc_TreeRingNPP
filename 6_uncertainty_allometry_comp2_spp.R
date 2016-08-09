@@ -83,6 +83,8 @@ for(s in Site){
 summary(biom.Site[[1]])
 names(biom.Site)<- c("Austin-Cary", "Duke_HW", "Duke_ll", "Howland", "UMBS", "Morgan-Monroe", "Missouri", "Niwot", "Oak_openings", "Savannah_River", "Harvard", "VLF", "VUF")
 sites <- c("Austin-Cary", "Duke_HW", "Duke_ll", "Howland", "UMBS", "Morgan-Monroe", "Missouri", "Niwot", "Oak_openings", "Savannah_River", "Harvard", "VLF", "VUF")
+
+save(biom.Site, file="processed_data/spp_eqtn_Site_allom_database.Rdata")
 # ------------------------
 
 # ------------------------

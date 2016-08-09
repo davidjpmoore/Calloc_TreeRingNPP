@@ -64,6 +64,8 @@ for(p in 1:length(plots)){
 }
 summary(biom.plot)
 
+save(biom.plot, file="processed_data/spp_eqtn_plot_density_database.Rdata")
+
 #  Plot to Site, get CI from differences among plots
 site <- unique(substr(names(biom.plot),1,2))
 site <- site[!site == "Ye"]
