@@ -13,7 +13,7 @@ library(ggplot2)
 library(car)
 library(grid)
 # Read in the full MCMC-based indivudal tree biomass estimates
-load("processed_data/Biomass_Array_Tree_kgm-2.RData")
+load("processed_data/Biomass_Array_Tree_kgm-2_component29.RData")
 # ------------------------
 
 # ------------------------
@@ -45,6 +45,11 @@ for(p in plots){
 	biom.plot[,p,] <- apply(biom.valles[,cols.plot,], c(1,3), FUN=mean)
 }
 summary(biom.plot[,,1])
+
+
+
+
+
 
 # Go from plot to site while preserving the allometry iterations (currently dim #3)
 vlf.mean <- apply(biom.plot[,substr(dimnames(biom.plot)[[2]],1,3)=="VLF",], c(1,3), mean) 

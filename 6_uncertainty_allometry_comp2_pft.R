@@ -68,6 +68,40 @@ summary(biom.plot[,,1])
 
 
 
+save(biom.plot, file="processed_data/for_alex_dye/Comp2_plot_bm_array_allom_spp.Rdata")
+
+# Getting plot level mean and CI's for Alex Dye
+plot.bm <- list()
+
+for(p in plots){
+  plot.bm[[p]] <- data.frame(Year = as.numeric(dimnames(biom.plot)[[1]]),
+                        PlotID = p,
+                        mean = apply(biom.plot[,p,], 1, FUN=mean, na.rm=T),
+                        UB = apply(biom.plot[,p,], 1, FUN=quantile, 0.975, na.rm=T),
+                        LB = apply(biom.plot[,p,], 1, FUN=quantile, 0.025, na.rm=T))
+}
+
+summary(plot.bm[[15]][1:10,])  
+
+summary(plot.bm)
+
+
+
+# Adding in site to the plot.bm object
+for(i in 1:length(plot.bm)){
+  plot.bm[[i]]$Site <- substr(plot.bm[[i]]$PlotID,1,2)
+}
+
+for(i in 1:length(plot.bm)){
+  plot.bm[[i]]$Site <- recode(plot.bm[[i]]$Site, "'MO'='Missouri';'MM'='Morgan_Monroe';'OO'='Oak_Openings';'TP'='Harvard';'HO'='Howland';'DH'='Duke_HW';'DH'='Duke_LL';'AC'='Austin_Cary';'MA'='Michigan';'NW'='Niwot';'SR'='Savannah_River';'VU'='Valles_Upper';'VL'='Valles_lower';")
+}
+
+plot.bm <- plot.bm[!substr(names(plot.bm),1,2)=="VL"]
+summary(plot.bm)
+length(plot.bm)
+
+save(plot.bm, file="processed_data/for_alex_dye/Comp2_plot_bm_kg_m2_allom_spp.Rdata")
+
 
 # Go from plot to site while preserving the allometry iterations (currently dim #3)
 Site <- unique(substr(dimnames(biom.doe)[[2]], 1, 2))

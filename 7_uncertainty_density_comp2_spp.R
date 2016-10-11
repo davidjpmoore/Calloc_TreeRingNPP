@@ -21,7 +21,8 @@ load("processed_data/Biomass_Array_Tree_kgm-2_component2_spp.RData") # loads plo
 # Note: the CIs here will be rather weird since we only have 2 plots with cores for each site
 # ------------------------
 # Subsetting and using the mean allometric biomass estimate to get a biomass/tree
-biom.doe <- data.frame(apply(bm.array, c(1,2), mean))
+#biom.doe <- data.frame(apply(bm.array, c(1,2), mean))
+biom.doe <- bm.array
 biom.doe$Year <- as.numeric(dimnames(bm.array)[[1]])
 summary(biom.doe)
 
@@ -40,12 +41,12 @@ names(biom.doe)<- ifelse(substr(names(biom.doe),1,4)=="VUF0", paste0("VUA", subs
 names(biom.doe)
 
 
-
+dimnames(biom.doe)[[2]] 
 
 # Going from trees to plots (ignoring any tree-level plot level)
 # Note: Using a dummy code here so that we bassically have plot #0 and Plot #1
 plots <- unique(substr(names(biom.doe), 1, 3))
-plots <- plots[!plots == "Yea"]
+plots <- plots[!plots == "Year"]
 
 
 # Go from tree biomass (kg/m2) to plot (kg/m2)
@@ -65,6 +66,86 @@ for(p in 1:length(plots)){
 summary(biom.plot)
 
 save(biom.plot, file="processed_data/spp_eqtn_plot_density_database.Rdata")
+
+
+###############
+# For Alex
+biom.doe <- bm.array
+dimnames(biom.doe)[[2]]<- ifelse(substr(dimnames(biom.doe)[[2]],1,4)=="VUF0", paste0("VUA", substr(dimnames(biom.doe)[[2]],4,6)),
+                                 ifelse(substr(dimnames(biom.doe)[[2]],1,4)=="VUF1", paste0("VUB", substr(dimnames(biom.doe)[[2]],4,6)),
+                                        ifelse(substr(dimnames(biom.doe)[[2]],1,4)=="VLF0", paste0("VLA", substr(dimnames(biom.doe)[[2]],4,6)),
+                                               ifelse(substr(dimnames(biom.doe)[[2]],1,4)=="VLF1", paste0("VLB", substr(dimnames(biom.doe)[[2]],4,6)),
+                                                      
+                                                      ifelse(substr(dimnames(biom.doe)[[2]],1,4)=="HOW1", paste0("HOA", substr(dimnames(biom.doe)[[2]],4,6)),
+                                                             ifelse(substr(dimnames(biom.doe)[[2]],1,4)=="HOW2", paste0("HOB", substr(dimnames(biom.doe)[[2]],4,6)),
+                                                                    ifelse(substr(dimnames(biom.doe)[[2]],1,4)=="HOW3", paste0("HOC", substr(dimnames(biom.doe)[[2]],4,6)),
+                                                                           paste(dimnames(biom.doe)[[2]]))))))))
+
+
+
+
+
+plots <- unique(substr(dimnames(biom.doe)[[2]], 1, 3))
+
+
+plots <- plots[!plots == "Year"]
+
+# Go from tree biomass (kg/m2) to plot (kg/m2)
+biom.plot <- array(dim=c(nrow(biom.doe), length(plots), dim(biom.doe)[3]))
+dimnames(biom.plot)[[1]] <- dimnames(biom.doe)[[1]]
+dimnames(biom.plot)[[2]] <- c(plots)
+dim(biom.plot)
+
+for(p in 1:length(plots)){
+  cols.plot <- which(substr(dimnames(biom.doe)[[2]],1,3)==plots[p])
+  if(substr(plots[p],1,1)=="V" | substr(plots[p],1,1)=="N"){
+    biom.plot[,p,] <- apply(biom.doe[,cols.plot,], c(1,3), FUN=mean, na.rm=T)
+  } else {
+    biom.plot[,p,] <- apply(biom.doe[,cols.plot,], c(1,3), FUN=sum, na.rm=T)		
+  }
+}
+summary(biom.plot[,,1])
+
+
+
+
+
+save(biom.plot, file="processed_data/for_alex_dye/Comp_2_plot_bm_array_dens_spp.Rdata")
+
+# Getting plot level mean and CI's for Alex Dye
+plot.bm <- list()
+
+for(p in plots){
+  plot.bm[[p]] <- data.frame(Year = as.numeric(dimnames(biom.plot)[[1]]),
+                             PlotID = p,
+                             mean = apply(biom.plot[,p,], 1, FUN=mean, na.rm=T),
+                             UB = apply(biom.plot[,p,], 1, FUN=quantile, 0.975, na.rm=T),
+                             LB = apply(biom.plot[,p,], 1, FUN=quantile, 0.025, na.rm=T))
+}
+
+summary(plot.bm[[15]][1:10,])  
+
+summary(plot.bm)
+
+
+
+# Adding in site to the plot.bm object
+for(i in 1:length(plot.bm)){
+  plot.bm[[i]]$Site <- substr(plot.bm[[i]]$PlotID,1,2)
+}
+
+for(i in 1:length(plot.bm)){
+  plot.bm[[i]]$Site <- as.factor(recode(plot.bm[[i]]$Site, "'MO'='Missouri';'MM'='Morgan_Monroe';'OO'='Oak_Openings';'TP'='Harvard';'HO'='Howland';'DH'='Duke_HW';'DH'='Duke_LL';'AC'='Austin_Cary';'MA'='Michigan';'NW'='Niwot';'SR'='Savannah_River';'VU'='Valles_Upper';'VL'='Valles_lower';"))
+}
+
+plot.bm <- plot.bm[!substr(names(plot.bm),1,2)=="VL"]
+summary(plot.bm)
+length(plot.bm)
+
+save(plot.bm, file="processed_data/for_alex_dye/Comp2_plot_bm_kg_m2_dens_spp.Rdata")
+
+
+
 
 #  Plot to Site, get CI from differences among plots
 site <- unique(substr(names(biom.plot),1,2))
