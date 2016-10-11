@@ -1,7 +1,8 @@
 ##################################################################################
 # DBH Reconstruction
 ##################################################################################
-
+library(car)
+library(reshape2)
 # ---------------------------------------
 # DBH..cm. Reconstruction
 # ---------------------------------------
@@ -45,6 +46,75 @@ trees.gapfilled[1:10, (ncol(trees.gapfilled)-10):ncol(trees.gapfilled)]
 
 dbh.recon <- trees.gapfilled
 trees.check <- vector() # trees with negative DBH..cm.
+############################################
+# Flurin's Way of reconstructing DBH
+# Using proportional Method found in Bakker 2005
+############################################
+summary(dbh.recon)
+summary(tree.data)
+
+dbh.recon2 <- dbh.recon
+dbh.recon2[is.na(dbh.recon2)==T] <- 0
+
+# Reorderind data so that the cumulative sums will be correct
+dbh.recon2 <- dbh.recon2[order(row.names(dbh.recon2), decreasing=F),order(names(dbh.recon2))]
+
+# Shorten things for now
+# dbh.recon2 <- dbh.recon2[,c(1:20)]
+
+
+xylem.radius <- as.data.frame(apply(dbh.recon2, 2, FUN="cumsum"))
+summary(xylem.radius)
+
+head(xylem.radius)
+names(xylem.radius)
+
+ip <- xylem.radius[nrow(xylem.radius),] #the full radius
+head(ip)
+names(ip)
+diameter <- xylem.radius
+
+for(i in names(xylem.radius)){
+	for(t in 1:nrow(xylem.radius)){
+		ih <- ip[names(ip)==i]-xylem.radius[t,i]
+
+		diameter[t,i] <- tree.data[tree.data$TreeID==i,"DBH..cm."] *((ip[names(ip)==i]-ih)/ip[names(ip)==i])
+	}
+}
+summary(diameter)
+head(diameter)
+plot(diameter[,"VLF001"])
+
+diameter2 <- diameter[order(row.names(diameter), decreasing=T),order(names(diameter))]
+head(diameter2)
+
+
+diameter2[diameter2==0] <- NA
+diameter2 <- diameter2[as.numeric(row.names(diameter2))<2012 & as.numeric(row.names(diameter2))> 1980,]
+# Loading in Ross's way of Diameters
+
+ross.diam <- read.csv("processed_data/GapFilling_DBHrecon_ALL.csv", header=T, row.names=1)
+summary(ross.diam)
+head(ross.diam)
+ross.diam <- ross.diam[row.names(ross.diam)<2012 & row.names(ross.diam)>1980,]
+
+length(ross.diam[,"VLF001"])
+length(diameter2[,"VLF001"])
+
+x <- stack(ross.diam)[,1]
+y <- stack(diameter2)[,1]
+plot(x~y, xlim=c(0,30), ylim=c(0,30))
+
+test <- lm(x~y)
+summary(test)
+
+diam.diff = x-y
+summary(diam.diff)
+
+############################################
+# Ross's Way of reconstructing DBH
+# Just taking ring widths and subtracting from original diameter
+############################################
 for(j in names(dbh.recon)){
 
 	# Step 1: Replace filled years beyond the year in which a tree was sampled with NA (both trees.gapfilled & DBH..cm. recon); 

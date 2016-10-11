@@ -132,9 +132,9 @@ vlf.dated.trees <- as.vector(vlf.dated.trees)
 #vuf.big.trees; vuf.small.trees; vlf.big.trees; vlf.small.trees
 
 
-# Now takign 100 pulls from each of these dataframes to make simulated realizations of biomass that have been added in quadrature
+# Now taking 30^3 pulls from each of these dataframes to make simulated realizations of biomass that have been added in quadrature
 
-n.pulls=100
+n.pulls=30000
 set.seed(0946)
 
 
@@ -196,7 +196,7 @@ write.csv(vlf.big.bm, file="processed_data/vlf_simulated_bm_big.csv", row.names=
 write.csv(vlf.small.bm, file="processed_data/vlf_simulated_bm_small.csv", row.names=F)
 write.csv(vlf.dated.bm, file="processed_data/vlf_simulated_bm_dated.csv", row.names=F)
 ################################################################################################
-# Breaking down and looking at each area of uncertainty andn using in correlations in the next script; Still using 100 pulls.
+# Breaking down and looking at each area of uncertainty andn using in correlations in the next script; Still using 5000 pulls.
 ################################################################################################
 
 # Increment only

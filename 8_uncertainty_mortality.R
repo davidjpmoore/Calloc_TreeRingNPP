@@ -39,7 +39,7 @@ summary(ross.valles)
 dens.adj <- data.frame(plot.id      = c("VUA", "VUB", "VLA", "VLB"),
                        trees.plot   = c(   64,   112,    85,    56), # in trees
                        trees.sample = c(   50,    51,    50,    50), # in trees
-                       plot.area    = c(24*24, 24*24, 12*12, 26*24)) # in m2
+                       plot.area    = c(24*24, 24*24, 24*24, 26*24)) # in m2
 dens.adj$plot.density  <- dens.adj$trees.plot/dens.adj$plot.area # in trees/m2
 dens.adj$p.sample <- dens.adj$trees.sample/dens.adj$trees.plot
 dens.adj
