@@ -17,6 +17,8 @@ valles.ind.dev$SiteID <- factor(valles.ind.dev$SiteID, levels= c("Upper Site", "
 # -----------------------------------
 # -----------------------------------
 
+marcy.data <- data.frame(SiteID=c("Upper Site", "Lower Site"), mean=c(26.6, 15.2), SD=c(2.8, 2.1))
+summary(marcy.data)
 # Plotting up the individual areas of uncertainty that were added in quadrature
 
 # -----------------------------------
@@ -25,38 +27,41 @@ valles.ind.dev$SiteID <- factor(valles.ind.dev$SiteID, levels= c("Upper Site", "
 
 cbbPalette <- c("#009E73", "#CC79A7", "#0072B2", "#E69F00")
 
-pdf("figures/uncertainty_figures/indiv_uncert_areas_quad.pdf", width=13, height=8.5)
+pdf("figures/uncertainty_figures/indiv_uncert_areas_quad_grey.pdf", width=13, height=8.5)
 ggplot(valles.ind.dev[valles.ind.dev$Year >= 1980 & valles.ind.dev$Year <=2011,]) + facet_grid(SiteID ~ .) +
   geom_line(aes(x=Year, y=Base), size=1.5, color="black") +
 
   #1) Increment Uncertainty
-  geom_ribbon(aes(x=Year, ymin=Base - LB.inc, ymax= Base + UB.inc, fill="1"), alpha=0.9) +
-
-  #2) Allometric Uncertainty -- separate for upper & lower to make things clearer
-  geom_ribbon(aes(x=Year, ymin=Base - LB.allom, ymax= Base - LB.inc, fill="2"), alpha=0.9) +
-  geom_ribbon(aes(x=Year, ymin=Base + UB.allom, ymax=Base + UB.inc, fill="2"), alpha=0.9) +
-  
-  #3) Density Uncertainty -- separate for upper & lower to make things clearer
-  geom_ribbon(aes(x=Year, ymin=Base - LB.dens, ymax=Base - LB.allom, fill="3"), alpha=0.9) +
-  geom_ribbon(aes(x=Year, ymin=Base + UB.dens, ymax=Base + UB.allom, fill="3"), alpha=0.9) +
+  # geom_ribbon(aes(x=Year, ymin=Base - LB.inc, ymax= Base + UB.inc, fill="1"), alpha=0.9) +
+  # 
+  # #2) Allometric Uncertainty -- separate for upper & lower to make things clearer
+  # geom_ribbon(aes(x=Year, ymin=Base - LB.allom, ymax= Base - LB.inc, fill="2"), alpha=0.9) +
+  # geom_ribbon(aes(x=Year, ymin=Base + UB.allom, ymax=Base + UB.inc, fill="2"), alpha=0.9) +
+  # 
+  # #3) Density Uncertainty -- separate for upper & lower to make things clearer
+  # geom_ribbon(aes(x=Year, ymin=Base - LB.dens, ymax=Base - LB.allom, fill="3"), alpha=0.9) +
+  # geom_ribbon(aes(x=Year, ymin=Base + UB.dens, ymax=Base + UB.allom, fill="3"), alpha=0.9) +
   
   #4) Mortality Uncertainty -- separate for upper & lower to make things clearer
-  geom_ribbon(aes(x=Year, ymin=Base - LB.mort, ymax= Base - LB.dens, fill="4"), alpha=0.9) +
-  geom_ribbon(aes(x=Year, ymin=Base + UB.mort, ymax=Base + UB.dens, fill="4"), alpha=0.9) +
+  geom_ribbon(aes(x=Year, ymin=Base - LB.mort, ymax= Base + UB.mort),fill="darkgrey", alpha=0.6) +
+  #geom_ribbon(aes(x=Year, ymin=Base + UB.mort, ymax=Base + UB.dens, fill="4"), alpha=0.9) +
   
   # Reiterate mean line for clarity
   geom_line(aes(x=Year, y=Base), size=1.5, color="black") +
-
+  
+  # Adding in Marcy Points
+  geom_point(data=marcy.data,aes(x=2007, y = mean), size=4) +
+  geom_errorbar(data=marcy.data,aes(x=2007, ymin=mean-(SD*1.96), ymax=mean+(SD*1.96)), size=1.5) +
   # add time slice lines
   #geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted") +
   
   # Legend Formatting
   labs(#title= "Quad calculated Stacked Uncertainties", 
   x="Year", y=expression(bold(paste("Aboveground Biomass (kg m"^"-2",")")))) +
-  scale_fill_manual(name="Uncertainty", values=cbbPalette, labels=c("Increment", "Allometry", "Plot Density", "Mortality")) +
+  #scale_fill_manual(name="Uncertainty", values=cbbPalette, labels=c("Increment", "Allometry", "Plot Density", "Mortality")) +
   guides(fill=guide_legend(override.aes=list(alpha=0.15))) +
 #  theme(legend.position=c(0.2,0.85), legend.text=element_text(size=rel(1.25)), legend.title=element_text(size=rel(1.25)))  + 
-  theme(legend.position=c(0.09,0.92)) + 
+  theme(legend.position=c(0.85,0.5)) + 
 
   # General Plot formatting
   theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=rel(1.5)), axis.text.y=element_text(color="black", size=rel(1.5)), axis.title.x=element_text(face="bold", size=rel(1.5), vjust=-0.5),  axis.title.y=element_text(face="bold", size=rel(1.5), vjust=1), plot.margin=unit(c(0.1,0.5,0.5,0.1), "lines")) +
@@ -69,12 +74,49 @@ ggplot(valles.ind.dev[valles.ind.dev$Year >= 1980 & valles.ind.dev$Year <=2011,]
 
 dev.off()
 
-
-
-##########################################################################################
-##########################################################################################
-
+######################################################################################################
 # Figure 2
+# partitioned cumulative uncertainty
+######################################################################################################
+load("processed_data/valles_cumulative_supplemental.Rdata")
+
+summary(vc.cum.supp)
+
+vc.cum.supp$Site <- recode(vc.cum.supp$Site, "'Upper'='Upper Site';'Lower'='Lower Site'")
+vc.cum.supp$Site <- factor(vc.cum.supp$Site, levels = c("Upper Site", "Lower Site"))
+vc.cum.supp$type <- factor(vc.cum.supp$type, levels = c("inc", "allom", "dens", "mort", "total"))
+
+vc.cum.supp$name <-vc.cum.supp$type
+vc.cum.supp$name <- recode(vc.cum.supp$name, "'inc'='Inc. Upscaling';'allom'='Allometric';'dens'='Stand Density';'mort'='Mortality'")
+vc.cum.supp$name <- factor(vc.cum.supp$name, levels = c("Inc. Upscaling", "Allometric", "Stand Density", "Mortality", "total"))
+
+# graphing period from 1980-2011 for paper
+pdf("figures/uncertainty_figures/breakout_cumulative.pdf", width=13, height=8.5)
+ggplot(data=vc.cum.supp[vc.cum.supp$Year > 1980,]) + facet_grid(name~Site) +
+  
+  geom_ribbon(aes(x=Year, ymin= base - LB.dev, ymax= UB.dev + base), fill="darkgrey", alpha=0.6) +
+  geom_hline(aes(yintercept=0), linetype="dashed") +	
+  geom_line(aes(x=Year, y=base), size=0.5, color="black") +
+  
+  #geom_line(aes(x=year, y=mean), size=1.5, color="black") +
+  labs(#title= "Biomass Increment Total Uncertainty", 
+    x="Year", y=expression(bold(paste("Biomass (kg m" ^ "-2",")")))) +
+  theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=rel(1.5)), axis.text.y=element_text(color="black", size=rel(1.5)), axis.title.x=element_text(face="bold", size=rel(1.5), vjust=-0.5),  axis.title.y=element_text(face="bold", size=rel(1.5), vjust=1), plot.margin=unit(c(0.1,0.5,0.5,0.1), "lines")) +
+  
+  theme(strip.text=element_text(size=rel(1.5), face="bold"))+
+  poster.theme2 +
+  theme(axis.line.x = element_line(color="black", size = 0.5),
+        axis.line.y = element_line(color="black", size = 0.5))
+
+
+dev.off()     
+
+
+
+##########################################################################################
+##########################################################################################
+
+# Figure 3
 # Increment biomass and the contributing areas of uncertainty broken out to be viewed individually
 
 
@@ -115,7 +157,7 @@ dev.off()
 ##########################################################################################
 ##########################################################################################
 
-# Figure 3
+# Figure 4
 # Correlation bar charts of mean BM chronology along with other ecology and climate chronologies
 # outside Chronologies: Touchan et al. 2010: upper; Brice et al 2013:Lower
 # Correlations from 1980-2007 (common period)
@@ -153,7 +195,7 @@ dev.off()
 ##########################################################################################
 ##########################################################################################
 
-# Figure 4
+# Figure 5
 # Violin plots of climate correlations of the 100 random pulls from the full range of BM uncertainty
 # same significance critical value as above
 
@@ -168,17 +210,17 @@ all.valles.bm.stack$site <- factor(all.valles.bm.stack$site, levels=c("Upper Sit
 
 pdf("figures/uncertainty_figures/BMI_violin_seasons_big_small.pdf", width=13, height=8.5)
 ggplot(data=all.valles.bm.stack[all.valles.bm.stack$month %in% c("pFall", "Winter","Spring", "Summer") & all.valles.bm.stack$type %in% c("tmean", "precip") & all.valles.bm.stack$size %in% c("big", "small", "all"),]) + facet_grid(site ~ type , scales="free_x")+
-	geom_violin(aes(x=month, y=corr, color=size), adjust=4, scale="width") +
-	geom_violin(aes(x=month, y=corr, color=size), adjust=4, scale="width") +
-	geom_violin(aes(x=month, y=corr, fill=size, alpha=sig), adjust=4, scale="width") +
+	geom_violin(aes(x=month, y=corr, fill=size), adjust=4, scale="width") +
+	#geom_violin(aes(x=month, y=corr, color=size), adjust=4, scale="width") +
+	#geom_violin(aes(x=month, y=corr, fill=size, alpha=sig), adjust=4, scale="width") +
 	
 	
 	stat_summary(aes(x=month, y=corr, mapping = size), fun.y="mean", geom="point", shape="-", size=20, position=position_dodge(width = 0.9)) +
 	
 	
-	scale_color_manual(values=c("blue", "red", "darkgreen", "purple")) +
+	#scale_color_manual(values=c("blue", "red", "darkgreen", "purple")) +
 	scale_fill_manual(values=c("blue", "red", "darkgreen", "purple")) +
-	scale_alpha_manual(values = c(1, 0.4))+
+	#scale_alpha_manual(values = c(1, 0.1))+
 	geom_hline(yintercept=0, linetype="solid") +
 	geom_hline(yintercept=0.374, linetype="dashed") +
 	geom_hline(yintercept=-0.374, linetype="dashed") +
@@ -304,4 +346,51 @@ ggplot(data=all.valles.climate.stack[all.valles.climate.stack$month %in% c("pFal
         axis.line.y = element_line(color="black", size = 0.5))
 
 dev.off()
+
+
+
+######################################################################################################
+# Supplemental Figure 6
+# Release detection
+######################################################################################################
+
+load(file="processed_data/release_detection.Rdata")
+
+summary(release.site)
+
+release.site$Site <- factor(release.site$Site, levels=c("Upper Site", "Lower Site"))
+major.release <- ggplot(data=release.site[release.site$Year>=1980,]) + facet_grid(Site~.) +
+                    geom_histogram(aes(x=Year, weight=p.Major), binwidth=1) +
+                    #geom_histogram(aes(x=Year, weight=p.Minor), binwidth=1) +
+                    scale_x_continuous(expand=c(0,0),limits=c(1980, 2011),breaks=c(1980, 1990,2000, 2010)) +  
+                    scale_y_continuous(name="Percent Trees Meeting Criteria", breaks=c(0,0.15, 0.30, 0.45), limit=c(0,0.5)) +
+                   
+                    poster.theme2 +
+                     theme(panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank()) +
+                    theme(axis.line.x = element_line(color="black", size = 0.5),
+                          axis.line.y = element_line(color="black", size = 0.5)) +
+                    labs(title="Major Release")
+  
+                   
+minor.release <- ggplot(data=release.site[release.site$Year>=1980,]) + facet_grid(Site~.) +
+                    #geom_histogram(aes(x=Year, weight=p.Major), binwidth=1) +
+                    geom_histogram(aes(x=Year, weight=p.Minor), binwidth=1) +
+                    scale_x_continuous(expand=c(0,0),limits=c(1980, 2011),breaks=c(1980, 1990,2000, 2010)) +  
+                    scale_y_continuous(name="Percent Trees Meeting Criteria", breaks=c(0,0.15, 0.30, 0.45), limit=c(0,0.5)) +
+                    
+                   poster.theme2 + 
+                   theme(axis.line.x = element_line(color="black", size = 0.5),
+                          axis.line.y = element_line(color="black", size = 0.5)) +
+                    theme(axis.text.y=element_blank(), axis.title.y=element_blank()) +
+                    labs(title="Minor Release")
+
+
+png(file.path("figures/uncertainty_figures/", "Supp_Fig5.png"), width=13, height=8.5, units="in", res=180)
+grid.newpage()
+pushViewport(viewport(layout=grid.layout(nrow=1,ncol=2, widths=c(1.3,1,2))))
+print(major.release, vp = viewport(layout.pos.row = 1, layout.pos.col=1))
+print(minor.release, vp = viewport(layout.pos.row = 1, layout.pos.col=2))
+
+dev.off()
+
 

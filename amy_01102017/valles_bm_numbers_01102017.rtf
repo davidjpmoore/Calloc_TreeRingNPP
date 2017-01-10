@@ -1,0 +1,40 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1504\cocoasubrtf760
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 Jan 10, 2017\
+# Readme file for Valles Caldera Biomass\
+2 sites represented:\
+	Upper: Mixed conifer\
+	Lower: Ponderosa Pine\
+\
+Files: ind_uncert_areas_quad.Rdata\
+	valles_cumulative_supplemental.Rdata\
+	valles_bm_boot_tot_inc.Rdata\
+\
+Cumulative Biomass Files:\
+	ind_uncert_areas_quad.Rdata\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 	valles_cumulative_supplemental.Rdata\
+\
+Cumulative biomass files notes:\
+\
+ind_uncert_areas_quad.Rdata\
+	file contains biomass estimates that are added in quadrature with each successive area of 	uncertainty. The Base is calculated using the average allometric equation.  Order of addition: 	TR increment, Allometry, Stand Density, Mortality.  For total cumulative biomass plot Base 	(line), mort. uncertainty (uncertainty of all areas are added together to make this number).  UB/	LB correspond to the upper and lower 95%CI.  Areas of uncertainty have been added together 	in 
+\b \ul Quadrature, 
+\b0 \ulnone so they will not add up to the individual components in 		valles_cumulative_supplemental.Rdata\
+\
+valles_cumulative_supplemental.Rdata\
+	Presents data for each individual area of cumulative uncertainty (95%CI; UB/LB).  Base is 	again the biomass clalculated by using the mean allometric equation (if plotted, will produce 	line).\
+\
+\
+Incremetal biomass files:\
+	\
+valles_bm_boot_tot_inc.Rdata\
+	Incremental biomass number for both sites at the valles caldera.  Each area of uncertainty is 	centered around the incremental biomass calculated by taking the 1st differences of the Base 	cumulative biomass number from files listed above.  Areas of uncertainty: TR increment (inc), 	Allometric (allom), Stand Density (dens), mortality (mort).  Numbers 
+\b \ul have not
+\b0 \ulnone  been added 	together in quadrature, thus no \'93Total\'94 exists.\
+}

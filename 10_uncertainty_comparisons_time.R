@@ -113,11 +113,21 @@ allom.uncert.perc <- allom.uncert[,c("Year", "SiteID", "range.dev")]
 allom.uncert.perc$type <- as.factor("allom")
 summary(allom.uncert.perc)
 
+supp.allom <- allom.uncert[,c("Year", "Site", "LB.dev", "UB.dev")]
+supp.allom$type <- as.factor("allom")
+
+summary(supp.allom)
+
 # dens.uncert
 summary(dens.uncert)
 dens.uncert.perc <- dens.uncert[,c("Year", "SiteID", "range.dev")]
 dens.uncert.perc$type <- as.factor("dens")
 summary(dens.uncert.perc)
+
+supp.dens <- dens.uncert[,c("Year", "Site", "LB.dev", "UB.dev")]
+supp.dens$type <- as.factor("dens")
+
+summary(supp.dens)
 
 
 # uncert.mort
@@ -126,12 +136,29 @@ uncert.mort.perc <- uncert.mort[,c("Year", "SiteID", "range.dev")]
 uncert.mort.perc$type <- as.factor("mort")
 summary(uncert.mort.perc)
 
+supp.mort <- uncert.mort[,c("Year", "Site", "LB.dev", "UB.dev")]
+supp.mort$type <- as.factor("mort")
+
+summary(supp.mort)
 
 # uncert.increment
 summary(uncert.increment)
 uncert.increment.perc <- uncert.increment[,c("Year", "SiteID", "range.dev")]
 uncert.increment.perc$type <- as.factor("inc")
 summary(uncert.increment.perc)
+
+
+supp.inc <- uncert.increment[,c("Year", "Site", "LB.dev", "UB.dev")]
+supp.inc$type <- as.factor("inc")
+
+summary(supp.inc)
+
+# binding all together to make a supplemental figure 
+vc.cum.supp <- rbind(supp.allom, supp.mort, supp.dens, supp.inc)
+vc.cum.supp$base <- allom.uncert[,"Mean"]
+summary(vc.cum.supp)
+
+save(vc.cum.supp, file="processed_data/valles_cumulative_supplemental.Rdata")
 
 # Total uncertainty
 summary(valles.tot.dev)
@@ -265,7 +292,9 @@ names(valles.cum.ranges)<- c("Year", "Site", "range", "type")
 summary(valles.cum.ranges)
 
 
-
+ggplot(data=valles.cum.ranges) + facet_grid(Site~type) +
+  geom_line(aes(y = range, x= Year))
+  
 
 plot(valles.cum.ranges[valles.cum.ranges$Site=="VUF" & valles.cum.ranges$type=="total", "range"] ~valles.cum.ranges[valles.cum.ranges$Site=="VLF" & valles.cum.ranges$type=="total", "range"])
 
