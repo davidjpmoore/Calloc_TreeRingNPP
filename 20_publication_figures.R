@@ -17,7 +17,28 @@ valles.ind.dev$SiteID <- factor(valles.ind.dev$SiteID, levels= c("Upper Site", "
 # -----------------------------------
 # -----------------------------------
 
-marcy.data <- data.frame(SiteID=c("Upper Site", "Lower Site"), mean=c(26.6, 15.2), SD=c(2.8, 2.1))
+# These data taken from Anderson-Teixeira et al. 2011 Table S2.
+# Assumes 50% Carbon content
+
+#Lower : Mean = 7640 gC/m2, SE : 1050 gC/m2
+#Upper : Mean = 13300 gC/m2, SE : 1390 gC/m2
+# sample size was listed as n=4  for these sites
+# Lower mean in kgBM
+7640*2/1000
+
+# SD calculation for Lower Site
+# SD = SE * sqrt(n)
+
+(1050*2)*sqrt(4)/1000
+
+
+# Upper mean in kgBM
+13300*2/1000
+
+# SD
+(1390*2)*sqrt(4)/1000
+
+marcy.data <- data.frame(SiteID=c("Upper Site", "Lower Site"), mean=c(26.6, 15.28), SD=c(5.56, 4.2))
 summary(marcy.data)
 # Plotting up the individual areas of uncertainty that were added in quadrature
 
@@ -27,7 +48,7 @@ summary(marcy.data)
 
 cbbPalette <- c("#009E73", "#CC79A7", "#0072B2", "#E69F00")
 
-pdf("figures/uncertainty_figures/indiv_uncert_areas_quad_grey.pdf", width=13, height=8.5)
+pdf("figures/uncertainty_figures/indiv_uncert_areas_quad_grey_line.pdf", width=13, height=8.5)
 ggplot(valles.ind.dev[valles.ind.dev$Year >= 1980 & valles.ind.dev$Year <=2011,]) + facet_grid(SiteID ~ .) +
   geom_line(aes(x=Year, y=Base), size=1.5, color="black") +
 
@@ -70,9 +91,59 @@ ggplot(valles.ind.dev[valles.ind.dev$Year >= 1980 & valles.ind.dev$Year <=2011,]
   poster.theme2+
   theme(axis.line.x = element_line(color="black", size = 0.5),
         axis.line.y = element_line(color="black", size = 0.5))+
-  scale_x_continuous(expand=c(0,0))
+  scale_x_continuous(expand=c(0,0))+
+  #ylim(0,35)
 
 dev.off()
+
+
+png("figures/uncertainty_figures/indiv_uncert_areas_quad_grey_line2.png", unit="in",res=300, width=13, height=8.5)
+ggplot(valles.ind.dev[valles.ind.dev$Year >= 1980 & valles.ind.dev$Year <=2011,]) + facet_grid(SiteID ~ .) +
+  geom_line(aes(x=Year, y=Base), size=1.5, color="black") +
+  
+  #1) Increment Uncertainty
+  # geom_ribbon(aes(x=Year, ymin=Base - LB.inc, ymax= Base + UB.inc, fill="1"), alpha=0.9) +
+  # 
+  # #2) Allometric Uncertainty -- separate for upper & lower to make things clearer
+  # geom_ribbon(aes(x=Year, ymin=Base - LB.allom, ymax= Base - LB.inc, fill="2"), alpha=0.9) +
+  # geom_ribbon(aes(x=Year, ymin=Base + UB.allom, ymax=Base + UB.inc, fill="2"), alpha=0.9) +
+  # 
+  # #3) Density Uncertainty -- separate for upper & lower to make things clearer
+  # geom_ribbon(aes(x=Year, ymin=Base - LB.dens, ymax=Base - LB.allom, fill="3"), alpha=0.9) +
+  # geom_ribbon(aes(x=Year, ymin=Base + UB.dens, ymax=Base + UB.allom, fill="3"), alpha=0.9) +
+
+#4) Mortality Uncertainty -- separate for upper & lower to make things clearer
+geom_ribbon(aes(x=Year, ymin=Base - LB.mort, ymax= Base + UB.mort),fill="darkgrey", alpha=0.6) +
+  #geom_ribbon(aes(x=Year, ymin=Base + UB.mort, ymax=Base + UB.dens, fill="4"), alpha=0.9) +
+  
+  # Reiterate mean line for clarity
+  geom_line(aes(x=Year, y=Base), size=1.5, color="black") +
+  
+  # Adding in Marcy Points
+  geom_point(data=marcy.data,aes(x=2007, y = mean), size=4) +
+  geom_errorbar(data=marcy.data,aes(x=2007, ymin=mean-(SD*1.96), ymax=mean+(SD*1.96)), size=1.5) +
+  # add time slice lines
+  #geom_vline(xintercept=c(1980, 1995, 2011), linetype="dotted") +
+  
+  # Legend Formatting
+  labs(#title= "Quad calculated Stacked Uncertainties", 
+    x="Year", y=expression(bold(paste("Aboveground Biomass (kg m"^"-2",")")))) +
+  #scale_fill_manual(name="Uncertainty", values=cbbPalette, labels=c("Increment", "Allometry", "Plot Density", "Mortality")) +
+  guides(fill=guide_legend(override.aes=list(alpha=0.15))) +
+  #  theme(legend.position=c(0.2,0.85), legend.text=element_text(size=rel(1.25)), legend.title=element_text(size=rel(1.25)))  + 
+  theme(legend.position=c(0.85,0.5)) + 
+  
+  # General Plot formatting
+  theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=rel(1.5)), axis.text.y=element_text(color="black", size=rel(1.5)), axis.title.x=element_text(face="bold", size=rel(1.5), vjust=-0.5),  axis.title.y=element_text(face="bold", size=rel(1.5), vjust=1), plot.margin=unit(c(0.1,0.5,0.5,0.1), "lines")) +
+  
+  theme(strip.text=element_text(size=rel(1.5), face="bold"))+
+  poster.theme2+
+  theme(axis.line.x = element_line(color="black", size = 0.5),
+        axis.line.y = element_line(color="black", size = 0.5))+
+  scale_x_continuous(expand=c(0,0))
+  #ylim(0,35)
+  
+  dev.off()
 
 ######################################################################################################
 # Figure 2
@@ -87,8 +158,8 @@ vc.cum.supp$Site <- factor(vc.cum.supp$Site, levels = c("Upper Site", "Lower Sit
 vc.cum.supp$type <- factor(vc.cum.supp$type, levels = c("inc", "allom", "dens", "mort", "total"))
 
 vc.cum.supp$name <-vc.cum.supp$type
-vc.cum.supp$name <- recode(vc.cum.supp$name, "'inc'='Inc. Upscaling';'allom'='Allometric';'dens'='Stand Density';'mort'='Mortality'")
-vc.cum.supp$name <- factor(vc.cum.supp$name, levels = c("Inc. Upscaling", "Allometric", "Stand Density", "Mortality", "total"))
+vc.cum.supp$name <- recode(vc.cum.supp$name, "'inc'='Subsampling';'allom'='Allometric';'dens'='Sampling';'mort'='Mortality'")
+vc.cum.supp$name <- factor(vc.cum.supp$name, levels = c("Subsampling", "Allometric", "Sampling", "Mortality", "total"))
 
 # graphing period from 1980-2011 for paper
 pdf("figures/uncertainty_figures/breakout_cumulative.pdf", width=13, height=8.5)
@@ -112,6 +183,25 @@ ggplot(data=vc.cum.supp[vc.cum.supp$Year > 1980,]) + facet_grid(name~Site) +
 dev.off()     
 
 
+png("figures/uncertainty_figures/breakout_cumulative2.png", width=13, height=8.5, unit= "in", res = 300)
+ggplot(data=vc.cum.supp[vc.cum.supp$Year > 1980,]) + facet_grid(name~Site) +
+  
+  geom_ribbon(aes(x=Year, ymin= base - LB.dev, ymax= UB.dev + base), fill="darkgrey", alpha=0.6) +
+  geom_hline(aes(yintercept=0), linetype="dashed") +	
+  geom_line(aes(x=Year, y=base), size=0.5, color="black") +
+  
+  #geom_line(aes(x=year, y=mean), size=1.5, color="black") +
+  labs(#title= "Biomass Increment Total Uncertainty", 
+    x="Year", y=expression(bold(paste("Biomass (kg m" ^ "-2",")")))) +
+  theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=rel(1.5)), axis.text.y=element_text(color="black", size=rel(1.5)), axis.title.x=element_text(face="bold", size=rel(1.5), vjust=-0.5),  axis.title.y=element_text(face="bold", size=rel(1.5), vjust=1), plot.margin=unit(c(0.1,0.5,0.5,0.1), "lines")) +
+  
+  theme(strip.text=element_text(size=rel(1.5), face="bold"))+
+  poster.theme2 +
+  theme(axis.line.x = element_line(color="black", size = 0.5),
+        axis.line.y = element_line(color="black", size = 0.5))
+
+
+dev.off()    
 
 ##########################################################################################
 ##########################################################################################
@@ -130,8 +220,8 @@ valles.all.uncert$Site <- factor(valles.all.uncert$Site, levels = c("Upper Site"
 valles.all.uncert$type <- factor(valles.all.uncert$type, levels = c("inc", "allom", "dens", "mort", "total"))
 
 valles.all.uncert$name <-valles.all.uncert$type
-valles.all.uncert$name <- recode(valles.all.uncert$name, "'inc'='Inc. Upscaling';'allom'='Allometric';'dens'='Stand Density';'mort'='Mortality'")
-valles.all.uncert$name <- factor(valles.all.uncert$name, levels = c("Inc. Upscaling", "Allometric", "Stand Density", "Mortality", "total"))
+valles.all.uncert$name <- recode(valles.all.uncert$name, "'inc'='Subsampling';'allom'='Allometric';'dens'='Sampling';'mort'='Mortality'")
+valles.all.uncert$name <- factor(valles.all.uncert$name, levels = c("Subsampling", "Allometric", "Sampling", "Mortality", "total"))
 
 # graphing period from 1980-2011 for paper
 pdf("figures/uncertainty_figures/bm_inc_uncert_separate.pdf", width=13, height=8.5)
@@ -143,7 +233,7 @@ ggplot(data=valles.all.uncert[!valles.all.uncert$type=="total" & valles.all.unce
 
   #geom_line(aes(x=year, y=mean), size=1.5, color="black") +
 	labs(#title= "Biomass Increment Total Uncertainty", 
-	x="Year", y=expression(bold(paste("Biomass (kg m" ^ "-2",")")))) +
+	x="Year", y=expression(bold(paste("Biomass (kg m" ^ "-2","yr" ^ "-1",")")))) +
   theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=rel(1.5)), axis.text.y=element_text(color="black", size=rel(1.5)), axis.title.x=element_text(face="bold", size=rel(1.5), vjust=-0.5),  axis.title.y=element_text(face="bold", size=rel(1.5), vjust=1), plot.margin=unit(c(0.1,0.5,0.5,0.1), "lines")) +
   
   theme(strip.text=element_text(size=rel(1.5), face="bold"))+
@@ -154,6 +244,25 @@ ggplot(data=valles.all.uncert[!valles.all.uncert$type=="total" & valles.all.unce
 
 dev.off()     
 
+png("figures/uncertainty_figures/bm_inc_uncert_separate2.png", res=300, unit="in", height = 8.5, width = 13)
+ggplot(data=valles.all.uncert[!valles.all.uncert$type=="total" & valles.all.uncert$Year > 1980,]) + facet_grid(name~Site) +
+  
+  geom_ribbon(aes(x=Year, ymin= base + LB.dev, ymax= UB.dev + base), fill="darkgrey", alpha=0.6) +
+  geom_hline(aes(yintercept=0), linetype="dashed") +	
+  geom_line(aes(x=Year, y=base), size=0.5, color="black") +
+  
+  #geom_line(aes(x=year, y=mean), size=1.5, color="black") +
+  labs(#title= "Biomass Increment Total Uncertainty", 
+    x="Year", y=expression(bold(paste("Biomass (kg m" ^ "-2","yr" ^ "-1",")")))) +
+  theme(axis.line=element_line(color="black", size=0.5), panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank(), axis.text.x=element_text(angle=0, color="black", size=rel(1.5)), axis.text.y=element_text(color="black", size=rel(1.5)), axis.title.x=element_text(face="bold", size=rel(1.5), vjust=-0.5),  axis.title.y=element_text(face="bold", size=rel(1.5), vjust=1), plot.margin=unit(c(0.1,0.5,0.5,0.1), "lines")) +
+  
+  theme(strip.text=element_text(size=rel(1.5), face="bold"))+
+  poster.theme2 +
+  theme(axis.line.x = element_line(color="black", size = 0.5),
+        axis.line.y = element_line(color="black", size = 0.5))
+
+
+dev.off()   
 ##########################################################################################
 ##########################################################################################
 
@@ -167,22 +276,30 @@ require(ggalt)
 #save(all.valles.climate.stack, file="processed_data/valles_climate_corr_data.Rdata")
 load("processed_data/valles_climate_corr_data.Rdata")
 summary(all.valles.climate.stack)
-all.valles.climate.stack$chron.type <- factor(all.valles.climate.stack$chron.type, levels = c("Big", "Small", "All", "BM", "Climate", "Big", "Small"))
+
+all.valles.climate.stack$type <- recode(all.valles.climate.stack$type, "'tmean'='Mean Temp.';'precip'='Precipitation'")
+
+all.valles.climate.stack$chron.type <- recode(all.valles.climate.stack$chron.type, "'Big'='Large';'Climate'='ITRDB'")
+
+all.valles.climate.stack$chron.type <- factor(all.valles.climate.stack$chron.type, levels = c("Large", "Small", "All", "BM", "ITRDB", "Large", "Small"))
+
 
 # Leaving out Big and Small Chrons, but they could be recalled if necessary
 pdf("figures/uncertainty_figures/climate_chron_seasons_together_yes_size.pdf", width=13, height=8.5)
-ggplot(data=all.valles.climate.stack[all.valles.climate.stack$month %in% c("pFall", "Winter", "Spring", "Summer") & all.valles.climate.stack$type %in% c("tmean", "precip"),]) + 
+ggplot(data=all.valles.climate.stack[all.valles.climate.stack$month %in% c("pFall", "Winter", "Spring", "Summer") & all.valles.climate.stack$type %in% c("Mean Temp.", "Precipitation"),]) + 
 	facet_grid(elevation ~ type, scales="free_x")+
     geom_bar(aes(x=month, y=corr, color=chron.type), stat="identity", position="dodge", fill=NA) + 
 	geom_bar(aes(x=month, y=corr, color=chron.type), stat="identity", position="dodge", fill=NA) + 
-	geom_bar(aes(x=month, y=corr, color=chron.type, fill=chron.type, alpha=sig), stat="identity", position="dodge") + 
+	geom_bar(aes(x=month, y=corr, color=chron.type, fill=chron.type), stat="identity", position="dodge") + 
 	geom_hline(yintercept=0.374, linetype="dashed") +
 	geom_hline(yintercept=-0.374, linetype="dashed") +
 	geom_hline(yintercept=0, linetype="solid") +
 	scale_color_manual(values= c("blue", "red","green", "darkgreen", "dodgerblue")) +
-	scale_fill_manual(values= c("blue", "red", "green", "darkgreen", "dodgerblue")) +
+	scale_fill_manual(name= "Time Series",values= c("blue", "red", "green", "darkgreen", "dodgerblue")) +
 	scale_alpha_manual(values = c(1, 1))+
   poster.theme2+
+  guides(color=F) +
+  
 	theme(axis.text.x = element_text(angle = 45, hjust = 1),panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank()) +
 	
 	labs(#title= "Tree Ring : Climate Correlations", 
@@ -192,6 +309,30 @@ ggplot(data=all.valles.climate.stack[all.valles.climate.stack$month %in% c("pFal
 
 dev.off()
 
+
+png("figures/uncertainty_figures/climate_chron_seasons_together_yes_size2.png",unit="in", res=300, width=13, height=8.5)
+ggplot(data=all.valles.climate.stack[all.valles.climate.stack$month %in% c("pFall", "Winter", "Spring", "Summer") & all.valles.climate.stack$type %in% c("Mean Temp.", "Precipitation"),]) + 
+  facet_grid(elevation ~ type, scales="free_x")+
+  geom_bar(aes(x=month, y=corr, color=chron.type), stat="identity", position="dodge", fill=NA) + 
+  geom_bar(aes(x=month, y=corr, color=chron.type), stat="identity", position="dodge", fill=NA) + 
+  geom_bar(aes(x=month, y=corr, color=chron.type, fill=chron.type), stat="identity", position="dodge") + 
+  geom_hline(yintercept=0.374, linetype="dashed") +
+  geom_hline(yintercept=-0.374, linetype="dashed") +
+  geom_hline(yintercept=0, linetype="solid") +
+  scale_color_manual(values= c("blue", "red","green", "darkgreen", "dodgerblue")) +
+  scale_fill_manual(name= "Time Series",values= c("blue", "red", "green", "darkgreen", "dodgerblue")) +
+  scale_alpha_manual(values = c(1, 1))+
+  poster.theme2+
+  guides(color=F) +
+  
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank()) +
+  
+  labs(#title= "Tree Ring : Climate Correlations", 
+    x="Seasons", y=expression(bold(paste("Correlation Value (r)"))))+
+  theme(axis.line.x = element_line(color="black", size = 0.5),
+        axis.line.y = element_line(color="black", size = 0.5))
+
+dev.off()
 ##########################################################################################
 ##########################################################################################
 
@@ -203,6 +344,14 @@ dev.off()
 # save(all.valles.bm.stack, file="processed_data/valles_BM_distrib_corr_data.Rdata")
 load("processed_data/valles_BM_distrib_corr_data.Rdata")
 summary(all.valles.bm.stack)
+
+all.valles.bm.stack$type <- recode(all.valles.bm.stack$type, "'tmean'='Mean Temp.';'precip'='Precipitation'")
+
+all.valles.bm.stack$size <- recode(all.valles.bm.stack$size, "'big'='Large';'small'='Small';'all'='All'")
+
+#all.valles.bm.stack$size <- factor(all.valles.bm.stack$size, levels =c("Large", "Small", "All"))
+
+
 
 all.valles.bm.stack$site <- recode(all.valles.bm.stack$site, "'VUF'='Upper Site';'vlf'='Lower Site'")
 
@@ -238,7 +387,36 @@ ggplot(data=all.valles.bm.stack[all.valles.bm.stack$month %in% c("pFall", "Winte
 
 dev.off()
 
+png("figures/uncertainty_figures/BMI_violin_seasons_big_small2.png", unit="in", res=300, width=13, height=8.5)
+ggplot(data=all.valles.bm.stack[all.valles.bm.stack$month %in% c("pFall", "Winter","Spring", "Summer") & all.valles.bm.stack$type %in% c("Mean Temp.", "Precipitation") & all.valles.bm.stack$size %in% c("Large", "Small", "All"),]) + facet_grid(site ~ type , scales="free_x")+
+  #geom_violin(aes(x=month, y=corr, fill=size), adjust=4, scale="width") +
+  geom_boxplot(aes(x=month, y=corr, fill=size), position="dodge", outlier.size=NA) +
+  #geom_violin(aes(x=month, y=corr, color=size), adjust=4, scale="width") +
+  #geom_violin(aes(x=month, y=corr, fill=size, alpha=sig), adjust=4, scale="width") +
+  
+  
+  #stat_summary(aes(x=month, y=corr, mapping = size), fun.y="mean", geom="point", shape="-", size=20, position=position_dodge(width = 0.9)) +
+  
+  
+  #scale_color_manual(values=c("blue", "red", "darkgreen", "purple")) +
+  scale_fill_manual(name="Size", values=c("darkgreen", "blue", "red")) +
+  #scale_alpha_manual(values = c(1, 0.1))+
+  geom_hline(yintercept=0, linetype="solid") +
+  geom_hline(yintercept=0.374, linetype="dashed") +
+  geom_hline(yintercept=-0.374, linetype="dashed") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  poster.theme2 +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),panel.grid.major=element_blank(), panel.grid.minor= element_blank(), panel.border= element_blank(), panel.background= element_blank()) +
+  
+  
+  labs(#title= "Biomass Climate Correlations", 
+    x="Seasons", y=expression(bold(paste("Correlation Value (r)"))))+
+  theme(axis.line.x = element_line(color="black", size = 0.5),
+        axis.line.y = element_line(color="black", size = 0.5))
 
+
+
+dev.off()
 ########################################################################################### 
 #Supplemental Figure 1	
 ##########################################################################################
